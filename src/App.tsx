@@ -2,22 +2,21 @@ import React from 'react';
 import Navbar from './components/Navbar';
 import CheckInContainer from './views/CheckIn';
 import CheckIn from './components/CheckIn';
+import Footer from './components/Footer';
 
 function App() {
     return (
         <div className="App">
             <Navbar />
 
-            <main className="p-8">
+            <main className="p-0">
                 <CheckInContainer>
                     <CheckIn />
                 </CheckInContainer>
             </main>
 
             {/* Footer */}
-            <footer className="p-4 border-t border-t-zinc-200 text-center">
-                <p className="text-sm text-zinc-500">&copy; {new Date().getFullYear()} Next 15 Crash Course</p>
-            </footer>
+            <Footer />
         </div>
     );
 }
