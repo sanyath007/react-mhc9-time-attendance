@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Camera, CheckCircle, XCircle, User, X, AlertCircle } from 'lucide-react';
 import * as faceapi from 'face-api.js';
+import api from '../api';
 
 enum ComparationStatus {
     IDLE = "idle",
@@ -155,26 +156,33 @@ export default function CheckIn() {
                 const faceDescriptor = detections.descriptor;
 
                 /** Compare with stored employee face descriptors */
-                const result = await fetch('/api/recognize-face', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        descriptor: Array.from(faceDescriptor),
-                        image: capturedImage 
-                    })
-                });
+                const employee = await api.get('/api/attendances/face/recognize');
+                console.log(employee);
 
-                const data = await result.json();
-                console.log(data);
+                // Find the best match using Euclidean distance
+                // const matches = employees.map(employee => ({
+                //     ...employee,
+                //     distance: faceapi.euclideanDistance(descriptor, employee.face_descriptor)
+                // }));
+
+                // const bestMatch = matches.reduce((min, curr) => curr.distance < min.distance ? curr : min);
 
                 /** If compareation is success */
-                if (data.success) {
-                    setCompared(ComparationStatus.SUCCESS);
-                }
-                
+                // const threshold = 0.6; // Adjust based on your needs
+                // if (bestMatch.distance < threshold) {
+                        // TODO: on best match here...
+                        // setCompared(ComparationStatus.SUCCESS);
+                // }
+
+                /** store check in data to api */
+                // const newAttendance = await api.post(`/api/attendances/${date}/check-in`, {
+                //     descriptor: Array.from(faceDescriptor),
+                //     image: capturedImage 
+                // });
+
                 /** If compareation is failure */
-                setCompared(ComparationStatus.ERROR);
-                setDetectedEmployee(data.employee);
+                // setCompared(ComparationStatus.ERROR);
+                // setDetectedEmployee(data.employee);
             }
 
             setIsProcessing(false);
