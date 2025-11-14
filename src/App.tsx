@@ -1,23 +1,17 @@
 import React from 'react';
-import Navbar from './components/Navbar';
+import { Routes, Route } from 'react-router-dom'
+import DefaultLayout from './components/layouts/Default';
+import Home from './views/Home';
 import CheckInContainer from './views/CheckIn';
-import CheckIn from './components/CheckIn';
-import Footer from './components/Footer';
 
 function App() {
     return (
-        <div className="App">
-            <Navbar />
-
-            <main className="p-0">
-                <CheckInContainer>
-                    <CheckIn />
-                </CheckInContainer>
-            </main>
-
-            {/* Footer */}
-            <Footer />
-        </div>
+        <Routes>
+            <Route path="/" element={<DefaultLayout />}>
+                <Route index element={<Home />} />
+                <Route path="/check-in" element={<CheckInContainer />} />
+            </Route>
+        </Routes>
     );
 }
 
