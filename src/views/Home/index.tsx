@@ -34,6 +34,11 @@ const Home = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Main Content */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+                {/*  */}
+            </div>
         </div>
     )
 }
