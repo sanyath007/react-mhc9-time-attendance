@@ -31,7 +31,7 @@ export default function EmployeeFaceRegistration() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [registrationStatus, setRegistrationStatus] = useState(null);
     
-    const [formData, setFormData] = useState<EmployeeData>();
+    const [formData, setFormData] = useState<EmployeeData>(null);
 
     const [errors, setErrors] = useState<EmployeeData | null>(null);
     const [showPreview, setShowPreview] = useState(false);
@@ -189,16 +189,16 @@ export default function EmployeeFaceRegistration() {
             faceDescriptor: '',
             avatarImage: '',
         };
-        if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-        if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
-        if (!formData.email.trim()) {
+        if (!formData?.firstName.trim()) newErrors.firstName = 'First name is required';
+        if (!formData?.lastName.trim()) newErrors.lastName = 'Last name is required';
+        if (!formData?.email.trim()) {
             newErrors.email = 'Email is required';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        } else if (!/\S+@\S+\.\S+/.test(formData?.email)) {
             newErrors.email = 'Email is invalid';
         }
-        if (!formData.employeeId.trim()) newErrors.employeeId = 'Employee ID is required';
-        if (!formData.department.trim()) newErrors.department = 'Department is required';
-        if (!formData.position.trim()) newErrors.position = 'Position is required';
+        if (!formData?.employeeId.trim()) newErrors.employeeId = 'Employee ID is required';
+        if (!formData?.department.trim()) newErrors.department = 'Department is required';
+        if (!formData?.position.trim()) newErrors.position = 'Position is required';
         if (capturedImages.length < 3) {
             newErrors.avatarImage = 'Please capture at least 3 photos for accurate recognition';
         }
