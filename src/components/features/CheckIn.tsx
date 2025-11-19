@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Camera, CheckCircle, XCircle, User, X, AlertCircle } from 'lucide-react';
 import * as faceapi from 'face-api.js';
-import api from '../api';
+import api from '../../api';
 
 enum ComparationStatus {
     IDLE = "idle",

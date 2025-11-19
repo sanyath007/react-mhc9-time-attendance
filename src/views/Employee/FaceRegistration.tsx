@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Camera, UserPlus, XCircle, CheckCircle, AlertCircle, Trash2, Eye } from 'lucide-react';
 import * as faceapi from 'face-api.js';
-import ImageViewer from '../../components/ImageViewer';
+import ImageViewer from '../../components/ui/ImageViewer';
 
 interface CapturedImage {
     image: any;

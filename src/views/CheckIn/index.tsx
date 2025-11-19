@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { User, Clock } from 'lucide-react';
-import CheckIn from '../../components/CheckIn';
+import CheckIn from '../../components/features/CheckIn';
 
 export default function CheckInContainer() {
     const [currentTime, setCurrentTime] = useState(new Date());
