@@ -46,14 +46,17 @@ export default function Navbar() {
                     {/* Desktop Navigation */}
                     <div className="hidden md:block ml-10">
                     <div className="flex items-center space-x-8">
-                        <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 text-sm font-medium">
-                        หน้าแรก
+                        <a href="/" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 text-sm font-medium">
+                            หน้าแรก
                         </a>
-                        <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 text-sm font-medium">
-                        โปรเจกต์
+                        <a href="/attendance" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 text-sm font-medium">
+                            ลงเวลาทำงาน
                         </a>
-                        <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 text-sm font-medium">
-                        เกี่ยวกับเรา
+                        <a href="/employee" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 text-sm font-medium">
+                            บุคลากร
+                        </a>
+                        <a href="/team" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 text-sm font-medium">
+                            เกี่ยวกับเรา
                         </a>
                     </div>
                     </div>
