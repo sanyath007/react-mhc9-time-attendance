@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import CheckInContainer from './pages/CheckIn';
 import EmployeeFaceRegistration from './pages/Employee/FaceRegistration';
 import NotFound from './pages/NotFound';
+import EmployeeList from './pages/Employee/EmployeeList';
 
 function App() {
     return (
@@ -13,6 +14,7 @@ function App() {
             <Route path="/" element={<DefaultLayout />}>
                 <Route index element={<Home />} />
                 <Route path="/check-in" element={<CheckInContainer />} />
+                <Route path="/employee" element={<EmployeeList />} />
                 <Route path="/employee/register" element={<EmployeeFaceRegistration />} />
             </Route>
 
