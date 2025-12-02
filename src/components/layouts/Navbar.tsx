@@ -5,8 +5,8 @@ export default function Navbar() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
-    const dropdownRef = useRef(null);
-    const navDropdownRef = useRef(null);
+    const userMenuRef = useRef(null); // User menu
+    const navMenuRef = useRef(null);
 
     // ข้อมูล user (ในกรณีจริงจะมาจาก authentication state)
     const user = {
@@ -18,33 +18,40 @@ export default function Navbar() {
     // ปิด dropdown เมื่อคลิกข้างนอก
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            /** Main menu */
+            if (navMenuRef.current && !navMenuRef.current.contains(event.target)) {
+                setActiveDropdown(null);
+            }
+
+            /** User menu */
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
                 setIsDropdownOpen(false);
             }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
+
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const menuItems = [
+    const userMenus = [
         { icon: User, label: 'โปรไฟล์', action: () => console.log('Navigate to Profile') },
         { icon: Settings, label: 'ตั้งค่า', action: () => console.log('Navigate to Settings') },
         { icon: LogOut, label: 'ออกจากระบบ', action: () => console.log('Logout'), danger: true }
     ];
 
-      // Navigation menu items with dropdowns
+    // Navigation menu items with dropdowns
     const navMenus = [
         {
             label: 'หน้าแรก',
-            href: '#',
+            href: '/',
             icon: Home
         },
         {
             label: 'ลงเวลาทำงาน',
             icon: FolderKanban,
             dropdown: [
-                { label: 'โปรเจกต์ทั้งหมด', href: '#', icon: FolderKanban },
+                { label: 'ลงเวลาทำงาน', href: '/check-in', icon: FolderKanban },
                 { label: 'โปรเจกต์ของฉัน', href: '#', icon: User },
                 { label: 'โปรเจกต์ที่แชร์', href: '#', icon: Users },
                 { divider: true },
@@ -53,9 +60,9 @@ export default function Navbar() {
         },
         {
             label: 'บุคลากร',
-            icon: ShoppingCart,
+            icon: Users,
             dropdown: [
-                { label: 'สินค้าทั้งหมด', href: '#' },
+                { label: 'บุคลากรทั้งหมด', href: '/employee' },
                 { label: 'สินค้ามาใหม่', href: '#' },
                 { label: 'สินค้าแนะนำ', href: '#' },
                 { divider: true },
@@ -82,7 +89,7 @@ export default function Navbar() {
                         </div>
 
                         {/* Desktop Navigation */}
-                        <div className="hidden md:block ml-10" ref={navDropdownRef}>
+                        <div className="hidden md:block ml-10" ref={navMenuRef}>
                             <div className="flex items-center space-x-1">
                                 {navMenus.map((menu, index) => (
                                     <div key={index} className="relative">
@@ -140,7 +147,7 @@ export default function Navbar() {
                     {/* Right side - User Menu */}
                     <div className="flex items-center space-x-4">
                         {/* Desktop User Menu */}
-                        <div className="hidden md:block relative" ref={dropdownRef}>
+                        <div className="hidden md:block relative" ref={userMenuRef}>
                             <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 className="flex items-center space-x-3 focus:outline-none group"
@@ -172,7 +179,7 @@ export default function Navbar() {
 
                                     {/* Menu Items */}
                                     <div className="py-2">
-                                        {menuItems.map((item, index) => {
+                                        {userMenus.map((item, index) => {
                                         const Icon = item.icon;
                                         return (
                                             <button
@@ -226,19 +233,58 @@ export default function Navbar() {
                         </div>
 
                         {/* Navigation Links Mobile */}
-                        <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                        หน้าแรก
-                        </a>
-                        <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                        โปรเจกต์
-                        </a>
-                        <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                        เกี่ยวกับเรา
-                        </a>
+                        {navMenus.map((menu, index) => (
+                            <div key={index}>
+                                {menu.dropdown ? (
+                                    <>
+                                        <button
+                                        onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+                                        className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                        >
+                                        <div className="flex items-center space-x-2">
+                                            {menu.icon && <menu.icon className="w-5 h-5" />}
+                                            <span>{menu.label}</span>
+                                        </div>
+                                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === index ? 'rotate-180' : ''}`} />
+                                        </button>
+                                        {activeDropdown === index && (
+                                            <div className="ml-4 mt-2 space-y-1">
+                                                {menu.dropdown.map((item, idx) => (
+                                                    item.divider ? (
+                                                        <div key={idx} className="my-2 border-t border-gray-100"></div>
+                                                    ) : (
+                                                        <a
+                                                            key={idx}
+                                                            href={item.href}
+                                                            className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-lg transition-colors ${
+                                                                item.highlight
+                                                                ? 'text-blue-600 hover:bg-blue-50 font-medium'
+                                                                : 'text-gray-600 hover:bg-gray-50'
+                                                            }`}
+                                                        >
+                                                            {item.icon && <item.icon className="w-4 h-4" />}
+                                                            <span>{item.label}</span>
+                                                        </a>
+                                                    )
+                                                ))}
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <a
+                                        href={menu.href}
+                                        className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                    >
+                                        {menu.icon && <menu.icon className="w-5 h-5" />}
+                                        <span>{menu.label}</span>
+                                    </a>
+                                )}
+                            </div>
+                        ))}
 
                         {/* User Menu Mobile */}
                         <div className="pt-4 border-t border-gray-200 space-y-2">
-                        {menuItems.map((item, index) => {
+                        {userMenus.map((item, index) => {
                             const Icon = item.icon;
                             return (
                             <button
