@@ -11,7 +11,8 @@ enum ComparationStatus {
 
 interface DetectedEmployee {
     id: string;
-    name: string;
+    name?: string;
+    confidence?: number;
 };
 
 export default function CheckIn() {
@@ -155,34 +156,29 @@ export default function CheckIn() {
             if (detections) {
                 const faceDescriptor = detections.descriptor;
 
-                /** Compare with stored employee face descriptors */
-                const employee = await api.get('/api/attendances/face/recognize');
-                console.log(employee);
+                /** Compare with stored employees face descriptors */
+                const res = await api.get('/api/v1/time-attendance/face/recognize');
+                const employees = res.data;
 
                 // Find the best match using Euclidean distance
-                // const matches = employees.map(employee => ({
-                //     ...employee,
-                //     distance: faceapi.euclideanDistance(descriptor, employee.face_descriptor)
-                // }));
+                const matches = employees.filter(employee => employee.face_descriptor).map(employee => ({
+                    ...employee,
+                    distance: faceapi.euclideanDistance(Array.from(faceDescriptor), JSON.parse(employee.face_descriptor) as number[])
+                }));
 
-                // const bestMatch = matches.reduce((min, curr) => curr.distance < min.distance ? curr : min);
+                const bestMatch = matches.reduce((min, curr) => curr.distance < min.distance ? curr : min);
 
                 /** If compareation is success */
-                // const threshold = 0.6; // Adjust based on your needs
-                // if (bestMatch.distance < threshold) {
+                const threshold = 0.6; // Adjust based on your needs
+                if (bestMatch.distance < threshold) {
                         // TODO: on best match here...
-                        // setCompared(ComparationStatus.SUCCESS);
-                // }
-
-                /** store check in data to api */
-                // const newAttendance = await api.post(`/api/attendances/${date}/check-in`, {
-                //     descriptor: Array.from(faceDescriptor),
-                //     image: capturedImage 
-                // });
+                        setCompared(ComparationStatus.SUCCESS);
+                        setDetectedEmployee({ id: bestMatch.id, name: bestMatch.fullname, confidence: 1 - bestMatch.distance });
+                }
 
                 /** If compareation is failure */
-                // setCompared(ComparationStatus.ERROR);
-                // setDetectedEmployee(data.employee);
+                setCompared(ComparationStatus.ERROR);
+                setDetectedEmployee(null);
             }
 
             setIsProcessing(false);
@@ -205,7 +201,7 @@ export default function CheckIn() {
             formData.append('timestamp', new Date().toISOString());
             formData.append('image', capturedImage);
 
-            const response = await fetch('/api/check-in', {
+            const response = await fetch('/api/v1/time-attendance/check-in', {
                 method: 'POST',
                 // headers: { 'Content-Type': 'application/json' },
                 body: formData,

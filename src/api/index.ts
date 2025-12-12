@@ -5,17 +5,21 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-    /** Use Access Token */
-    // const token = localStorage.getItem("access_token");
+    const reqUrl = config.url;
 
-    // if (token) {
-    // config.headers.Authorization = `Bearer ${token}`;
-    // }
+    if (reqUrl.startsWith('/api/v1/time-attendance/')) {
+        /** Use API Key */
+        const API_KEY = process.env.REACT_APP_API_KEY;
 
-    /** Use API Key */
-    const API_KEY = process.env.REACT_APP_API_KEY;
+        config.headers.set('X-API-KEY', API_KEY);
+    } else {
+        /** Use Access Token */
+        const token = localStorage.getItem("access_token");
 
-    config.headers.set('X-API-KEY', API_KEY);
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+    }
 
     return config;
 }, (error) => Promise.reject(error));
