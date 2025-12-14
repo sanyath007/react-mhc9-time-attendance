@@ -28,24 +28,20 @@ export default function CheckIn() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [compared, setCompared] = useState<ComparationStatus>(ComparationStatus.IDLE); // "idle" | "success" | "error"
 
-    // Load face-api.js models
+    // Call LoadModels on mounted
     useEffect(() => {
         loadModels();
     }, []);
 
+     // Load face-api.js models
     const loadModels = async () => {
         try {
-            // In a real Next.js app, models should be in /public/models/
-            // For this demo, we'll simulate model loading
+            /**
+             * In a real world app, models should be in /public/models/
+             * For the demo, we'll simulate model loading
+            */
             console.log('Loading face-api.js models...');
 
-            /** Simulate loading time */
-            // await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // setModelsLoaded(true);
-            // console.log('Models loaded successfully');
-
-            /** In production, use: */
             await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
             await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
             await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
@@ -160,25 +156,24 @@ export default function CheckIn() {
                 const res = await api.get('/api/v1/time-attendance/face/recognize');
                 const employees = res.data;
 
-                // Find the best match using Euclidean distance
+                /** Find the best match using Euclidean distance */
                 const matches = employees.filter(employee => employee.face_descriptor).map(employee => ({
                     ...employee,
                     distance: faceapi.euclideanDistance(Array.from(faceDescriptor), JSON.parse(employee.face_descriptor) as number[])
                 }));
-
                 const bestMatch = matches.reduce((min, curr) => curr.distance < min.distance ? curr : min);
 
-                /** If compareation is success */
-                const threshold = 0.6; // Adjust based on your needs
+                /** Recognition threshold that can adjust based on your needs */
+                const threshold = 0.6;
                 if (bestMatch.distance < threshold) {
-                        // TODO: on best match here...
-                        setCompared(ComparationStatus.SUCCESS);
-                        setDetectedEmployee({ id: bestMatch.id, name: bestMatch.fullname, confidence: 1 - bestMatch.distance });
+                    /** If compareation is success */
+                    setCompared(ComparationStatus.SUCCESS);
+                    setDetectedEmployee({ id: bestMatch.id, name: bestMatch.fullname, confidence: 1 - bestMatch.distance });
+                } else {
+                    /** If compareation is failure */
+                    setCompared(ComparationStatus.ERROR);
+                    setDetectedEmployee(null);
                 }
-
-                /** If compareation is failure */
-                setCompared(ComparationStatus.ERROR);
-                setDetectedEmployee(null);
             }
 
             setIsProcessing(false);
