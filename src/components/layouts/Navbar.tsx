@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, FileText, ShoppingCart } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function Navbar() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -7,13 +8,7 @@ export default function Navbar() {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const userMenuRef = useRef(null); // User menu
     const navMenuRef = useRef(null);
-
-    // ข้อมูล user (ในกรณีจริงจะมาจาก authentication state)
-    const user = {
-        name: 'สมชาย ใจดี',
-        email: 'somchai@example.com',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=somchai'
-    };
+    const { user } = useAuth();
 
     // ปิด dropdown เมื่อคลิกข้างนอก
     useEffect(() => {
@@ -154,16 +149,16 @@ export default function Navbar() {
                             >
                                 <div className="text-right">
                                     <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
-                                        {user.name}
+                                        {user?.name}
                                     </p>
-                                    <p className="text-xs text-gray-500">{user.email}</p>
+                                    <p className="text-xs text-gray-500">{user?.email}</p>
                                 </div>
                                 <div className="relative">
-                                    <img
-                                        src={user.avatar}
-                                        alt={user.name}
-                                        className="w-10 h-10 rounded-full ring-2 ring-gray-200 group-hover:ring-blue-400 transition-all duration-200"
-                                    />
+                                    {user && <img
+                                        src={`${process.env.REACT_APP_API_URL}/uploads/${user?.employee?.avatar_url}`}
+                                        alt={user?.name}
+                                        className="w-10 h-10 rounded-full object-contain ring-2 ring-gray-200 group-hover:ring-blue-400 transition-all duration-200"
+                                    />}
                                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                                 </div>
                             </button>
@@ -173,8 +168,8 @@ export default function Navbar() {
                                 <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                                     {/* User Info in Dropdown */}
                                     <div className="px-4 py-3 border-b border-gray-100">
-                                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                                        <p className="text-xs text-gray-500 mt-1">{user.email}</p>
+                                        <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                                        <p className="text-xs text-gray-500 mt-1">{user?.email}</p>
                                     </div>
 
                                     {/* Menu Items */}
@@ -221,13 +216,13 @@ export default function Navbar() {
                     <div className="px-4 pt-4 pb-3 space-y-3">
                         {/* User Info Mobile */}
                         <div className="flex items-center space-x-3 pb-4 border-b border-gray-200">
-                            <img
-                                src={user.avatar}
-                                alt={user.name}
-                                className="w-12 h-12 rounded-full ring-2 ring-gray-200"
-                            />
+                            {user && <img
+                                src={`${process.env.REACT_APP_API_URL}/uploads/${user?.employee?.avatar_url}`}
+                                alt={user?.name}
+                                className="w-12 h-12 rounded-full object-contain ring-2 ring-gray-200"
+                            />}
                             <div>
-                                <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                                 <p className="text-xs text-gray-500">{user.email}</p>
                             </div>
                         </div>

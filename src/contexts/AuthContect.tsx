@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const initializeAuth = async () => {
             const token = localStorage.getItem('access_token');
-            const storedUser = localStorage.getItem('auth_user');
+            const storedUser = JSON.parse(localStorage.getItem('auth_user'));
 
             if (token && storedUser) {
                 setUser(storedUser);
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const res = await api.post(`/api/auth/login`, { email, password });
 
             localStorage.setItem('access_token', res.data.access_token);
-            localStorage.setItem('auth_user', res.data.user);
+            localStorage.setItem('auth_user', JSON.stringify(res.data.user));
             setUser(res.data.user);
             return { success: true, message: ''};
         } catch (error) {
