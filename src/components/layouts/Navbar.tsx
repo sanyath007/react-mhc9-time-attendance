@@ -8,7 +8,7 @@ export default function Navbar() {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const userMenuRef = useRef(null); // User menu
     const navMenuRef = useRef(null);
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
 
     // ปิด dropdown เมื่อคลิกข้างนอก
     useEffect(() => {
@@ -32,7 +32,7 @@ export default function Navbar() {
     const userMenus = [
         { icon: User, label: 'โปรไฟล์', action: () => console.log('Navigate to Profile') },
         { icon: Settings, label: 'ตั้งค่า', action: () => console.log('Navigate to Settings') },
-        { icon: LogOut, label: 'ออกจากระบบ', action: () => console.log('Logout'), danger: true }
+        { icon: LogOut, label: 'ออกจากระบบ', action: () => logout(), danger: true }
     ];
 
     // Navigation menu items with dropdowns
@@ -175,24 +175,24 @@ export default function Navbar() {
                                     {/* Menu Items */}
                                     <div className="py-2">
                                         {userMenus.map((item, index) => {
-                                        const Icon = item.icon;
-                                        return (
-                                            <button
-                                            key={index}
-                                            onClick={() => {
-                                                item.action();
-                                                setIsDropdownOpen(false);
-                                            }}
-                                            className={`w-full flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
-                                                item.danger
-                                                ? 'text-red-600 hover:bg-red-50'
-                                                : 'text-gray-700 hover:bg-gray-50'
-                                            }`}
-                                            >
-                                            <Icon className="w-4 h-4" />
-                                            <span className="font-medium">{item.label}</span>
-                                            </button>
-                                        );
+                                            const Icon = item.icon;
+                                            return (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => {
+                                                        item.action();
+                                                        setIsDropdownOpen(false);
+                                                    }}
+                                                    className={`w-full flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
+                                                        item.danger
+                                                        ? 'text-red-600 hover:bg-red-50'
+                                                        : 'text-gray-700 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    <Icon className="w-4 h-4" />
+                                                    <span className="font-medium">{item.label}</span>
+                                                </button>
+                                            );
                                         })}
                                     </div>
                                 </div>
@@ -279,26 +279,26 @@ export default function Navbar() {
 
                         {/* User Menu Mobile */}
                         <div className="pt-4 border-t border-gray-200 space-y-2">
-                        {userMenus.map((item, index) => {
-                            const Icon = item.icon;
-                            return (
-                            <button
-                                key={index}
-                                onClick={() => {
-                                item.action();
-                                setIsMobileMenuOpen(false);
-                                }}
-                                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                item.danger
-                                    ? 'text-red-600 hover:bg-red-50'
-                                    : 'text-gray-700 hover:bg-gray-50'
-                                }`}
-                            >
-                                <Icon className="w-4 h-4" />
-                                <span>{item.label}</span>
-                            </button>
-                            );
-                        })}
+                            {userMenus.map((item, index) => {
+                                const Icon = item.icon;
+                                return (
+                                <button
+                                    key={index}
+                                    onClick={() => {
+                                    item.action();
+                                    setIsMobileMenuOpen(false);
+                                    }}
+                                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    item.danger
+                                        ? 'text-red-600 hover:bg-red-50'
+                                        : 'text-gray-700 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    <span>{item.label}</span>
+                                </button>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
