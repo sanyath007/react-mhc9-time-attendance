@@ -153,7 +153,7 @@ export default function CheckIn() {
                 const faceDescriptor = detections.descriptor;
 
                 /** Compare with stored employees face descriptors */
-                const res = await api.get('/api/v1/time-attendance/face/recognize');
+                const res = await api.get('/api/time-attendance/face/recognize');
                 const employees = res.data;
 
                 /** Find the best match using Euclidean distance */
@@ -196,7 +196,7 @@ export default function CheckIn() {
             formData.append('timestamp', new Date().toISOString());
             formData.append('image', capturedImage);
 
-            const response = await fetch('/api/v1/time-attendance/check-in', {
+            const response = await fetch('/api/time-attendance/check-in', {
                 method: 'POST',
                 // headers: { 'Content-Type': 'application/json' },
                 body: formData,

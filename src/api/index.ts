@@ -7,7 +7,7 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
     const reqUrl = config.url;
 
-    if (reqUrl.startsWith('/api/v1/time-attendance/')) {
+    if (reqUrl.startsWith('/api/time-attendance/')) {
         /** Use API Key */
         const API_KEY = process.env.REACT_APP_API_KEY;
 
