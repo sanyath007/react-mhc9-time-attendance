@@ -1,29 +1,38 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom'
+import ProtectedLayout from './components/layouts/Protected';
 import DefaultLayout from './components/layouts/Default';
+import AuthLayout from './components/layouts/Auth';
 import Home from './pages/Home';
 import CheckInContainer from './pages/CheckIn';
 import EmployeeFaceRegistration from './pages/Employee/FaceRegistration';
 import NotFound from './pages/NotFound';
 import EmployeeList from './pages/Employee/EmployeeList';
+import Login from './pages/Auth/Login';
 
 function App() {
     return (
         <Routes>
             {/* Protected routes */}
-            <Route path="/" element={<DefaultLayout />}>
+            <Route path="/" element={<ProtectedLayout />}>
                 <Route index element={<Home />} />
-                <Route path="/check-in" element={<CheckInContainer />} />
                 <Route path="/employee" element={<EmployeeList />} />
                 <Route path="/employee/register" element={<EmployeeFaceRegistration />} />
             </Route>
 
+            {/* Default routes */}
+            <Route path="/" element={<DefaultLayout />}>
+                <Route path="/check-in" element={<CheckInContainer />} />
+            </Route>
+
             {/* Auth routes */}
-            {/* <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route path="/reset-password" element={<ResetPassword />} /> */}
+            <Route path="/" element={<AuthLayout />}>
+                <Route path="/login" element={<Login />} />
+                {/* <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/reset-password" element={<ResetPassword />} /> */}
+            </Route>
 
             {/* Error routes */}
             <Route path="*" element={<NotFound />} />
