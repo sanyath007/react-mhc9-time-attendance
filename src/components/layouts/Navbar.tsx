@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, FileText, ShoppingCart } from 'lucide-react';
+import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, FileText, History, CalendarClock } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function Navbar() {
@@ -46,22 +46,22 @@ export default function Navbar() {
             label: 'ลงเวลาทำงาน',
             icon: FolderKanban,
             dropdown: [
-                { label: 'ลงเวลาทำงาน', href: '/check-in', icon: FolderKanban },
-                { label: 'โปรเจกต์ของฉัน', href: '#', icon: User },
-                { label: 'โปรเจกต์ที่แชร์', href: '#', icon: Users },
-                { divider: true },
-                { label: 'สร้างโปรเจกต์ใหม่', href: '#', icon: FileText, highlight: true }
+                { label: 'ลงเวลาทำงาน', href: '/check-in', icon: History },
+                { label: 'รายการลงเวลา', href: '/attendance', icon: CalendarClock, highlight: false },
+                // { label: 'โปรเจกต์ที่แชร์', href: '#', icon: Users },
+                // { divider: true },
+                // { label: 'สร้างโปรเจกต์ใหม่', href: '#', icon: FileText, highlight: true }
             ]
         },
         {
             label: 'บุคลากร',
             icon: Users,
             dropdown: [
-                { label: 'บุคลากรทั้งหมด', href: '/employee' },
-                { label: 'สินค้ามาใหม่', href: '#' },
-                { label: 'สินค้าแนะนำ', href: '#' },
+                { label: 'บุคลากรทั้งหมด', href: '/employee', icon: Users },
+                { label: 'สินค้ามาใหม่', href: '#', icon: Users  },
+                { label: 'สินค้าแนะนำ', href: '#', icon: Users  },
                 { divider: true },
-                { label: 'หมวดหมู่สินค้า', href: '#' }
+                { label: 'หมวดหมู่สินค้า', href: '#', icon: Users  }
             ]
         },
         {
@@ -122,8 +122,8 @@ export default function Navbar() {
                                                             onClick={() => setActiveDropdown(null)}
                                                             className={`flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
                                                                 item.highlight
-                                                                ? 'text-blue-600 hover:bg-blue-50 font-medium'
-                                                                : 'text-gray-700 hover:bg-gray-50'
+                                                                    ? 'text-blue-600 hover:bg-blue-50 font-medium'
+                                                                    : 'text-gray-700 hover:bg-gray-50'
                                                             }`}
                                                         >
                                                             {item.icon && <item.icon className="w-4 h-4" />}
