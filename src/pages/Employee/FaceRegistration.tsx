@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Camera, UserPlus, XCircle, CheckCircle, AlertCircle, Trash2, Eye } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import * as faceapi from 'face-api.js';
 import ImageViewer from '../../components/ui/ImageViewer';
+import api from '../../api';
 
 interface CapturedImage {
     image: any;
@@ -9,18 +11,13 @@ interface CapturedImage {
     timestamp: string;
 };
 
-type EmployeeData = {
-    firstName: string,
-    lastName: string,
-    email: string,
-    employeeId: string,
-    department: string,
-    position: string,
+type FaceRecognitionData = {
+    id: string,
     faceDescriptor: string,
-    avatarImage: string,
 }
 
 export default function EmployeeFaceRegistration() {
+    const { id } = useParams();
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [stream, setStream] = useState(null);
@@ -31,11 +28,26 @@ export default function EmployeeFaceRegistration() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [registrationStatus, setRegistrationStatus] = useState(null);
     
-    const [formData, setFormData] = useState<EmployeeData>(null);
+    const [formData, setFormData] = useState<FaceRecognitionData>({ id: '', faceDescriptor: '' });
 
-    const [errors, setErrors] = useState<EmployeeData | null>(null);
+    const [errors, setErrors] = useState<{ id: string, amountOfImage: string } | null>(null);
     const [showPreview, setShowPreview] = useState(false);
     const [preview, setPreview] = useState('');
+
+    const [employee, setEmployee] = useState<any | null>(null);
+
+    useEffect(() => {
+        const fetchEmployee = async (id) => {
+            const res = await api.get(`/api/employees/${id}`);
+
+            if (res.status === 200) {
+                setEmployee(res.data);
+                setFormData(prev => ({ ...prev, id }));
+            }
+        }
+
+        if (id) fetchEmployee(id);
+    }, [id]);
 
     useEffect(() => {
         loadModels();
@@ -179,28 +191,11 @@ export default function EmployeeFaceRegistration() {
     };
 
     const validateForm = () => {
-        const newErrors: EmployeeData = {
-            firstName: '',
-            lastName: '',
-            email: '',
-            employeeId: '',
-            department: '',
-            position: '',
-            faceDescriptor: '',
-            avatarImage: '',
-        };
-        if (!formData?.firstName.trim()) newErrors.firstName = 'First name is required';
-        if (!formData?.lastName.trim()) newErrors.lastName = 'Last name is required';
-        if (!formData?.email.trim()) {
-            newErrors.email = 'Email is required';
-        } else if (!/\S+@\S+\.\S+/.test(formData?.email)) {
-            newErrors.email = 'Email is invalid';
-        }
-        if (!formData?.employeeId.trim()) newErrors.employeeId = 'Employee ID is required';
-        if (!formData?.department.trim()) newErrors.department = 'Department is required';
-        if (!formData?.position.trim()) newErrors.position = 'Position is required';
+        const newErrors: any = {};
+
+        if (!formData?.id.trim()) newErrors.id = 'ID is required';
         if (capturedImages.length < 3) {
-            newErrors.avatarImage = 'Please capture at least 3 photos for accurate recognition';
+            newErrors.amountOfImage = 'Please capture at least 3 photos for accurate recognition';
         }
 
         setErrors(newErrors);
@@ -235,36 +230,27 @@ export default function EmployeeFaceRegistration() {
                     }
                     return sum / capturedImages.length;
                 });
-            }
 
-            /** POST to api */
-            const result = await fetch('/api/employee/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+                /** POST to api */
+                const result = await api.post(`/api/employees/${id}/update/descriptor`, {
                     ...formData,
                     faceDescriptor: Array.from(avgDescriptor)
-                }),
-            });
+                });
 
-            setRegistrationStatus('success');
-
-            // setTimeout(() => {
-            //     setFormData({
-            //         firstName: '',
-            //         lastName: '',
-            //         email: '',
-            //         employeeId: '',
-            //         department: '',
-            //         position: '',
-            //         faceDescriptor: '',
-            //         avatarImage: '',
-            //     });
-            //     setCapturedImages([]);
-            //     setRegistrationStatus(null);
-            // }, 3000);
+                if (result.status === 200) {
+                    setRegistrationStatus('success');
+        
+                    // setTimeout(() => {
+                    //     setFormData({
+                    //         id: '',
+                    //         faceDescriptor: '',
+                    //         avatarImage: '',
+                    //     });
+                    //     setCapturedImages([]);
+                    //     setRegistrationStatus(null);
+                    // }, 3000);
+                }
+            }
         } catch (err) {
             console.error('Registration error:', err);
             setRegistrationStatus('error');
@@ -273,13 +259,11 @@ export default function EmployeeFaceRegistration() {
 
     const handleReset = () => {
         // setFormData({
-        //     firstName: '',
-        //     lastName: '',
-        //     email: '',
-        //     employeeId: '',
-        //     department: '',
-        //     position: ''
+        //     id: '',
+        //     faceDescriptor: '',
+        //     avatarImage: '',
         // });
+
         setCapturedImages([]);
         setErrors(null);
         setRegistrationStatus(null);
@@ -331,121 +315,57 @@ export default function EmployeeFaceRegistration() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Registration Form */}
                 <div className="bg-white rounded-lg shadow-lg p-6">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">Employee Information</h2>
-                    
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-                            <input
-                                type="text"
-                                name="firstName"
-                                value={formData?.firstName}
-                                onChange={handleInputChange}
-                                className={`w-full px-4 py-2 border rounded-lg text-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                                    errors?.firstName ? 'border-red-500' : 'border-gray-300'
-                                }`}
-                                placeholder="John"
-                            />
-                            {errors?.firstName && <p className="text-red-500 text-sm mt-1">{errors?.firstName}</p>}
-                        </div>
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">ข้อมูลบุคลากร</h2>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-                            <input
-                                type="text"
-                                name="lastName"
-                                value={formData?.lastName}
-                                onChange={handleInputChange}
-                                className={`w-full px-4 py-2 border rounded-lg text-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                                    errors?.lastName ? 'border-red-500' : 'border-gray-300'
-                                }`}
-                                placeholder="Doe"
-                            />
-                            {errors?.lastName && <p className="text-red-500 text-sm mt-1">{errors?.lastName}</p>}
-                        </div>
+                    {employee && (
+                        <div className="flex flex-col items-center justify-between gap-4 h-[95%] py-6">
+                            <div className="w-full flex flex-col items-center space-y-8">
+                                <div>
+                                    <img
+                                        src={`${process.env.REACT_APP_API_URL}/uploads/${employee?.avatar_url}`}
+                                        alt={employee.firstname}
+                                        className="w-[150px] h-[150px] rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-blue-400 transition-all duration-200"
+                                    />
+                                </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData?.email}
-                                onChange={handleInputChange}
-                                className={`w-full px-4 py-2 border rounded-lg text-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                                    errors?.email ? 'border-red-500' : 'border-gray-300'
-                                }`}
-                                placeholder="john.doe@company.com"
-                            />
-                            {errors?.email && <p className="text-red-500 text-sm mt-1">{errors?.email}</p>}
-                        </div>
+                                <div className="w-[90%] space-y-2">
+                                    <p className="max-md:text-sm lg:text-lg">
+                                        <span className="font-bold">ชื่อ-สกุล: </span>{employee.prefix?.name}{employee.firstname} {employee.lastname}
+                                    </p>
+                                    <p className="max-md:text-sm lg:text-lg">
+                                        <span className="font-bold">ตำแหน่ง: </span>{employee.position?.name}{employee.level ? employee.level?.name : ''}
+                                    </p>
+                                    <p className="max-md:text-sm lg:text-lg">
+                                        <span className="font-bold">ที่อยู่: </span>
+                                        {employee.address_no} ต.{employee.tambon ? employee.tambon?.name : '-'} <br />
+                                        อ.{employee.amphur ? employee.amphur?.name : '-'} จ.{employee.changwat ? employee.changwat?.name : '-'} {employee.zipcode ? employee.zipcode : '-'}
+                                    </p>
+                                    <p className="max-md:text-sm lg:text-lg">
+                                        <span className="font-bold">เบอร์ติดต่อ: </span>{employee.tel}
+                                    </p>
+                                    <p className="max-md:text-sm lg:text-lg">
+                                        <span className="font-bold">อีเมล: </span>{employee.email}
+                                    </p>
+                                </div>
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID *</label>
-                            <input
-                                type="text"
-                                name="employeeId"
-                                value={formData?.employeeId}
-                                onChange={handleInputChange}
-                                className={`w-full px-4 py-2 border rounded-lg text-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                                    errors?.employeeId ? 'border-red-500' : 'border-gray-300'
-                                }`}
-                                placeholder="EMP001"
-                            />
-                            {errors?.employeeId && <p className="text-red-500 text-sm mt-1">{errors?.employeeId}</p>}
+                            <div className="flex gap-3 pt-4 w-full">
+                                <button
+                                    onClick={handleReset}
+                                    className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                                >
+                                    ยกเลิก
+                                </button>
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={registrationStatus === 'processing' || !modelsLoaded}
+                                    className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    {registrationStatus === 'processing' ? 'กำลังลงทะเบียน...' : 'ลงทะเบียน'}
+                                </button>
+                            </div>
                         </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
-                            <select
-                                name="department"
-                                value={formData?.department}
-                                onChange={handleInputChange}
-                                className={`w-full px-4 py-2 border rounded-lg text-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                                    errors?.department ? 'border-red-500' : 'border-gray-300'
-                                }`}
-                            >
-                                <option value="">Select Department</option>
-                                <option value="Engineering">Engineering</option>
-                                <option value="HR">Human Resources</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Operations">Operations</option>
-                            </select>
-                            {errors?.department && <p className="text-red-500 text-sm mt-1">{errors?.department}</p>}
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Position *</label>
-                            <input
-                                type="text"
-                                name="position"
-                                value={formData?.position}
-                                onChange={handleInputChange}
-                                className={`w-full px-4 py-2 border rounded-lg text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                                    errors?.position ? 'border-red-500' : 'border-gray-300'
-                                }`}
-                                placeholder="Software Engineer"
-                            />
-                            {errors?.position && <p className="text-red-500 text-sm mt-1">{errors?.position}</p>}
-                        </div>
-
-                        <div className="flex gap-3 pt-4">
-                            <button
-                                onClick={handleReset}
-                                className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition-colors"
-                            >
-                                Reset
-                            </button>
-                            <button
-                                onClick={handleSubmit}
-                                disabled={registrationStatus === 'processing' || !modelsLoaded}
-                                className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                            >
-                                {registrationStatus === 'processing' ? 'Registering...' : 'Register Employee'}
-                            </button>
-                        </div>
-                    </div>
+                    )}
                 </div>
                 
                 {/* Capturing Section */}
@@ -509,9 +429,9 @@ export default function EmployeeFaceRegistration() {
                             </div>
                         )}
 
-                        {errors?.avatarImage && (
+                        {errors?.amountOfImage && (
                             <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                                <p className="text-red-800 text-sm text-center">{errors?.avatarImage}</p>
+                                <p className="text-red-800 text-sm text-center">{errors?.amountOfImage}</p>
                             </div>
                         )}
 
