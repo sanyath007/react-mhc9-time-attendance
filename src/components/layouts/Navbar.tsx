@@ -1,14 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, FileText, History, CalendarClock } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function Navbar() {
+    const navigate = useNavigate();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
+    const { user, logout } = useAuth();
     const userMenuRef = useRef(null); // User menu
     const navMenuRef = useRef(null);
-    const { user, logout } = useAuth();
 
     // ปิด dropdown เมื่อคลิกข้างนอก
     useEffect(() => {
@@ -30,9 +32,24 @@ export default function Navbar() {
     }, []);
 
     const userMenus = [
-        { icon: User, label: 'โปรไฟล์', action: () => console.log('Navigate to Profile') },
-        { icon: Settings, label: 'ตั้งค่า', action: () => console.log('Navigate to Settings') },
-        { icon: LogOut, label: 'ออกจากระบบ', action: () => logout(), danger: true }
+        {
+            label: 'โปรไฟล์',
+            icon: User,
+            action: () => console.log('Navigate to Profile')
+        },
+        {
+            label: 'ตั้งค่า',
+            icon: Settings,
+            action: () => console.log('Navigate to Settings')
+        },
+        {
+            label: 'ออกจากระบบ',
+            icon: LogOut,
+            action: () => {
+                logout();
+                navigate('/login');
+            },
+            danger: true }
     ];
 
     // Navigation menu items with dropdowns
