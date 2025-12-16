@@ -8,6 +8,7 @@ import CheckInContainer from './pages/CheckIn';
 import NotFound from './pages/NotFound';
 import EmployeeList from './pages/Employee/EmployeeList';
 import EmployeeFaceRegistration from './pages/Employee/FaceRegistration';
+import EmployeeForm from './pages/Employee/EmployeeForm';
 import AttendanceList from './pages/Attendance/List';
 import Login from './pages/Auth/Login';
 
@@ -20,7 +21,8 @@ function App() {
                 <Route path="/attendance" element={<AttendanceList />} />
 
                 <Route path="/employee" element={<EmployeeList />} />
-                <Route path="/employee/register" element={<EmployeeFaceRegistration />} />
+                <Route path="/employee/register" element={<EmployeeForm />} />
+                <Route path="/employee/:id/face" element={<EmployeeFaceRegistration />} />
             </Route>
 
             {/* Default routes */}

@@ -20,7 +20,7 @@ type EmployeeData = {
     avatarImage: string,
 }
 
-export default function EmployeeFaceRegistration() {
+export default function EmployeeForm() {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [stream, setStream] = useState(null);
@@ -295,8 +295,8 @@ export default function EmployeeFaceRegistration() {
                         <UserPlus className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">ลงทะเบียนใบหน้า</h1>
-                        <p className="text-gray-600">Register facial recognition</p>
+                        <h1 className="text-2xl font-bold text-gray-800">Employee Registration</h1>
+                        <p className="text-gray-600">Register new employee with facial recognition</p>
                     </div>
                 </div>
             </div>

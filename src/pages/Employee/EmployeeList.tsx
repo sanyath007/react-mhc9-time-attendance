@@ -1,6 +1,23 @@
-import { UserPlus } from "lucide-react"
+import { ScanFace, SquarePen, Trash2, UserPlus } from "lucide-react"
+import { useEffect, useState } from "react"
+import api from "../../api";
 
 export default function EmployeeList() {
+    const [employees, setEmployees] = useState([]);
+
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            const res = await api.get(`/api/employees`);
+            console.log(res);
+
+            if (res.status === 200) {
+                setEmployees(res.data);
+            }
+        }
+
+        fetchEmployees();
+    }, []);
+
     return (
         <div className="max-w-4xl mx-auto">
             {/* Header */}
@@ -25,7 +42,38 @@ export default function EmployeeList() {
             </div>
 
             <div className="bg-white rounded-lg shadow-lg p-6">
-                
+                <ul className="space-y-2">
+                    {employees.filter(e => e.status === 1).map(employee => (
+                        <li className="border rounded-md p-2">
+                            <div className="flex flex-row items-center gap-3">
+                                <div>
+                                    <img
+                                        src={`${process.env.REACT_APP_API_URL}/uploads/${employee?.avatar_url}`}
+                                        alt={employee.firstname}
+                                        className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-blue-400 transition-all duration-200"
+                                    />
+                                </div>
+                                <div className="w-4/5">
+                                    <p className="text-lg font-bold">{employee.firstname} {employee.lastname}</p>
+                                    <p className="text-gray-600">{employee.position?.name}</p>
+                                </div>
+
+                                {/* Action buttons */}
+                                <div className="flex flex-row gap-2">
+                                    <a href={`/employee/${employee.id}/face`} className=" text-blue-500">
+                                        <ScanFace />
+                                    </a>
+                                    <a href={`/employee/${employee.id}/edit`} className=" text-yellow-500">
+                                        <SquarePen />
+                                    </a>
+                                    <a href={`/employee/${employee.id}/delete`} className=" text-red-500">
+                                        <Trash2 />
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     )
