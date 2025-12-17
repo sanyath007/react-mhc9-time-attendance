@@ -6,9 +6,9 @@ import AuthLayout from './components/layouts/Auth';
 import Home from './pages/Home';
 import CheckInContainer from './pages/CheckIn';
 import NotFound from './pages/NotFound';
-import EmployeeList from './pages/Employee/EmployeeList';
+import EmployeeList from './pages/Employee/List';
 import EmployeeFaceRegistration from './pages/Employee/FaceRegistration';
-import EmployeeForm from './pages/Employee/EmployeeForm';
+import EmployeeForm from './pages/Employee/Form';
 import AttendanceList from './pages/Attendance/List';
 import Login from './pages/Auth/Login';
 
