@@ -44,3 +44,9 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+# Before build app
+1. comment REACT_APP_API_URL key of development and uncomment production one in .env.local file
+2. set property "homepage": "https://app.mhc9dmh.com/checkin/" in package.json
+3. set prop basename="/checkin" to Router component
+4. remove email and password values of initialValues prop in Login view 
