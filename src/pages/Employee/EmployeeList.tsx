@@ -1,6 +1,7 @@
 import { ScanFace, SquarePen, Trash2, UserPlus } from "lucide-react"
 import { useEffect, useState } from "react"
 import api from "../../api";
+import EmployeePosition from "../../components/features/EmployeePosition";
 
 export default function EmployeeList() {
     const [employees, setEmployees] = useState([]);
@@ -55,7 +56,9 @@ export default function EmployeeList() {
                                 </div>
                                 <div className="w-4/5">
                                     <p className="text-lg font-bold">{employee.firstname} {employee.lastname}</p>
-                                    <p className="text-gray-600">{employee.position?.name}</p>
+                                    <p className="text-gray-600">
+                                        <EmployeePosition employee={employee} />
+                                    </p>
                                 </div>
 
                                 {/* Action buttons */}

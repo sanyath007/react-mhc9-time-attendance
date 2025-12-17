@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import * as faceapi from 'face-api.js';
 import ImageViewer from '../../components/ui/ImageViewer';
 import api from '../../api';
+import EmployeePosition from '../../components/features/EmployeePosition';
 
 interface CapturedImage {
     image: any;
@@ -333,7 +334,8 @@ export default function EmployeeFaceRegistration() {
                                         <span className="font-bold">ชื่อ-สกุล: </span>{employee.prefix?.name}{employee.firstname} {employee.lastname}
                                     </p>
                                     <p className="max-md:text-sm lg:text-lg">
-                                        <span className="font-bold">ตำแหน่ง: </span>{employee.position?.name}{employee.level ? employee.level?.name : ''}
+                                        <span className="font-bold">ตำแหน่ง: </span>
+                                        <EmployeePosition employee={employee} />
                                     </p>
                                     <p className="max-md:text-sm lg:text-lg">
                                         <span className="font-bold">ที่อยู่: </span>
