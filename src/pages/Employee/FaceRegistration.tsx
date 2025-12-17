@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom';
 import * as faceapi from 'face-api.js';
 import ImageViewer from '../../components/ui/ImageViewer';
 import api from '../../api';
+import { loadModels } from '../../utils/face-recognition';
+import { startCamera, stopCamera } from '../../utils/camera';
 import EmployeePosition from '../../components/features/EmployeePosition';
 
 interface CapturedImage {
@@ -19,22 +21,19 @@ type FaceRecognitionData = {
 
 export default function EmployeeFaceRegistration() {
     const { id } = useParams();
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
-    const [stream, setStream] = useState(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const [stream, setStream] = useState<MediaStream | null>(null);
     const [capturedImages, setCapturedImages] = useState<CapturedImage[]>([]);
-    const [isCameraActive, setIsCameraActive] = useState(false);
-    const [faceDetected, setFaceDetected] = useState(false);
-    const [modelsLoaded, setModelsLoaded] = useState(false);
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [registrationStatus, setRegistrationStatus] = useState(null);
-    
+    const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
+    const [faceDetected, setFaceDetected] = useState<boolean>(false);
+    const [modelsLoaded, setModelsLoaded] = useState<boolean>(false);
+    const [isProcessing, setIsProcessing] = useState<boolean>(false);
+    const [registrationStatus, setRegistrationStatus] = useState(null);    
     const [formData, setFormData] = useState<FaceRecognitionData>({ id: '', faceDescriptor: '' });
-
     const [errors, setErrors] = useState<{ id: string, amountOfImage: string } | null>(null);
-    const [showPreview, setShowPreview] = useState(false);
+    const [showPreview, setShowPreview] = useState<boolean>(false);
     const [preview, setPreview] = useState('');
-
     const [employee, setEmployee] = useState<any | null>(null);
 
     useEffect(() => {
@@ -51,56 +50,8 @@ export default function EmployeeFaceRegistration() {
     }, [id]);
 
     useEffect(() => {
-        loadModels();
+        loadModels(() => setModelsLoaded(true));
     }, []);
-
-    const loadModels = async () => {
-        try {
-            console.log('Loading face-api.js models...');
-
-            await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
-            await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-            await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-            await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-            await faceapi.nets.faceExpressionNet.loadFromUri('/models');
-
-            setModelsLoaded(true);
-        } catch (err) {
-            console.error('Error loading models:', err);
-            alert('Failed to load face recognition models');
-        }
-    };
-
-    const startCamera = async () => {
-        try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { width: 640, height: 480, facingMode: 'user' }
-            });
-
-            if (videoRef.current) {
-                videoRef.current.srcObject = mediaStream;
-                setStream(mediaStream);
-                setIsCameraActive(true);
-
-                videoRef.current.addEventListener('play', () => {
-                    detectFaces();
-                });
-            }
-        } catch (err) {
-            console.error('Error accessing camera:', err);
-            alert('Unable to access camera. Please check permissions.');
-        }
-    };
-
-    const stopCamera = () => {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-
-            setStream(null);
-            setIsCameraActive(false);
-            setFaceDetected(false);
-        }
-    };
 
     const detectFaces = async () => {
         if (!modelsLoaded || !videoRef.current) return;
@@ -173,7 +124,7 @@ export default function EmployeeFaceRegistration() {
             setIsProcessing(false);
 
             if (capturedImages.length >= 4) {
-                stopCamera();
+                stopCamera(stream, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); });
             }
         }
     };
@@ -268,7 +219,7 @@ export default function EmployeeFaceRegistration() {
         setCapturedImages([]);
         setErrors(null);
         setRegistrationStatus(null);
-        stopCamera();
+        stopCamera(stream, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); });
     };
 
     return (
@@ -441,7 +392,7 @@ export default function EmployeeFaceRegistration() {
                         <div className="flex gap-3">
                             {!isCameraActive ? (
                                 <button
-                                    onClick={startCamera}
+                                    onClick={() => startCamera(videoRef, detectFaces, (mediaStream) => { setStream(mediaStream); setIsCameraActive(true); })}
                                     disabled={!modelsLoaded || capturedImages.length >= 5}
                                     className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                                 >
@@ -451,7 +402,7 @@ export default function EmployeeFaceRegistration() {
                             ) : (
                                 <>
                                     <button
-                                        onClick={stopCamera}
+                                        onClick={() => stopCamera(stream, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); })}
                                         className="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
                                     >
                                         Stop Camera
