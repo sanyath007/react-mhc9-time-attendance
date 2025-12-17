@@ -16,7 +16,7 @@ interface CapturedImage {
 
 type FaceRecognitionData = {
     id: string,
-    faceDescriptor: string,
+    face_descriptor: string,
 }
 
 export default function EmployeeFaceRegistration() {
@@ -30,7 +30,7 @@ export default function EmployeeFaceRegistration() {
     const [modelsLoaded, setModelsLoaded] = useState<boolean>(false);
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
     const [registrationStatus, setRegistrationStatus] = useState(null);    
-    const [formData, setFormData] = useState<FaceRecognitionData>({ id: '', faceDescriptor: '' });
+    const [formData, setFormData] = useState<FaceRecognitionData>({ id: '', face_descriptor: '' });
     const [errors, setErrors] = useState<{ id: string, amountOfImage: string } | null>(null);
     const [showPreview, setShowPreview] = useState<boolean>(false);
     const [preview, setPreview] = useState('');
@@ -186,7 +186,7 @@ export default function EmployeeFaceRegistration() {
                 /** POST to api */
                 const result = await api.post(`/api/employees/${id}/update/descriptor`, {
                     ...formData,
-                    faceDescriptor: Array.from(avgDescriptor)
+                    face_descriptor: Array.from(avgDescriptor)
                 });
 
                 if (result.status === 200) {
@@ -195,8 +195,7 @@ export default function EmployeeFaceRegistration() {
                     // setTimeout(() => {
                     //     setFormData({
                     //         id: '',
-                    //         faceDescriptor: '',
-                    //         avatarImage: '',
+                    //         face_descriptor: '',
                     //     });
                     //     setCapturedImages([]);
                     //     setRegistrationStatus(null);
@@ -212,8 +211,7 @@ export default function EmployeeFaceRegistration() {
     const handleReset = () => {
         // setFormData({
         //     id: '',
-        //     faceDescriptor: '',
-        //     avatarImage: '',
+        //     face_descriptor: '',
         // });
 
         setCapturedImages([]);
