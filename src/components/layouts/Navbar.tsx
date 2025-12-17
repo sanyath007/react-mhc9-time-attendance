@@ -63,7 +63,7 @@ export default function Navbar() {
             label: 'ลงเวลาทำงาน',
             icon: FolderKanban,
             dropdown: [
-                { label: 'ลงเวลาทำงาน', href: '/check-in', icon: History },
+                { label: 'ลงเวลาทำงาน', href: '/attendance/check-in', icon: History },
                 { label: 'รายการลงเวลา', href: '/attendance', icon: CalendarClock, highlight: false },
                 // { label: 'โปรเจกต์ที่แชร์', href: '#', icon: Users },
                 // { divider: true },

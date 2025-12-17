@@ -19,6 +19,7 @@ function App() {
             <Route path="/" element={<ProtectedLayout />}>
                 <Route index element={<Home />} />
                 <Route path="/attendance" element={<AttendanceList />} />
+                <Route path="/attendance/check-in" element={<CheckInContainer />} />
 
                 <Route path="/employee" element={<EmployeeList />} />
                 <Route path="/employee/register" element={<EmployeeForm />} />
