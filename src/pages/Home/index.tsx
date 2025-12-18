@@ -5,15 +5,15 @@ const Home = () => {
     return (
         <div className="max-w-4xl mx-auto">
             {/* Header */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-6 border">
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-6 max-md:p-3 max-md:mb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="bg-indigo-600 p-3 rounded-lg">
-                            <House className="w-8 h-8 text-white" />
+                        <div className="bg-indigo-600 p-3 max-md:p-2 rounded-lg">
+                            <House className="w-8 h-8 max-md:w-6 max-md:h-6 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-800">หน้าหลัก</h1>
-                            <p className="text-gray-600">ระบบลงเวลาปฏิบัติงาน</p>
+                            <h1 className="text-2xl font-bold text-gray-800 max-md:text-xl">หน้าหลัก</h1>
+                            <p className="text-gray-600 max-md:hidden">ระบบลงเวลาปฏิบัติงาน</p>
                         </div>
                     </div>
                     <div className="text-right">

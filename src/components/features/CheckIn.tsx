@@ -230,7 +230,7 @@ export default function CheckIn() {
         <>
             {/* Models Loading Status */}
             {!modelsLoaded && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-md:p-2 mb-6 max-md:mb-2">
                     <div className="flex items-center gap-2 text-yellow-800">
                     <AlertCircle className="w-5 h-5" />
                     <p>Loading facial recognition models...</p>
@@ -239,7 +239,7 @@ export default function CheckIn() {
             )}
 
             {/* Camera/Preview Section */}
-            <div className="relative mb-6">
+            <div className="relative mb-6 max-md:mb-3">
                 <div className="bg-gray-900 rounded-lg overflow-hidden aspect-video flex items-center justify-center">
                     {!capturedImage ? (
                         <>
@@ -290,7 +290,7 @@ export default function CheckIn() {
 
             {/* Employee Detection Result */}
             {detectedEmployee && (
-                <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6 max-md:p-3">
+                <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-blue-600 font-medium">Detected Employee</p>
@@ -305,7 +305,7 @@ export default function CheckIn() {
 
             {/* Face recognition not found  */}
             {compared === ComparationStatus.ERROR && !detectedEmployee && (
-                <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 mb-6 max-md:p-3">
+                <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-md text-red-600 font-semibold">Employee not found!</p>
@@ -319,7 +319,7 @@ export default function CheckIn() {
 
             {/* Instructions */}
             {!capturedImage && isCameraActive && modelsLoaded && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-md:p-3">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
                     <p className="text-blue-800 text-center max-md:text-sm">
                         Please position your face in the center of the frame and ensure good lighting
                     </p>
@@ -328,7 +328,7 @@ export default function CheckIn() {
 
             {/* Success Message */}
             {checkInStatus === 'success' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 max-md:p-3">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
                     <div className="flex items-center justify-center gap-2 text-green-800">
                         <CheckCircle className="w-5 h-5" />
                         <p className="font-medium max-md:text-sm">Check-in successful! Have a great day!</p>
@@ -380,28 +380,28 @@ export default function CheckIn() {
             </div>
 
             {/* Info Panel */}
-            <div className="mt-8 max-md:mt-4 grid grid-cols-4 gap-3">
-                <div className="bg-gray-50 p-4 rounded-lg text-center">
+            <div className="mt-8 max-md:mt-3 grid grid-cols-4 gap-3">
+                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center">
                     <p className="text-gray-600 text-sm">Models</p>
-                    <p className={`text-lg font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
+                    <p className={`text-lg max-md:text-sm font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
                         {modelsLoaded ? 'Loaded' : 'Loading'}
                     </p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg text-center">
+                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center">
                     <p className="text-gray-600 text-sm">Status</p>
-                    <p className={`text-lg font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
+                    <p className={`text-lg max-md:text-sm font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
                         {capturedImage ? 'Ready' : 'Capturing'}
                     </p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg text-center">
-                    <p className="text-gray-600 text-sm">Face Detection</p>
-                    <p className={`text-lg font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
+                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center">
+                    <p className="text-gray-600 text-sm">Face <span className="max-md:hidden">Detection</span></p>
+                    <p className={`text-lg max-md:text-sm font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
                         {faceDetected ? 'Active' : 'Inactive'}
                     </p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg text-center">
+                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center">
                     <p className="text-gray-600 text-sm">Camera</p>
-                    <p className={`text-lg font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
+                    <p className={`text-lg max-md:text-sm font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
                         {isCameraActive ? 'On' : 'Off'}
                     </p>
                 </div>

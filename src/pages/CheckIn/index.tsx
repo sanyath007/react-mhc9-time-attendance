@@ -17,7 +17,7 @@ export default function CheckInContainer() {
     return (
         <div className="max-w-4xl mx-auto">
             {/* Header */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-6 max-md:p-4 max-md:mb-4">
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-6 max-md:p-3 max-md:mb-3">
                 <div className="flex max-md:flex-col items-center justify-between max-md:items-start gap-2">
                     <div className="flex items-center gap-3">
                         <div className="bg-indigo-600 p-3 rounded-lg">
@@ -48,7 +48,7 @@ export default function CheckInContainer() {
             </div>
             
             {/* Main Content */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="bg-white rounded-lg shadow-lg p-6 max-md:p-4">
                 <CheckIn />
             </div>
         </div>

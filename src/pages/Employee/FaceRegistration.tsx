@@ -224,20 +224,20 @@ export default function EmployeeFaceRegistration() {
     return (
         <div className="max-w-4xl mx-auto">
             {/* Header */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-6 max-md:p-3 max-md:mb-3">
                 <div className="flex items-center gap-3">
-                    <div className="bg-purple-600 p-3 rounded-lg">
-                        <UserPlus className="w-8 h-8 text-white" />
+                    <div className="bg-purple-600 p-3 max-md:p-2 rounded-lg">
+                        <UserPlus className="w-8 h-8 max-md:w-6 max-md:h-6 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">ลงทะเบียนใบหน้า</h1>
-                        <p className="text-gray-600">Register facial recognition</p>
+                        <h1 className="text-2xl font-bold text-gray-800 max-md:text-xl">ลงทะเบียนใบหน้า</h1>
+                        <p className="text-gray-600 max-md:hidden">Register facial recognition</p>
                     </div>
                 </div>
             </div>
 
             {!modelsLoaded && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
                     <div className="flex items-center gap-2 text-yellow-800">
                         <AlertCircle className="w-5 h-5" />
                         <p>Loading facial recognition models...</p>
@@ -246,7 +246,7 @@ export default function EmployeeFaceRegistration() {
             )}
 
             {registrationStatus === 'success' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
                     <div className="flex items-center gap-2 text-green-800">
                         <CheckCircle className="w-5 h-5" />
                         <p className="font-medium">Employee registered successfully!</p>
@@ -255,7 +255,7 @@ export default function EmployeeFaceRegistration() {
             )}
 
             {registrationStatus === 'error' && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
                     <div className="flex items-center gap-2 text-red-800">
                         <XCircle className="w-5 h-5" />
                         <p className="font-medium">Registration failed. Please try again.</p>
@@ -263,13 +263,13 @@ export default function EmployeeFaceRegistration() {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Registration Form */}
-                <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-md:gap-3">
+                {/* Employee Information */}
+                <div className="bg-white rounded-lg shadow-lg p-6 max-md:p-4">
                     <h2 className="text-xl font-bold text-gray-800 mb-4">ข้อมูลบุคลากร</h2>
 
                     {employee && (
-                        <div className="flex flex-col items-center justify-between gap-4 h-[95%] py-6">
+                        <div className="flex flex-col items-center justify-between gap-4 h-[95%] max-md:h-auto py-6 max-md:py-0">
                             <div className="w-full flex flex-col items-center space-y-8">
                                 <EmployeeAvatar
                                     image={`${process.env.REACT_APP_API_URL}/uploads/${employee?.avatar_url}`}
@@ -278,7 +278,7 @@ export default function EmployeeFaceRegistration() {
                                     height="150px"
                                 />
 
-                                <div className="w-[90%] space-y-2">
+                                <div className="w-[90%] max-md:w-[95%] space-y-2">
                                     <p className="max-md:text-sm lg:text-lg">
                                         <span className="font-bold">ชื่อ-สกุล: </span>{employee.prefix?.name}{employee.firstname} {employee.lastname}
                                     </p>
@@ -288,7 +288,7 @@ export default function EmployeeFaceRegistration() {
                                     </p>
                                     <p className="max-md:text-sm lg:text-lg">
                                         <span className="font-bold">ที่อยู่: </span>
-                                        {employee.address_no} ต.{employee.tambon ? employee.tambon?.name : '-'} <br />
+                                        {employee.address_no} ต.{employee.tambon ? employee.tambon?.name : '-'} <br className="max-md:hidden" />
                                         อ.{employee.amphur ? employee.amphur?.name : '-'} จ.{employee.changwat ? employee.changwat?.name : '-'} {employee.zipcode ? employee.zipcode : '-'}
                                     </p>
                                     <p className="max-md:text-sm lg:text-lg">
@@ -321,14 +321,14 @@ export default function EmployeeFaceRegistration() {
                 
                 {/* Capturing Section */}
                 <div className="space-y-6">
-                    <div className="bg-white rounded-lg shadow-lg p-6">
-                        <div className="flex items-center justify-between mb-4">
+                    <div className="bg-white rounded-lg shadow-lg p-6 max-md:p-4">
+                        <div className="flex items-center justify-between mb-4 max-md:mb-2">
                             <h2 className="text-xl font-bold text-gray-800">Facial Recognition Setup</h2>
                             <span className="text-sm text-gray-600">{capturedImages.length}/5 photos</span>
                         </div>
 
                         {/* Camera */}
-                        <div className="relative mb-4">
+                        <div className="relative mb-4 max-md:mb-2">
                             <div className="bg-gray-900 rounded-lg overflow-hidden aspect-video flex items-center justify-center relative">
                                 {/* {isCameraActive ? ( */}
                                     <>
@@ -373,16 +373,16 @@ export default function EmployeeFaceRegistration() {
                         </div>
 
                         {isCameraActive && capturedImages.length < 5 && (
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                                <p className="text-blue-800 text-sm text-center">
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 max-md:mb-2">
+                                <p className="text-blue-800 text-sm max-md:text-xs text-center">
                                     Capture 3-5 photos from different angles for better accuracy
                                 </p>
                             </div>
                         )}
 
                         {errors?.amountOfImage && (
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                                <p className="text-red-800 text-sm text-center">{errors?.amountOfImage}</p>
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 max-md:mb-2">
+                                <p className="text-red-800 text-sm max-md:text-xs text-center">{errors?.amountOfImage}</p>
                             </div>
                         )}
 
