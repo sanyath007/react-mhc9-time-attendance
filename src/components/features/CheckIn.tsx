@@ -290,14 +290,14 @@ export default function CheckIn() {
 
             {/* Employee Detection Result */}
             {detectedEmployee && (
-                <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
+                <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6 max-md:p-3">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-blue-600 font-medium">Detected Employee</p>
-                            <p className="text-2xl font-bold text-blue-900">{detectedEmployee?.name}</p>
+                            <p className="text-2xl max-md:text-xl font-bold text-blue-900">{detectedEmployee?.name}</p>
                         </div>
                         <div className="bg-blue-600 p-3 rounded-full">
-                            <User className="w-8 h-8 text-white" />
+                            <User className="w-8 h-8 max-md:w-6 max-md:h-6 text-white" />
                         </div>
                     </div>
                 </div>
@@ -305,7 +305,7 @@ export default function CheckIn() {
 
             {/* Face recognition not found  */}
             {compared === ComparationStatus.ERROR && !detectedEmployee && (
-                <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 mb-6">
+                <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 mb-6 max-md:p-3">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-md text-red-600 font-semibold">Employee not found!</p>
@@ -319,8 +319,8 @@ export default function CheckIn() {
 
             {/* Instructions */}
             {!capturedImage && isCameraActive && modelsLoaded && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                    <p className="text-blue-800 text-center">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-md:p-3">
+                    <p className="text-blue-800 text-center max-md:text-sm">
                         Please position your face in the center of the frame and ensure good lighting
                     </p>
                 </div>
@@ -328,20 +328,20 @@ export default function CheckIn() {
 
             {/* Success Message */}
             {checkInStatus === 'success' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 max-md:p-3">
                     <div className="flex items-center justify-center gap-2 text-green-800">
                         <CheckCircle className="w-5 h-5" />
-                        <p className="font-medium">Check-in successful! Have a great day!</p>
+                        <p className="font-medium max-md:text-sm">Check-in successful! Have a great day!</p>
                     </div>
                 </div>
             )}
 
             {/* Error Message */}
             {checkInStatus === 'error' && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 max-md:p-3">
                     <div className="flex items-center justify-center gap-2 text-red-800">
                         <XCircle className="w-5 h-5" />
-                        <p className="font-medium">Check-in failed. Please try again.</p>
+                        <p className="font-medium max-md:text-sm">Check-in failed. Please try again.</p>
                     </div>
                 </div>
             )}
@@ -352,7 +352,7 @@ export default function CheckIn() {
                     <button
                         onClick={capturePhoto}
                         disabled={!faceDetected || !isCameraActive || !modelsLoaded || isProcessing}
-                        className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center gap-2 px-8 max-md:px-4 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                     >
                         <Camera className="w-5 h-5" />
                         {isProcessing ? 'Processing...' : 'Capture & Recognize'}
@@ -362,7 +362,7 @@ export default function CheckIn() {
                         <button
                             onClick={handleCancel}
                             disabled={checkInStatus === 'processing'}
-                            className="flex items-center gap-2 px-8 py-4 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="flex items-center gap-2 px-8 max-md:px-4 py-4 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             <XCircle className="w-5 h-5" />
                             Cancel
@@ -370,7 +370,7 @@ export default function CheckIn() {
                         <button
                             onClick={handleConfirm}
                             disabled={checkInStatus === 'processing' || !detectedEmployee}
-                            className="flex items-center gap-2 px-8 py-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="flex items-center gap-2 px-8 max-md:px-4 py-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             <CheckCircle className="w-5 h-5" />
                             {checkInStatus === 'processing' ? 'Processing...' : 'Confirm Check-In'}
@@ -380,7 +380,7 @@ export default function CheckIn() {
             </div>
 
             {/* Info Panel */}
-            <div className="mt-8 grid grid-cols-4 gap-3">
+            <div className="mt-8 max-md:mt-4 grid grid-cols-4 gap-3">
                 <div className="bg-gray-50 p-4 rounded-lg text-center">
                     <p className="text-gray-600 text-sm">Models</p>
                     <p className={`text-lg font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
