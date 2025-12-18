@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, FileText, History, CalendarClock } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -64,9 +64,9 @@ export default function Navbar() {
             icon: FolderKanban,
             dropdown: [
                 { label: 'ลงเวลาทำงาน', href: '/attendance/check-in', icon: History },
+                { divider: true },
                 { label: 'รายการลงเวลา', href: '/attendance', icon: CalendarClock, highlight: false },
                 // { label: 'โปรเจกต์ที่แชร์', href: '#', icon: Users },
-                // { divider: true },
                 // { label: 'สร้างโปรเจกต์ใหม่', href: '#', icon: FileText, highlight: true }
             ]
         },
@@ -75,10 +75,10 @@ export default function Navbar() {
             icon: User,
             dropdown: [
                 { label: 'บุคลากรทั้งหมด', href: '/employee', icon: Users },
-                { label: 'สินค้ามาใหม่', href: '#', icon: Users  },
-                { label: 'สินค้าแนะนำ', href: '#', icon: Users  },
-                { divider: true },
-                { label: 'หมวดหมู่สินค้า', href: '#', icon: Users  }
+                // { label: 'สินค้ามาใหม่', href: '#', icon: Users  },
+                // { label: 'สินค้าแนะนำ', href: '#', icon: Users  },
+                // { divider: true },
+                // { label: 'หมวดหมู่สินค้า', href: '#', icon: Users  }
             ]
         },
         {
@@ -117,13 +117,13 @@ export default function Navbar() {
                                             </button>
                                         ) : (
                                             // Simple link
-                                            <a
-                                                href={menu.href}
+                                            <Link
+                                                to={menu.href}
                                                 className="flex items-center space-x-1 px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 text-sm font-medium"
                                             >
                                                 {menu.icon && <menu.icon className="w-4 h-4" />}
                                                 <span>{menu.label}</span>
-                                            </a>
+                                            </Link>
                                         )}
 
                                         {/* Dropdown Menu */}
@@ -133,9 +133,9 @@ export default function Navbar() {
                                                     item.divider ? (
                                                         <div key={idx} className="my-2 border-t border-gray-100"></div>
                                                     ) : (
-                                                        <a
+                                                        <Link
                                                             key={idx}
-                                                            href={item.href}
+                                                            to={item.href}
                                                             onClick={() => setActiveDropdown(null)}
                                                             className={`flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
                                                                 item.highlight
@@ -145,7 +145,7 @@ export default function Navbar() {
                                                         >
                                                             {item.icon && <item.icon className="w-4 h-4" />}
                                                             <span>{item.label}</span>
-                                                        </a>
+                                                        </Link>
                                                     )
                                                 ))}
                                             </div>
@@ -250,14 +250,14 @@ export default function Navbar() {
                                 {menu.dropdown ? (
                                     <>
                                         <button
-                                        onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-                                        className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                            onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+                                            className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                                         >
-                                        <div className="flex items-center space-x-2">
-                                            {menu.icon && <menu.icon className="w-5 h-5" />}
-                                            <span>{menu.label}</span>
-                                        </div>
-                                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === index ? 'rotate-180' : ''}`} />
+                                            <div className="flex items-center space-x-2">
+                                                {menu.icon && <menu.icon className="w-5 h-5" />}
+                                                <span>{menu.label}</span>
+                                            </div>
+                                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === index ? 'rotate-180' : ''}`} />
                                         </button>
                                         {activeDropdown === index && (
                                             <div className="ml-4 mt-2 space-y-1">
@@ -265,9 +265,9 @@ export default function Navbar() {
                                                     item.divider ? (
                                                         <div key={idx} className="my-2 border-t border-gray-100"></div>
                                                     ) : (
-                                                        <a
+                                                        <Link
                                                             key={idx}
-                                                            href={item.href}
+                                                            to={item.href}
                                                             className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-lg transition-colors ${
                                                                 item.highlight
                                                                 ? 'text-blue-600 hover:bg-blue-50 font-medium'
@@ -276,20 +276,20 @@ export default function Navbar() {
                                                         >
                                                             {item.icon && <item.icon className="w-4 h-4" />}
                                                             <span>{item.label}</span>
-                                                        </a>
+                                                        </Link>
                                                     )
                                                 ))}
                                             </div>
                                         )}
                                     </>
                                 ) : (
-                                    <a
-                                        href={menu.href}
+                                    <Link
+                                        to={menu.href}
                                         className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                                     >
                                         {menu.icon && <menu.icon className="w-5 h-5" />}
                                         <span>{menu.label}</span>
-                                    </a>
+                                    </Link>
                                 )}
                             </div>
                         ))}

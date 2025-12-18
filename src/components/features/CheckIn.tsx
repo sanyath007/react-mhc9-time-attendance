@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Camera, CheckCircle, XCircle, User, X, AlertCircle } from 'lucide-react';
 import * as faceapi from 'face-api.js';
 import api from '../../api';
+import { loadModels } from '../../utils/face-recognition';
 
 enum ComparationStatus {
     IDLE = "idle",
@@ -30,30 +31,8 @@ export default function CheckIn() {
 
     // Call LoadModels on mounted
     useEffect(() => {
-        loadModels();
+        loadModels(() => setModelsLoaded(true));
     }, []);
-
-     // Load face-api.js models
-    const loadModels = async () => {
-        try {
-            /**
-             * In a real world app, models should be in /public/models/
-             * For the demo, we'll simulate model loading
-            */
-            console.log('Loading face-api.js models...');
-
-            await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
-            await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-            await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-            await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-            await faceapi.nets.faceExpressionNet.loadFromUri('/models');
-
-            setModelsLoaded(true);
-        } catch (err) {
-            console.error('Error loading models:', err);
-            alert('Failed to load face recognition models');
-        }
-    };
 
     // Start camera
     const startCamera = async () => {

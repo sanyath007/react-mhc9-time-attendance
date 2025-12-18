@@ -2,6 +2,7 @@ import { ScanFace, SquarePen, Trash2, UserPlus } from "lucide-react"
 import { useEffect, useState } from "react"
 import api from "../../api";
 import EmployeePosition from "../../components/features/EmployeePosition";
+import { Link } from "react-router-dom";
 
 export default function EmployeeList() {
     const [employees, setEmployees] = useState([]);
@@ -63,12 +64,12 @@ export default function EmployeeList() {
 
                                 {/* Action buttons */}
                                 <div className="flex flex-row gap-2">
-                                    <a href={`/employee/${employee.id}/face`} className=" text-blue-500">
+                                    <Link to={`/employee/${employee.id}/face`} className=" text-blue-500">
                                         <ScanFace />
-                                    </a>
-                                    <a href={`/employee/${employee.id}/edit`} className=" text-yellow-500">
+                                    </Link>
+                                    <Link to={`/employee/${employee.id}/edit`} className=" text-yellow-500">
                                         <SquarePen />
-                                    </a>
+                                    </Link>
                                     <a href={`/employee/${employee.id}/delete`} className=" text-red-500">
                                         <Trash2 />
                                     </a>

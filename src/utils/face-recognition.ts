@@ -1,14 +1,16 @@
 import * as faceapi from 'face-api.js';
 
 export const loadModels = async (onLoaded: () => void) => {
+    const vdir = process.env.NODE_ENV === 'development' ? '' : 'check-in';
+
     try {
         console.log('Loading face-api.js models...');
 
-        await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
-        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-        await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-        await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-        await faceapi.nets.faceExpressionNet.loadFromUri('/models');
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(`/${vdir}/models`);
+        await faceapi.nets.tinyFaceDetector.loadFromUri(`/${vdir}/models`);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(`/${vdir}/models`);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(`/${vdir}/models`);
+        await faceapi.nets.faceExpressionNet.loadFromUri(`/${vdir}/models`);
 
         onLoaded();
     } catch (err) {

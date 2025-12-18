@@ -47,6 +47,6 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 # Before build app
 1. comment REACT_APP_API_URL key of development and uncomment production one in .env.local file
-2. set property "homepage": "https://app.mhc9dmh.com/checkin/" in package.json
-3. set prop basename="/checkin" to Router component
+2. set property "homepage": "https://app.mhc9dmh.com/check-in/" in package.json
+3. set prop basename="/check-in" to Router component
 4. remove email and password values of initialValues prop in Login view 
