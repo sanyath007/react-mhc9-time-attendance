@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, FileText, History, CalendarClock } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import EmployeeAvatar from '../features/EmployeeAvatar';
 
 export default function Navbar() {
     const navigate = useNavigate();
@@ -172,11 +173,14 @@ export default function Navbar() {
                                     <p className="text-xs text-gray-500">{user?.email}</p>
                                 </div>
                                 <div className="relative">
-                                    {user && <img
-                                        src={`${process.env.REACT_APP_API_URL}/uploads/${user?.employee?.avatar_url}`}
-                                        alt={user?.name}
-                                        className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-blue-400 transition-all duration-200"
-                                    />}
+                                    {user && (
+                                        <EmployeeAvatar
+                                            image={`${process.env.REACT_APP_API_URL}/uploads/${user?.employee?.avatar_url}`}
+                                            alt={user?.name}
+                                            width="40px"
+                                            height="40px"
+                                        />
+                                    )}
                                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                                 </div>
                             </button>

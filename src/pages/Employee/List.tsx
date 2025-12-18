@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import api from "../../api";
 import EmployeePosition from "../../components/features/EmployeePosition";
 import { Link } from "react-router-dom";
+import EmployeeAvatar from "../../components/features/EmployeeAvatar";
 
 export default function EmployeeList() {
     const [employees, setEmployees] = useState([]);
@@ -48,13 +49,12 @@ export default function EmployeeList() {
                     {employees.filter(e => e.status === 1).map(employee => (
                         <li className="border rounded-md p-2" key={employee.id}>
                             <div className="flex flex-row items-center gap-3">
-                                <div>
-                                    <img
-                                        src={`${process.env.REACT_APP_API_URL}/uploads/${employee?.avatar_url}`}
-                                        alt={employee.firstname}
-                                        className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-blue-400 transition-all duration-200"
-                                    />
-                                </div>
+                                <EmployeeAvatar
+                                    image={`${process.env.REACT_APP_API_URL}/uploads/${employee?.avatar_url}`}
+                                    alt={employee.firstname}
+                                    width="50px"
+                                    height="50px"
+                                />
                                 <div className="w-4/5">
                                     <p className="text-lg font-bold">{employee.firstname} {employee.lastname}</p>
                                     <p className="text-gray-600">

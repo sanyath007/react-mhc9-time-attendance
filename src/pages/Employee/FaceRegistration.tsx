@@ -7,6 +7,7 @@ import api from '../../api';
 import { loadModels } from '../../utils/face-recognition';
 import { startCamera, stopCamera } from '../../utils/camera';
 import EmployeePosition from '../../components/features/EmployeePosition';
+import EmployeeAvatar from '../../components/features/EmployeeAvatar';
 
 interface CapturedImage {
     image: any;
@@ -270,13 +271,12 @@ export default function EmployeeFaceRegistration() {
                     {employee && (
                         <div className="flex flex-col items-center justify-between gap-4 h-[95%] py-6">
                             <div className="w-full flex flex-col items-center space-y-8">
-                                <div>
-                                    <img
-                                        src={`${process.env.REACT_APP_API_URL}/uploads/${employee?.avatar_url}`}
-                                        alt={employee.firstname}
-                                        className="w-[150px] h-[150px] rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-blue-400 transition-all duration-200"
-                                    />
-                                </div>
+                                <EmployeeAvatar
+                                    image={`${process.env.REACT_APP_API_URL}/uploads/${employee?.avatar_url}`}
+                                    alt={employee.firstname}
+                                    width="150px"
+                                    height="150px"
+                                />
 
                                 <div className="w-[90%] space-y-2">
                                     <p className="max-md:text-sm lg:text-lg">
