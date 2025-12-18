@@ -46,7 +46,7 @@ export default function EmployeeList() {
             <div className="bg-white rounded-lg shadow-lg p-6">
                 <ul className="space-y-2">
                     {employees.filter(e => e.status === 1).map(employee => (
-                        <li className="border rounded-md p-2">
+                        <li className="border rounded-md p-2" key={employee.id}>
                             <div className="flex flex-row items-center gap-3">
                                 <div>
                                     <img

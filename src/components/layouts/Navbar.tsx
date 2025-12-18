@@ -5,9 +5,10 @@ import { useAuth } from '../../hooks/useAuth';
 
 export default function Navbar() {
     const navigate = useNavigate();
+    const [activeDropdown, setActiveDropdown] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [activeDropdown, setActiveDropdown] = useState(null);
+    const [activeMobileDropdown, setActiveMobileDropdown] = useState(null);
     const { user, logout } = useAuth();
     const userMenuRef = useRef(null); // User menu
     const navMenuRef = useRef(null);
@@ -250,16 +251,18 @@ export default function Navbar() {
                                 {menu.dropdown ? (
                                     <>
                                         <button
-                                            onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+                                            onClick={() => setActiveMobileDropdown(activeMobileDropdown === index ? null : index)}
                                             className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                                        >
+                                            >
                                             <div className="flex items-center space-x-2">
                                                 {menu.icon && <menu.icon className="w-5 h-5" />}
                                                 <span>{menu.label}</span>
                                             </div>
-                                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === index ? 'rotate-180' : ''}`} />
+                                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeMobileDropdown === index ? 'rotate-180' : ''}`} />
                                         </button>
-                                        {activeDropdown === index && (
+
+                                        {/* Dropdown Menu */}
+                                        {menu.dropdown && activeMobileDropdown === index && (
                                             <div className="ml-4 mt-2 space-y-1">
                                                 {menu.dropdown.map((item, idx) => (
                                                     item.divider ? (
@@ -268,6 +271,10 @@ export default function Navbar() {
                                                         <Link
                                                             key={idx}
                                                             to={item.href}
+                                                            onClick={() => {
+                                                                setIsMobileMenuOpen(false);
+                                                                setActiveMobileDropdown(null);
+                                                            }}
                                                             className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-lg transition-colors ${
                                                                 item.highlight
                                                                 ? 'text-blue-600 hover:bg-blue-50 font-medium'
@@ -285,6 +292,10 @@ export default function Navbar() {
                                 ) : (
                                     <Link
                                         to={menu.href}
+                                        onClick={() => {
+                                            setIsMobileMenuOpen(false);
+                                            setActiveMobileDropdown(null);
+                                        }}
                                         className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                                     >
                                         {menu.icon && <menu.icon className="w-5 h-5" />}
