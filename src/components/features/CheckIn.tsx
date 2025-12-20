@@ -16,7 +16,7 @@ interface DetectedEmployee {
     confidence?: number;
 };
 
-export default function CheckIn() {
+export default function CheckIn({ distance }: { distance: number }) {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [stream, setStream] = useState(null);
@@ -351,7 +351,7 @@ export default function CheckIn() {
                 {!capturedImage ? (
                     <button
                         onClick={capturePhoto}
-                        disabled={!faceDetected || !isCameraActive || !modelsLoaded || isProcessing}
+                        disabled={!faceDetected || !isCameraActive || !modelsLoaded || isProcessing || distance > 500}
                         className="flex items-center gap-2 px-8 max-md:px-4 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                     >
                         <Camera className="w-5 h-5" />

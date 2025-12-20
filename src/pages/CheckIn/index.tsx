@@ -1,9 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { User, Clock } from 'lucide-react';
+import React, { use, useEffect, useState } from 'react';
+import { Clock, MapPin, Navigation, NavigationOff, User } from 'lucide-react';
 import CheckIn from '../../components/features/CheckIn';
+import { useGeolocation } from '../../hooks/useLocation';
+import { LocationData } from '../../hooks/useLocation';
 
 export default function CheckInContainer() {
     const [currentTime, setCurrentTime] = useState(new Date());
+    const { getCurrentLocation, calculateDistance, findNearestLocation } = useGeolocation();
+    const [location, setLocation] = useState<LocationData | null>(null);
+    const [distance, setDistance] = useState<number>(0);
+
+    useEffect(() => {
+        const fetchLocation = async () => {
+            const loc = await getCurrentLocation();
+            setLocation(loc);
+            setDistance(calculateDistance(loc?.latitude, loc?.longitude, 14.98326727612899, 102.10488443930059)); // Example coordinates
+        };
+
+        fetchLocation();
+
+    }, []);
 
     // Update time every second
     useEffect(() => {
@@ -20,16 +36,22 @@ export default function CheckInContainer() {
             <div className="bg-white rounded-lg shadow-lg p-6 mb-6 max-md:p-3 max-md:mb-3">
                 <div className="flex max-md:flex-col items-center justify-between max-md:items-start gap-2">
                     <div className="flex items-center gap-3">
-                        <div className="bg-indigo-600 p-3 rounded-lg">
-                            <User className="w-8 h-8 max-md:w-4 max-md:h-4 text-white" />
+                        <div className="bg-indigo-600 p-3 max-md:p-2 rounded-lg">
+                            <User className="w-8 h-8 max-md:w-6 max-md:h-6 text-white" />
                         </div>
                         <div>
                             <h1 className="text-2xl max-md:text-xl font-bold text-gray-800">Time Attendance System</h1>
                             <p className="max-md:hidden text-gray-600">Employee Check-In</p>
+                            <div className="hidden max-md:flex items-center justify-start gap-2 text-gray-700">
+                                <Clock className="w-5 h-5 max-md:w-4 max-md:h-4" />
+                                <span className="text-lg max-md:text-sm font-semibold">
+                                    {currentTime.toLocaleTimeString()}
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div className="text-right max-md:hidden">
-                        <div className="flex items-center gap-2 text-gray-700">
+                        <div className="flex items-center justify-end gap-2 text-gray-700">
                             <Clock className="w-5 h-5" />
                             <span className="text-lg font-semibold">
                                 {currentTime.toLocaleTimeString()}
@@ -49,7 +71,29 @@ export default function CheckInContainer() {
             
             {/* Main Content */}
             <div className="bg-white rounded-lg shadow-lg p-6 max-md:p-4">
-                <CheckIn />
+                {/* User Location Info */}
+                <div className="flex flex-row max-md:flex-col items-center max-md:items-start justify-between mb-3">
+                    <p className="text-gray-700 max-md:text-sm">
+                        <MapPin className="inline w-5 h-5 max-md:w-4 max-md:h-4 mb-1 mr-[2px] text-indigo-700" />
+                        <span>Current Location:</span>
+                        <span className="max-md:text-xs font-bold ml-2">
+                            {location?.latitude}, {location?.longitude}
+                        </span>
+                    </p>
+                    <p className="text-gray-700 max-md:text-sm">
+                        {distance > 500 
+                            ? <NavigationOff className="inline w-5 h-5 max-md:w-4 max-md:h-4 mb-1 mr-[2px] text-red-500" />
+                            : <Navigation className="inline w-5 h-5 max-md:w-4 max-md:h-4 mb-1 mr-[2px] text-indigo-700" />
+                        }
+                        <span>Distance to Office:</span>
+                        <span className={`${distance > 500 ? 'text-red-500' : 'text-green-500'} font-bold ml-2`}>
+                            {distance.toFixed(2)}
+                        </span> meters
+                    </p>
+                </div>
+
+                {/* CheckIn Component */}
+                <CheckIn distance={distance} />
             </div>
         </div>
     );
