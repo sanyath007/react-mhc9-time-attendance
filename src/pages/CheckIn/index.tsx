@@ -12,14 +12,13 @@ export default function CheckInContainer() {
 
     useEffect(() => {
         const fetchLocation = async () => {
-            const loc = await getCurrentLocation();
-            setLocation(loc);
-            setDistance(calculateDistance(loc?.latitude, loc?.longitude, 14.98326727612899, 102.10488443930059)); // Example coordinates
+            const _location = await getCurrentLocation();
+            setLocation(_location);
+            setDistance(calculateDistance(_location?.latitude, _location?.longitude, 14.98326727612899, 102.10488443930059)); // Example coordinates
         };
 
         fetchLocation();
-
-    }, []);
+    }, [location]);
 
     // Update time every second
     useEffect(() => {
