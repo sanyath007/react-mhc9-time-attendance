@@ -2,22 +2,24 @@ import React, { use, useEffect, useState } from 'react';
 import { Clock, MapPin, Navigation, NavigationOff, User } from 'lucide-react';
 import CheckIn from '../../components/features/CheckIn';
 import { useGeolocation } from '../../hooks/useLocation';
-import { LocationData } from '../../hooks/useLocation';
+import { useLiveLocation } from '../../hooks/useLiveLocation';
 
 export default function CheckInContainer() {
     const [currentTime, setCurrentTime] = useState(new Date());
-    const { getCurrentLocation, calculateDistance, findNearestLocation } = useGeolocation();
-    const [location, setLocation] = useState<LocationData | null>(null);
+    const { calculateDistance, checkCurrentLocationRadius } = useGeolocation();
     const [distance, setDistance] = useState<number>(0);
+    const location = useLiveLocation();
 
+    // Update distance when location changes
     useEffect(() => {
-        const fetchLocation = async () => {
-            const _location = await getCurrentLocation();
-            setLocation(_location);
-            setDistance(calculateDistance(_location?.latitude, _location?.longitude, 14.98326727612899, 102.10488443930059)); // Example coordinates
-        };
+        setDistance(calculateDistance(
+            location?.latitude,
+            location?.longitude,
+            14.98326727612899,
+            102.10488443930059
+        ));
 
-        fetchLocation();
+        console.log(location, distance);
     }, [location]);
 
     // Update time every second
