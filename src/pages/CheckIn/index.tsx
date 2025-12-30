@@ -4,8 +4,8 @@ import CheckIn from '../../components/features/CheckIn';
 import { useGeolocation } from '../../hooks/useLocation';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
 
-const OFFICE_LATITUDE = 14.949044854915998; // 14.98326727612899
-const OFFICE_LONGITUDE = 102.16705676446011;  // 102.10488443930059
+const OFFICE_LATITUDE = process.env.REACT_APP_OFFICE_LATITUDE ? parseFloat(process.env.REACT_APP_OFFICE_LATITUDE) : 14.98326727612899;
+const OFFICE_LONGITUDE = process.env.REACT_APP_OFFICE_LONGITUDE ? parseFloat(process.env.REACT_APP_OFFICE_LONGITUDE) : 102.10488443930059;
 
 export default function CheckInContainer() {
     const [currentTime, setCurrentTime] = useState(new Date());
