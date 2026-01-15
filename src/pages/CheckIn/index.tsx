@@ -2,22 +2,27 @@ import React, { use, useEffect, useState } from 'react';
 import { Clock, MapPin, Navigation, NavigationOff, User } from 'lucide-react';
 import CheckIn from '../../components/features/CheckIn';
 import { useGeolocation } from '../../hooks/useLocation';
-import { LocationData } from '../../hooks/useLocation';
+import { useLiveLocation } from '../../hooks/useLiveLocation';
+
+const OFFICE_LATITUDE = process.env.REACT_APP_OFFICE_LATITUDE ? parseFloat(process.env.REACT_APP_OFFICE_LATITUDE) : 14.98326727612899;
+const OFFICE_LONGITUDE = process.env.REACT_APP_OFFICE_LONGITUDE ? parseFloat(process.env.REACT_APP_OFFICE_LONGITUDE) : 102.10488443930059;
 
 export default function CheckInContainer() {
     const [currentTime, setCurrentTime] = useState(new Date());
-    const { getCurrentLocation, calculateDistance, findNearestLocation } = useGeolocation();
-    const [location, setLocation] = useState<LocationData | null>(null);
+    const { calculateDistance } = useGeolocation();
     const [distance, setDistance] = useState<number>(0);
+    const location = useLiveLocation();
 
+    // Update distance when location changes
     useEffect(() => {
-        const fetchLocation = async () => {
-            const _location = await getCurrentLocation();
-            setLocation(_location);
-            setDistance(calculateDistance(_location?.latitude, _location?.longitude, 14.98326727612899, 102.10488443930059)); // Example coordinates
-        };
+        setDistance(calculateDistance(
+            location?.latitude,
+            location?.longitude,
+            OFFICE_LATITUDE,
+            OFFICE_LONGITUDE
+        ));
 
-        fetchLocation();
+        console.log(location, distance);
     }, [location]);
 
     // Update time every second
@@ -75,8 +80,11 @@ export default function CheckInContainer() {
                     <p className="text-gray-700 max-md:text-sm">
                         <MapPin className="inline w-5 h-5 max-md:w-4 max-md:h-4 mb-1 mr-[2px] text-indigo-700" />
                         <span>Current Location:</span>
-                        <span className="max-md:text-xs font-bold ml-2">
+                        <span className="max-md:hidden font-bold ml-2">
                             {location?.latitude}, {location?.longitude}
+                        </span>
+                        <span className="hidden max-md:inline max-md:text-xs font-bold ml-2">
+                            {location?.latitude.toFixed(4)}, {location?.longitude.toFixed(4)}
                         </span>
                     </p>
                     <p className="text-gray-700 max-md:text-sm">
