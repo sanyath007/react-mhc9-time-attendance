@@ -1,3 +1,1 @@
-export type AttendanceFilters = {
-    toDay: string
-}
+export const STARTING_DATE = '2026-01-21';

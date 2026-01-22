@@ -3,6 +3,8 @@ import { Camera, CheckCircle, XCircle, User, X, AlertCircle } from 'lucide-react
 import * as faceapi from 'face-api.js';
 import api from '../../api';
 import { loadModels } from '../../utils/face-recognition';
+import { dataURLtoBlob } from '../../utils/image';
+import moment from 'moment';
 
 enum ComparationStatus {
     IDLE = "idle",
@@ -172,18 +174,14 @@ export default function CheckIn({ distance }: { distance: number }) {
         try {
             const formData = new FormData();
             formData.append('employee_id', detectedEmployee?.id);
-            formData.append('timestamp', new Date().toISOString());
-            formData.append('image', capturedImage);
+            formData.append('check_in_time', moment().format('YYYY-MM-DD HH:mm:ss'));
+            formData.append('check_in_image', dataURLtoBlob(capturedImage), "captured_image.png");
+            formData.append('check_in_score', '5');
 
-            const response = await fetch('/api/time-attendance/check-in', {
-                method: 'POST',
-                // headers: { 'Content-Type': 'application/json' },
-                body: formData,
-            });
+            const response = await api.post('/api/time-attendance/check-in', formData);
+            console.log(response);
 
-            const data = await response.json();
-
-            if (data.success) {
+            if (response.statusText === 'OK') {
                 setCheckInStatus('success');
             } else {
                 setCheckInStatus('error');
@@ -191,15 +189,15 @@ export default function CheckIn({ distance }: { distance: number }) {
 
             setCheckInStatus('success');
 
-            setTimeout(() => {
-                setCapturedImage(null);
-                setDetectedEmployee(null);
-                setCheckInStatus(null);
-                setIsProcessing(false);
-                setCompared(ComparationStatus.IDLE);
+            // setTimeout(() => {
+            //     setCapturedImage(null);
+            //     setDetectedEmployee(null);
+            //     setCheckInStatus(null);
+            //     setIsProcessing(false);
+            //     setCompared(ComparationStatus.IDLE);
 
-                startCamera();
-            }, 3000);
+            //     startCamera();
+            // }, 3000);
         } catch (err) {
             console.error('Error confirming check-in:', err);
             setCheckInStatus('error');

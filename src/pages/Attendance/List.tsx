@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { CalendarClock } from 'lucide-react';
 import moment from 'moment';
 import api from '../../api';
-import { AttendanceFilters } from '../../lib/constants';
+import { AttendanceFilters } from '../../lib/types';
+import { STARTING_DATE } from '../../lib/constants';
 import FliteringInputs from './FliteringInputs';
 
 const AttendanceList = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [attendances, setAttendances] = useState([]);
-    const [currentDate, setCurrentDate] = useState<string>(moment('2026-01-15').format('YYYY-MM-DD'));
-
+    const [currentDate, setCurrentDate] = useState<string>(moment().format('YYYY-MM-DD'));
+    const imgUrl = moment(STARTING_DATE).diff(moment(currentDate), "day") > 1 ? 'https://mhc9dmh.com/DATA/PhotoCheckTime' : `${process.env.REACT_APP_API_URL}/uploads`;
+    
     useEffect(() => {
         getAttendances(currentDate)
     }, [currentDate]);
@@ -76,17 +78,17 @@ const AttendanceList = () => {
                     {!isLoading && attendances.filter((attendance: any) => attendance.CheTmType === 'เข้า').map((attendance: any) => (
                         <div key={attendance.CheTmID} className="flex flex-row items-center gap-4 border-b last:border-0 py-4">
                             {attendance.CheTmPic ? (
-                            <img
-                                src={`https://mhc9dmh.com/DATA/PhotoCheckTime/${attendance.CheTmPic}`}
-                                className='w-16 h-16 object-cover rounded-md'
-                                alt='check-in-pic'
-                            />
+                                <img
+                                    src={`${imgUrl}/${attendance.CheTmPic}`}
+                                    className='w-16 h-16 object-cover rounded-md'
+                                    alt='check-in-pic'
+                                />
                             ) : (
                                 <img
-                                src={`https://ui-avatars.com/api/?name=John+Doe&background=${attendance.employee?.EmColor}&color=fff&size=128`}
-                                className='w-16 h-16 object-cover rounded-md'
-                                alt='check-in-pic'
-                            />
+                                    src={`https://ui-avatars.com/api/?name=John+Doe&background=${attendance.employee?.EmColor}&color=fff&size=128`}
+                                    className='w-16 h-16 object-cover rounded-md'
+                                    alt='check-in-pic'
+                                />
                             )}
 
                             <div>

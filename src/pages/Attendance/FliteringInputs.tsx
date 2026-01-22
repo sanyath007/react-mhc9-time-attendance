@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from 'react'
-import { AttendanceFilters } from '../../lib/constants';
+import { AttendanceFilters } from '../../lib/types';
 
 type FilteringInputsProps = {
     initialValues: AttendanceFilters;
