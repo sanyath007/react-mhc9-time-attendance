@@ -1,5 +1,6 @@
 import React from 'react'
 import { House } from 'lucide-react';
+import HeaderIcon from '../../components/ui/HeaderIcon';
 
 const Home = () => {
     return (
@@ -9,7 +10,7 @@ const Home = () => {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="bg-indigo-600 p-3 max-md:p-2 rounded-lg">
-                            <House className="w-8 h-8 max-md:w-6 max-md:h-6 text-white" />
+                            <HeaderIcon Icon={House} />
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-gray-800 max-md:text-xl">หน้าหลัก</h1>

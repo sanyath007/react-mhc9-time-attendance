@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import api from "../../api";
 import EmployeePosition from "../../components/features/EmployeePosition";
 import EmployeeAvatar from "../../components/features/EmployeeAvatar";
+import HeaderIcon from "../../components/ui/HeaderIcon";
 
 export default function EmployeeList() {
     const [employees, setEmployees] = useState([]);
@@ -28,7 +29,7 @@ export default function EmployeeList() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="bg-purple-600 p-3 max-md:p-2  rounded-lg">
-                            <UserPlus className="w-8 h-8 max-md:w-6 max-md:h-6 text-white" />
+                            <HeaderIcon Icon={UserPlus} />
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-gray-800 max-md:text-xl">รายการบุคลากร</h1>

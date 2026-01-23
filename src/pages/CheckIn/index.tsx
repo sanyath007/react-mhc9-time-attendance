@@ -3,6 +3,7 @@ import { Clock, MapPin, Navigation, NavigationOff, User } from 'lucide-react';
 import CheckIn from '../../components/features/CheckIn';
 import { useGeolocation } from '../../hooks/useLocation';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
+import HeaderIcon from '../../components/ui/HeaderIcon';
 
 const OFFICE_LATITUDE = process.env.REACT_APP_OFFICE_LATITUDE ? parseFloat(process.env.REACT_APP_OFFICE_LATITUDE) : 14.98326727612899;
 const OFFICE_LONGITUDE = process.env.REACT_APP_OFFICE_LONGITUDE ? parseFloat(process.env.REACT_APP_OFFICE_LONGITUDE) : 102.10488443930059;
@@ -41,7 +42,7 @@ export default function CheckInContainer() {
                 <div className="flex max-md:flex-col items-center justify-between max-md:items-start gap-2">
                     <div className="flex items-center gap-3">
                         <div className="bg-indigo-600 p-3 max-md:p-2 rounded-lg">
-                            <User className="w-8 h-8 max-md:w-6 max-md:h-6 text-white" />
+                            <HeaderIcon Icon={User} />
                         </div>
                         <div>
                             <h1 className="text-2xl max-md:text-xl font-bold text-gray-800">Time Attendance System</h1>

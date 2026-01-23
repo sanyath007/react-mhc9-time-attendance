@@ -5,6 +5,7 @@ import api from '../../api';
 import { AttendanceFilters } from '../../lib/types';
 import { STARTING_DATE } from '../../lib/constants';
 import FliteringInputs from './FliteringInputs';
+import HeaderIcon from '../../components/ui/HeaderIcon';
 
 const AttendanceList = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +37,7 @@ const AttendanceList = () => {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="bg-indigo-600 p-3 max-md:p-2 rounded-lg">
-                            <CalendarClock className="w-8 h-8 max-md:w-6 max-md:h-6 text-white" />
+                            <HeaderIcon Icon={CalendarClock} />
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-gray-800 max-md:text-xl">รายการลงเวลา</h1>
