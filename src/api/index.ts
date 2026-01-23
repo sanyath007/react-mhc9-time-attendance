@@ -27,11 +27,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use((response) => {
     return response;
 }, (error) => {
-    if (error.response.status === 401) {
-        return window.location.href = "/login";
-    } else {
-        return Promise.reject(error);
+    if (error.response && error.response.status === 401) {
+        console.log('User unauthenticated, redirecting...');
+
+        window.location.href = "/login";
     }
+
+    return Promise.reject(error);
 })
 
 export default api;
