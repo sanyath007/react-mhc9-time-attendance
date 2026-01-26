@@ -40,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('access_token', res.data.access_token);
             localStorage.setItem('auth_user', JSON.stringify(res.data.user));
             setUser(res.data.user);
+
             return { success: true, message: ''};
         } catch (error) {
             return { success: false, message: error.message };

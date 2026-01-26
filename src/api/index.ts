@@ -19,10 +19,16 @@ api.interceptors.request.use(
             const token = localStorage.getItem("access_token");
 
             /** Check if access token is valid or not */
-            if (verifyToken(token)) {
+            if (token && !verifyToken(token)) {
                 console.log('Access token is invalid!');
+
+                /** TODO: should use this code line as utils function */
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('auth_user');
+                window.location.href = "/";
             }
 
+            /** If access token is valid append it as Authorization Bearer */
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
@@ -43,6 +49,9 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             console.log('User unauthenticated, redirecting...');
 
+            /** TODO: should use this code line as utils function */
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('auth_user');
             window.location.href = "/";
         }
 

@@ -30,7 +30,7 @@ const Login = () => {
         try {
             // if (validator.success) {
                 const result = await login(data);
-    
+
                 if (result.success) {
                     navigate('/');
                 }
