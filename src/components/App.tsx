@@ -1,16 +1,16 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom'
-import ProtectedLayout from './components/layouts/Protected';
-import DefaultLayout from './components/layouts/Default';
-import AuthLayout from './components/layouts/Auth';
-import Home from './pages/Home';
-import CheckInContainer from './pages/CheckIn';
-import NotFound from './pages/NotFound';
-import EmployeeList from './pages/Employee/List';
-import EmployeeFaceRegistration from './pages/Employee/FaceRegistration';
-import EmployeeForm from './pages/Employee/Form';
-import AttendanceList from './pages/Attendance/List';
-import Login from './pages/Auth/Login';
+import ProtectedLayout from './layouts/Protected';
+import DefaultLayout from './layouts/Default';
+import AuthLayout from './layouts/Auth';
+import Home from '../pages/Home';
+import CheckInContainer from '../pages/CheckIn';
+import NotFound from '../pages/NotFound';
+import EmployeeList from '../pages/Employee/List';
+import EmployeeFaceRegistration from '../pages/Employee/FaceRegistration';
+import EmployeeForm from '../pages/Employee/Form';
+import AttendanceList from '../pages/Attendance/List';
+import Login from '../pages/Auth/Login';
 
 function App() {
     return (
