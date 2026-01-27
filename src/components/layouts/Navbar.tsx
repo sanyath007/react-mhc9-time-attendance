@@ -166,7 +166,7 @@ export default function Navbar() {
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 className="flex items-center space-x-3 focus:outline-none group"
                             >
-                                <div className="text-right">
+                                <div className="hidden lg:block text-right">
                                     <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
                                         {user?.name}
                                     </p>
