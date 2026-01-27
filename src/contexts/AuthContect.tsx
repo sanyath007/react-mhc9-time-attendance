@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const initializeAuth = async () => {
             const token = localStorage.getItem('access_token');
-            const storedUser = JSON.parse(localStorage.getItem('auth_user') || '');
+            const storedUser = localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user') || '') : null;
 
             if (token && storedUser) {
                 setUser(storedUser);
