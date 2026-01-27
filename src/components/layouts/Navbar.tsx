@@ -1,29 +1,29 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, FileText, History, CalendarClock } from 'lucide-react';
+import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, History, CalendarClock } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import EmployeeAvatar from '../features/EmployeeAvatar';
 
 export default function Navbar() {
     const navigate = useNavigate();
-    const [activeDropdown, setActiveDropdown] = useState(null);
+    const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [activeMobileDropdown, setActiveMobileDropdown] = useState(null);
+    const [activeMobileDropdown, setActiveMobileDropdown] = useState<number | null>(null);
     const { user, logout } = useAuth();
-    const userMenuRef = useRef(null); // User menu
-    const navMenuRef = useRef(null);
+    const userMenuRef = useRef<HTMLDivElement | null>(null); // User menu
+    const navMenuRef = useRef<HTMLDivElement | null>(null);
 
     // ปิด dropdown เมื่อคลิกข้างนอก
     useEffect(() => {
-        const handleClickOutside = (event) => {
+        const handleClickOutside = (event: Event) => {
             /** Main menu */
-            if (navMenuRef.current && !navMenuRef.current.contains(event.target)) {
+            if (navMenuRef.current && !navMenuRef.current.contains(event.target as Node)) {
                 setActiveDropdown(null);
             }
 
             /** User menu */
-            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
                 setIsDropdownOpen(false);
             }
         };
@@ -137,7 +137,7 @@ export default function Navbar() {
                                                     ) : (
                                                         <Link
                                                             key={idx}
-                                                            to={item.href}
+                                                            to={item.href || ''}
                                                             onClick={() => setActiveDropdown(null)}
                                                             className={`flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
                                                                 item.highlight
@@ -175,7 +175,7 @@ export default function Navbar() {
                                 <div className="relative">
                                     {user && (
                                         <EmployeeAvatar
-                                            image={`${process.env.REACT_APP_API_URL}/uploads/${user?.employee?.avatar_url}`}
+                                            image={`${import.meta.env.VITE_API_URL}/uploads/${user?.employee?.avatar_url}`}
                                             alt={user?.name}
                                             width="40px"
                                             height="40px"
@@ -239,7 +239,7 @@ export default function Navbar() {
                         {/* User Info Mobile */}
                         <div className="flex items-center space-x-3 pb-4 border-b border-gray-200">
                             {user && <img
-                                src={`${process.env.REACT_APP_API_URL}/uploads/${user?.employee?.avatar_url}`}
+                                src={`${import.meta.env.VITE_API_URL}/uploads/${user?.employee?.avatar_url}`}
                                 alt={user?.name}
                                 className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200"
                             />}
@@ -274,7 +274,7 @@ export default function Navbar() {
                                                     ) : (
                                                         <Link
                                                             key={idx}
-                                                            to={item.href}
+                                                            to={item.href || ''}
                                                             onClick={() => {
                                                                 setIsMobileMenuOpen(false);
                                                                 setActiveMobileDropdown(null);
@@ -317,8 +317,8 @@ export default function Navbar() {
                                 <button
                                     key={index}
                                     onClick={() => {
-                                    item.action();
-                                    setIsMobileMenuOpen(false);
+                                        item.action();
+                                        setIsMobileMenuOpen(false);
                                     }}
                                     className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                                     item.danger

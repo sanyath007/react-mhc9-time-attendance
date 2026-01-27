@@ -1,12 +1,12 @@
-import React, { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Clock, MapPin, Navigation, NavigationOff, User } from 'lucide-react';
 import CheckIn from '../../components/features/CheckIn';
 import { useGeolocation } from '../../hooks/useLocation';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
 import HeaderIcon from '../../components/ui/HeaderIcon';
 
-const OFFICE_LATITUDE = process.env.REACT_APP_OFFICE_LATITUDE ? parseFloat(process.env.REACT_APP_OFFICE_LATITUDE) : 14.98326727612899;
-const OFFICE_LONGITUDE = process.env.REACT_APP_OFFICE_LONGITUDE ? parseFloat(process.env.REACT_APP_OFFICE_LONGITUDE) : 102.10488443930059;
+const OFFICE_LATITUDE = import.meta.env.VITE_OFFICE_LATITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LATITUDE) : 14.98326727612899;
+const OFFICE_LONGITUDE = import.meta.env.VITE_OFFICE_LONGITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LONGITUDE) : 102.10488443930059;
 
 export default function CheckInContainer() {
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -14,19 +14,21 @@ export default function CheckInContainer() {
     const [distance, setDistance] = useState<number>(0);
     const location = useLiveLocation();
 
-    // Update distance when location changes
+    /** Update distance when location changes */
     useEffect(() => {
-        setDistance(calculateDistance(
-            location?.latitude,
-            location?.longitude,
-            OFFICE_LATITUDE,
-            OFFICE_LONGITUDE
-        ));
+        if (location) {
+            setDistance(calculateDistance(
+                location.latitude,
+                location.longitude,
+                OFFICE_LATITUDE,
+                OFFICE_LONGITUDE
+            ));
+        }
 
         console.log(location, distance);
     }, [location]);
 
-    // Update time every second
+    /** Update time every second */
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentTime(new Date());

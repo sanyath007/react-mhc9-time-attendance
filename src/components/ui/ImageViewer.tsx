@@ -1,4 +1,3 @@
-import React from 'react'
 import { X } from 'lucide-react';
 
 const ImageViewer = ({ isShow, onHide, image }: { isShow: boolean, onHide: any, image: string }) => {

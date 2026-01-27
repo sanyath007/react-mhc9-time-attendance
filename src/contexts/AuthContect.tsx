@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import { createContext, type ReactNode, useEffect, useState } from "react";
 import api from "../api";
 
 interface AuthContextType {
@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const initializeAuth = async () => {
             const token = localStorage.getItem('access_token');
-            const storedUser = JSON.parse(localStorage.getItem('auth_user'));
+            const storedUser = JSON.parse(localStorage.getItem('auth_user') || '');
 
             if (token && storedUser) {
                 setUser(storedUser);
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         initializeAuth();
     }, []);
 
-    const login = async ({ email, password }): Promise<{ success: boolean, message: string }> => {
+    const login = async ({ email, password }: { email: string, password: string }): Promise<{ success: boolean, message: string }> => {
         try {
             setIsLoading(true);
 
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             return { success: true, message: ''};
         } catch (error) {
-            return { success: false, message: error.message };
+            return { success: false, message: error  instanceof Error ? error.message : '' };
         } finally {
             setIsLoading(false);
         }

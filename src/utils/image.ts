@@ -1,8 +1,8 @@
 export function dataURLtoBlob(dataUrl: string) {
     // Split the dataurl into the mime type part and the base64 data part
-    var arr = dataUrl.split(','), 
-        mime = arr[0].match(/:(.*?);/)[1],
-        b64 = arr[1];
+    const arr: string[] = dataUrl.split(',');
+    const mime = arr[0].match(/:(.*?);/)![1];
+    const b64 = arr[1];
 
     // Decode the base64 string into a binary string
     var bstr = atob(b64);

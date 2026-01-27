@@ -1,7 +1,6 @@
-import React from 'react'
 import { Outlet } from 'react-router-dom';
-import Navbar from './Navbar';
-import CheckIn from '../features/CheckIn';
+// import Navbar from './Navbar';
+// import CheckIn from '../features/CheckIn';
 import Footer from './Footer';
 
 const DefaultLayout = () => {

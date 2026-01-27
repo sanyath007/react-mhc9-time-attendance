@@ -1,6 +1,11 @@
-import React from 'react'
+type EmployeeAvatarProps = {
+    image: string;
+    alt: string;
+    width?: string;
+    height?: string;
+}
 
-const EmployeeAvatar = ({ image, alt='employee-pic', width='40px', height='40px' }) => {
+const EmployeeAvatar = ({ image, alt='employee-pic', width='40px', height='40px' }: EmployeeAvatarProps) => {
     return (
         <div
             className={`flex items-start justify-center rounded-full overflow-hidden ring-2 ring-gray-200 group-hover:ring-blue-400 transition-all duration-200`}

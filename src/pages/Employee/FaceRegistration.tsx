@@ -1,24 +1,14 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, type RefObject } from 'react';
 import { Camera, UserPlus, XCircle, CheckCircle, AlertCircle, Trash2, Eye } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import * as faceapi from 'face-api.js';
-import ImageViewer from '../../components/ui/ImageViewer';
 import api from '../../api';
 import { loadModels } from '../../utils/face-recognition';
 import { startCamera, stopCamera } from '../../utils/camera';
+import ImageViewer from '../../components/ui/ImageViewer';
 import EmployeePosition from '../../components/features/EmployeePosition';
 import EmployeeAvatar from '../../components/features/EmployeeAvatar';
-
-interface CapturedImage {
-    image: any;
-    descriptor: any;
-    timestamp: string;
-};
-
-type FaceRecognitionData = {
-    id: string,
-    face_descriptor: string,
-}
+import { type CapturedImage, type Employee, type FaceRecognitionData } from '../../lib/types';
 
 export default function EmployeeFaceRegistration() {
     const { id } = useParams();
@@ -30,15 +20,15 @@ export default function EmployeeFaceRegistration() {
     const [faceDetected, setFaceDetected] = useState<boolean>(false);
     const [modelsLoaded, setModelsLoaded] = useState<boolean>(false);
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
-    const [registrationStatus, setRegistrationStatus] = useState(null);    
+    const [registrationStatus, setRegistrationStatus] = useState<string | null>(null);    
     const [formData, setFormData] = useState<FaceRecognitionData>({ id: '', face_descriptor: '' });
     const [errors, setErrors] = useState<{ id: string, amountOfImage: string } | null>(null);
     const [showPreview, setShowPreview] = useState<boolean>(false);
     const [preview, setPreview] = useState('');
-    const [employee, setEmployee] = useState<any | null>(null);
+    const [employee, setEmployee] = useState<Employee | null>(null);
 
     useEffect(() => {
-        const fetchEmployee = async (id) => {
+        const fetchEmployee = async (id: string) => {
             const res = await api.get(`/api/employees/${id}`);
 
             if (res.status === 200) {
@@ -67,11 +57,11 @@ export default function EmployeeFaceRegistration() {
                 height: videoRef.current.videoHeight 
             };
 
-            faceapi.matchDimensions(canvasRef.current, displaySize);
+            faceapi.matchDimensions(canvas!, displaySize);
 
             setInterval(async () => {
                 const detections = await faceapi
-                    .detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+                    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
                     .withFaceLandmarks()
                     .withFaceDescriptors();
 
@@ -80,9 +70,9 @@ export default function EmployeeFaceRegistration() {
 
                     const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-                    const context = canvasRef.current.getContext('2d');
-                    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-                    faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
+                    const context = canvas?.getContext('2d');
+                    context?.clearRect(0, 0, canvas!.width, canvas!.height);
+                    faceapi.draw.drawDetections(canvas || '', resizedDetections);
                 } else {
                     setFaceDetected(false);
                 }
@@ -103,7 +93,7 @@ export default function EmployeeFaceRegistration() {
 
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            context?.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             const imageData = canvas.toDataURL('image/png');
 
@@ -125,23 +115,23 @@ export default function EmployeeFaceRegistration() {
             setIsProcessing(false);
 
             if (capturedImages.length >= 4) {
-                stopCamera(stream, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); });
+                stopCamera(stream!, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); });
             }
         }
     };
 
-    const removeImage = (index) => {
+    const removeImage = (index: number) => {
         setCapturedImages(capturedImages.filter((_, i) => i !== index));
     };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+    // const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    //     const { name, value } = e.target;
+    //     setFormData({ ...formData, [name]: value });
 
-        if (errors[name]) {
-            setErrors({ ...errors, [name]: '' });
-        }
-    };
+    //     if (errors && name in errors) {
+    //         setErrors({ ...errors, [name]: '' });
+    //     }
+    // };
 
     const validateForm = () => {
         const newErrors: any = {};
@@ -176,7 +166,7 @@ export default function EmployeeFaceRegistration() {
                 /**
                  * ===================== Method 2 =====================
                  */
-                avgDescriptor = capturedImages[0].descriptor.map((val, i) => {
+                avgDescriptor = capturedImages[0].descriptor.map((val: number, i: number) => {
                     let sum = val;
                     for (let j = 1; j < capturedImages.length; j++) {
                         sum += capturedImages[j].descriptor[i];
@@ -218,7 +208,7 @@ export default function EmployeeFaceRegistration() {
         setCapturedImages([]);
         setErrors(null);
         setRegistrationStatus(null);
-        stopCamera(stream, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); });
+        stopCamera(stream!, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); });
     };
 
     return (
@@ -272,7 +262,7 @@ export default function EmployeeFaceRegistration() {
                         <div className="flex flex-col items-center justify-between gap-4 h-[95%] max-md:h-auto py-6 max-md:py-0">
                             <div className="w-full flex flex-col items-center space-y-8">
                                 <EmployeeAvatar
-                                    image={`${process.env.REACT_APP_API_URL}/uploads/${employee?.avatar_url}`}
+                                    image={`${import.meta.env.VITE_API_URL}/uploads/${employee?.avatar_url}`}
                                     alt={employee.firstname}
                                     width="150px"
                                     height="150px"
@@ -284,7 +274,10 @@ export default function EmployeeFaceRegistration() {
                                     </p>
                                     <p className="max-md:text-sm lg:text-lg">
                                         <span className="font-bold">ตำแหน่ง: </span>
-                                        <EmployeePosition employee={employee} />
+                                        <EmployeePosition
+                                            position={employee.position}
+                                            level={employee.level}
+                                        />
                                     </p>
                                     <p className="max-md:text-sm lg:text-lg">
                                         <span className="font-bold">ที่อยู่: </span>
@@ -390,7 +383,7 @@ export default function EmployeeFaceRegistration() {
                         <div className="flex gap-3">
                             {!isCameraActive ? (
                                 <button
-                                    onClick={() => startCamera(videoRef, detectFaces, (mediaStream) => { setStream(mediaStream); setIsCameraActive(true); })}
+                                    onClick={() => startCamera(videoRef as RefObject<HTMLVideoElement>, detectFaces, (mediaStream) => { setStream(mediaStream); setIsCameraActive(true); })}
                                     disabled={!modelsLoaded || capturedImages.length >= 5}
                                     className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                                 >
@@ -400,7 +393,7 @@ export default function EmployeeFaceRegistration() {
                             ) : (
                                 <>
                                     <button
-                                        onClick={() => stopCamera(stream, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); })}
+                                        onClick={() => stopCamera(stream!, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); })}
                                         className="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
                                     >
                                         Stop Camera

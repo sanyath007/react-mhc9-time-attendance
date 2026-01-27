@@ -1,5 +1,5 @@
-import React, { ChangeEvent, useState } from 'react'
-import { AttendanceFilters } from '../../lib/types';
+import { type ChangeEvent, useState } from 'react'
+import { type AttendanceFilters } from '../../lib/types';
 
 type FilteringInputsProps = {
     initialValues: AttendanceFilters;
@@ -11,7 +11,7 @@ const FliteringInputs = ({ initialValues, onFilter }: FilteringInputsProps) => {
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }))
-        onFilter({ ...filters, [e.target.name]: e.target.value })
+        onFilter!({ ...filters, [e.target.name]: e.target.value })
     }
 
     return (

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react"
-import { ScanFace, SquarePen, Trash2, UserPlus, PlusCircle } from "lucide-react"
+import { ScanFace, SquarePen, UserPlus, PlusCircle } from "lucide-react"
 import { Link } from "react-router-dom";
 import api from "../../api";
 import EmployeePosition from "../../components/features/EmployeePosition";
 import EmployeeAvatar from "../../components/features/EmployeeAvatar";
 import HeaderIcon from "../../components/ui/HeaderIcon";
+import { type Employee } from "../../lib/types";
 
 export default function EmployeeList() {
     const [employees, setEmployees] = useState([]);
@@ -48,12 +49,12 @@ export default function EmployeeList() {
 
             <div className="bg-white rounded-lg shadow-lg p-6">
                 <ul className="space-y-2">
-                    {employees.filter(e => e.status === 1).map(employee => (
+                    {employees.filter((e: Employee) => e.status === 1).map((employee: Employee) => (
                         <li className="border rounded-md p-2" key={employee.id}>
                             <div className="flex items-center gap-3 px-3 max-md:px-0 py-2">
                                 <div className="flex max-md:flex-col items-center gap-3 w-4/5">
                                     <EmployeeAvatar
-                                        image={`${process.env.REACT_APP_API_URL}/uploads/${employee?.avatar_url}`}
+                                        image={`${import.meta.env.VITE_API_URL}/uploads/${employee?.avatar_url}`}
                                         alt={employee.firstname}
                                         width="50px"
                                         height="50px"
@@ -61,7 +62,10 @@ export default function EmployeeList() {
                                     <div className="max-md:text-center">
                                         <p className="text-lg font-bold">{employee.firstname} {employee.lastname}</p>
                                         <p className="text-gray-600">
-                                            <EmployeePosition employee={employee} />
+                                            <EmployeePosition
+                                                position={employee.position}
+                                                level={employee.level}
+                                            />
                                         </p>
                                     </div>
                                 </div>

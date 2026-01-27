@@ -1,5 +1,4 @@
-import React from 'react'
-import { HeaderIconProps } from '../../lib/types'
+import { type HeaderIconProps } from '../../lib/types'
 import { cn } from '../../utils/tailwindcss'
 
 const HeaderIcon = ({ Icon, cssClass }: HeaderIconProps) => {

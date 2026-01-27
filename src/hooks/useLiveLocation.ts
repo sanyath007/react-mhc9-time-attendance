@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { type Location } from "../lib/types";
 
 export function useLiveLocation() {
-    const [location, setLocation] = useState(null);
-    const watchIdRef = useRef(null);
+    const [location, setLocation] = useState<Location | null>(null);
+    const watchIdRef = useRef<number | null>(null);
 
     useEffect(() => {
         if (!navigator.geolocation) return;

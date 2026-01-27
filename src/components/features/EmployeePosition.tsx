@@ -1,7 +1,7 @@
-import React from 'react'
+import { type EmployeePositionProps } from "../../lib/types";
 
-const EmployeePosition = ({ employee }) => {
-    return <span>{employee.position?.name}{employee.level ? employee.level?.name : ''}</span>;
+const EmployeePosition = ({ position, level }: EmployeePositionProps) => {
+    return <span>{position?.name}{level ? level?.name : ''}</span>;
 }
 
 export default EmployeePosition

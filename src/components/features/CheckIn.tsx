@@ -1,35 +1,30 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Camera, CheckCircle, XCircle, User, X, AlertCircle } from 'lucide-react';
 import * as faceapi from 'face-api.js';
+import moment from 'moment';
 import api from '../../api';
 import { loadModels } from '../../utils/face-recognition';
 import { dataURLtoBlob } from '../../utils/image';
-import moment from 'moment';
+import { type DetectedEmployee, type Employee } from '../../lib/types';
+import { ComparationStatus } from '../../lib/constants';
 
-enum ComparationStatus {
-    IDLE = "idle",
-    SUCCESS = "success",
-    ERROR = "error"
-};
-
-interface DetectedEmployee {
-    id: string;
-    name?: string;
-    confidence?: number;
-};
+type EmployeeModel = {
+    employee: Employee;
+    distance: number;
+}
 
 export default function CheckIn({ distance }: { distance: number }) {
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
-    const [stream, setStream] = useState(null);
-    const [capturedImage, setCapturedImage] = useState(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const [stream, setStream] = useState<MediaStream | null>(null);
+    const [capturedImage, setCapturedImage] = useState<string | null>(null);
     const [isCameraActive, setIsCameraActive] = useState(false);
     const [faceDetected, setFaceDetected] = useState(false);
-    const [checkInStatus, setCheckInStatus] = useState(null);
+    const [checkInStatus, setCheckInStatus] = useState<string | null>(null);
     const [modelsLoaded, setModelsLoaded] = useState(false);
     const [detectedEmployee, setDetectedEmployee] = useState<DetectedEmployee | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [compared, setCompared] = useState<ComparationStatus>(ComparationStatus.IDLE); // "idle" | "success" | "error"
+    const [compared, setCompared] = useState<string>(ComparationStatus.IDLE); // "idle" | "success" | "error"
 
     // Call LoadModels on mounted
     useEffect(() => {
@@ -84,7 +79,7 @@ export default function CheckIn({ distance }: { distance: number }) {
                 height: video.videoHeight 
             };
 
-            faceapi.matchDimensions(canvas, displaySize);
+            faceapi.matchDimensions(canvas!, displaySize);
 
             setInterval(async () => {
                 const detections = await faceapi
@@ -97,9 +92,9 @@ export default function CheckIn({ distance }: { distance: number }) {
 
                     const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-                    const context = canvas.getContext('2d');
-                    context.clearRect(0, 0, canvas.width, canvas.height);
-                    faceapi.draw.drawDetections(canvas, resizedDetections);
+                    const context = canvas?.getContext('2d');
+                    context?.clearRect(0, 0, canvas!.width, canvas!.height);
+                    faceapi.draw.drawDetections(canvas || '', resizedDetections);
                 } else {
                     setFaceDetected(false);
                 }
@@ -120,7 +115,7 @@ export default function CheckIn({ distance }: { distance: number }) {
 
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            context?.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             const imageData = canvas.toDataURL('image/png');
             setCapturedImage(imageData);
@@ -138,18 +133,28 @@ export default function CheckIn({ distance }: { distance: number }) {
                 const employees = res.data;
 
                 /** Find the best match using Euclidean distance */
-                const matches = employees.filter(employee => employee.face_descriptor).map(employee => ({
-                    ...employee,
-                    distance: faceapi.euclideanDistance(Array.from(faceDescriptor), JSON.parse(employee.face_descriptor) as number[])
-                }));
-                const bestMatch = matches.reduce((min, curr) => curr.distance < min.distance ? curr : min);
+                const matches = employees
+                                    .filter((employee: Employee) => employee.face_descriptor)
+                                    .map((employee: Employee) => ({
+                                        employee,
+                                        distance: faceapi.euclideanDistance(
+                                            Array.from(faceDescriptor),
+                                            JSON.parse(employee.face_descriptor || '') as number[]
+                                        )
+                                    }));
+                const bestMatch = matches.reduce((min: EmployeeModel, curr: EmployeeModel) => curr.distance < min.distance ? curr : min);
+                console.log(bestMatch);
 
                 /** Recognition threshold that can adjust based on your needs */
                 const threshold = 0.6;
                 if (bestMatch.distance < threshold) {
                     /** If compareation is success */
                     setCompared(ComparationStatus.SUCCESS);
-                    setDetectedEmployee({ id: bestMatch.id, name: bestMatch.fullname, confidence: 1 - bestMatch.distance });
+                    setDetectedEmployee({
+                        id: bestMatch?.employee?.id,
+                        name: bestMatch?.employee?.fullname,
+                        confidence: 1 - bestMatch.distance 
+                    });
                 } else {
                     /** If compareation is failure */
                     setCompared(ComparationStatus.ERROR);

@@ -1,17 +1,19 @@
 import axios from "axios";
 import { verifyToken } from "../utils/token";
 
+console.log(import.meta.env.VITE_API_URL);
+
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL
+    baseURL: import.meta.env.VITE_API_URL
 });
 
 api.interceptors.request.use(
     (config) => {
-        const reqUrl = config.url;
+        const reqUrl = config.url as string;
 
         if (reqUrl.startsWith('/api/time-attendance/')) {
             /** Use API Key */
-            const API_KEY = process.env.REACT_APP_API_KEY;
+            const API_KEY = import.meta.env.VITE_API_KEY;
 
             config.headers.set('X-API-KEY', API_KEY);
         } else {

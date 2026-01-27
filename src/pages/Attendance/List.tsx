@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CalendarClock } from 'lucide-react';
 import moment from 'moment';
 import api from '../../api';
-import { AttendanceFilters } from '../../lib/types';
+import { type AttendanceFilters } from '../../lib/types';
 import { STARTING_DATE } from '../../lib/constants';
 import FliteringInputs from './FliteringInputs';
 import HeaderIcon from '../../components/ui/HeaderIcon';
@@ -11,7 +11,7 @@ const AttendanceList = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [attendances, setAttendances] = useState([]);
     const [currentDate, setCurrentDate] = useState<string>(moment().format('YYYY-MM-DD'));
-    const imgUrl = moment(STARTING_DATE).diff(moment(currentDate), "day") > 1 ? 'https://mhc9dmh.com/DATA/PhotoCheckTime' : `${process.env.REACT_APP_API_URL}/uploads`;
+    const imgUrl = moment(STARTING_DATE).diff(moment(currentDate), "day") > 1 ? 'https://mhc9dmh.com/DATA/PhotoCheckTime' : `${import.meta.env.VITE_API_URL}/uploads`;
     
     useEffect(() => {
         getAttendances(currentDate)

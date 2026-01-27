@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useState } from 'react'
+// import { type ChangeEvent, type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
 import { useForm } from 'react-hook-form';
@@ -72,7 +72,6 @@ const Login = () => {
                         <label htmlFor="email">Email:</label>
                         <input
                             type="email"
-                            name="email"
                             {...register("email")}
                             // value={credentials.email}
                             // onChange={handleChange}
@@ -84,7 +83,6 @@ const Login = () => {
                         <label htmlFor="password">Password:</label>
                         <input
                             type="password"
-                            name="password"
                             {...register("password")}
                             // value={credentials.password}
                             // onChange={handleChange}

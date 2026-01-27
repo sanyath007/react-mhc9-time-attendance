@@ -1,4 +1,3 @@
-import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -8,7 +7,7 @@ const ProtectedLayout = () => {
     const { isAuthenticated } = useAuth();
 
     if (!isAuthenticated) {
-        return <Navigate replace to={"/login"} />;
+        return <Navigate replace to={"/"} />;
     }
 
     return (

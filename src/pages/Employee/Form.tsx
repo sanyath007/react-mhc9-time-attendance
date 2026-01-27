@@ -1,13 +1,8 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, type ChangeEvent } from 'react';
 import { Camera, UserPlus, XCircle, CheckCircle, AlertCircle, Trash2, Eye } from 'lucide-react';
 import * as faceapi from 'face-api.js';
 import ImageViewer from '../../components/ui/ImageViewer';
-
-interface CapturedImage {
-    image: any;
-    descriptor: any;
-    timestamp: string;
-};
+import { type CapturedImage } from '../../lib/types';
 
 type EmployeeData = {
     firstName: string,
@@ -20,18 +15,29 @@ type EmployeeData = {
     avatarImage: string,
 }
 
+const initialEmployeeData = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    employeeId: '',
+    department: '',
+    position: '',
+    faceDescriptor: '',
+    avatarImage: '',
+};
+
 export default function EmployeeForm() {
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
-    const [stream, setStream] = useState(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const [stream, setStream] = useState<MediaStream | null>(null);
     const [capturedImages, setCapturedImages] = useState<CapturedImage[]>([]);
     const [isCameraActive, setIsCameraActive] = useState(false);
     const [faceDetected, setFaceDetected] = useState(false);
     const [modelsLoaded, setModelsLoaded] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [registrationStatus, setRegistrationStatus] = useState(null);
+    const [registrationStatus, setRegistrationStatus] = useState<string | null>(null);
     
-    const [formData, setFormData] = useState<EmployeeData>(null);
+    const [formData, setFormData] = useState<EmployeeData>(initialEmployeeData);
 
     const [errors, setErrors] = useState<EmployeeData | null>(null);
     const [showPreview, setShowPreview] = useState(false);
@@ -102,11 +108,11 @@ export default function EmployeeForm() {
                 height: videoRef.current.videoHeight 
             };
 
-            faceapi.matchDimensions(canvasRef.current, displaySize);
+            faceapi.matchDimensions(canvas!, displaySize);
 
             setInterval(async () => {
                 const detections = await faceapi
-                    .detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+                    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
                     .withFaceLandmarks()
                     .withFaceDescriptors();
 
@@ -115,9 +121,9 @@ export default function EmployeeForm() {
 
                     const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-                    const context = canvasRef.current.getContext('2d');
-                    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-                    faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
+                    const context = canvas?.getContext('2d');
+                    context?.clearRect(0, 0, canvas!.width, canvas!.height);
+                    faceapi.draw.drawDetections(canvas || '', resizedDetections);
                 } else {
                     setFaceDetected(false);
                 }
@@ -138,7 +144,7 @@ export default function EmployeeForm() {
 
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            context?.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             const imageData = canvas.toDataURL('image/png');
 
@@ -165,30 +171,21 @@ export default function EmployeeForm() {
         }
     };
 
-    const removeImage = (index) => {
+    const removeImage = (index: number) => {
         setCapturedImages(capturedImages.filter((_, i) => i !== index));
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
 
-        if (errors[name]) {
+        if (errors && name in errors) {
             setErrors({ ...errors, [name]: '' });
         }
     };
 
     const validateForm = () => {
-        const newErrors: EmployeeData = {
-            firstName: '',
-            lastName: '',
-            email: '',
-            employeeId: '',
-            department: '',
-            position: '',
-            faceDescriptor: '',
-            avatarImage: '',
-        };
+        const newErrors: EmployeeData = initialEmployeeData;
         if (!formData?.firstName.trim()) newErrors.firstName = 'First name is required';
         if (!formData?.lastName.trim()) newErrors.lastName = 'Last name is required';
         if (!formData?.email.trim()) {
@@ -228,7 +225,7 @@ export default function EmployeeForm() {
                 /**
                  * ===================== Method 2 =====================
                  */
-                avgDescriptor = capturedImages[0].descriptor.map((val, i) => {
+                avgDescriptor = capturedImages[0].descriptor.map((val: any, i: number) => {
                     let sum = val;
                     for (let j = 1; j < capturedImages.length; j++) {
                         sum += capturedImages[j].descriptor[i];
@@ -238,16 +235,16 @@ export default function EmployeeForm() {
             }
 
             /** POST to api */
-            const result = await fetch('/api/employee/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    faceDescriptor: Array.from(avgDescriptor)
-                }),
-            });
+            // const result = await fetch('/api/employee/register', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({
+            //         ...formData,
+            //         faceDescriptor: Array.from(avgDescriptor)
+            //     }),
+            // });
 
             setRegistrationStatus('success');
 

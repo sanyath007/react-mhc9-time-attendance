@@ -1,7 +1,7 @@
 import * as faceapi from 'face-api.js';
 
 export const loadModels = async (onLoaded: () => void) => {
-    const vdir = process.env.NODE_ENV === 'development' ? '' : 'check-in';
+    const vdir = import.meta.env.DEV ? '' : 'check-in';
 
     try {
         console.log('Loading face-api.js models...');
