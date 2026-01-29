@@ -238,11 +238,13 @@ export default function Navbar() {
                     <div className="px-4 pt-4 pb-3 space-y-3">
                         {/* User Info Mobile */}
                         <div className="flex items-center space-x-3 pb-4 border-b border-gray-200">
-                            {user && <img
-                                src={`${import.meta.env.VITE_API_URL}/uploads/${user?.employee?.avatar_url}`}
-                                alt={user?.name}
-                                className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200"
-                            />}
+                            {user && (
+                                <img
+                                    src={`${import.meta.env.VITE_API_URL}/uploads/${user?.employee?.avatar_url}`}
+                                    alt={user?.name}
+                                    className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200"
+                                />
+                            )}
                             <div>
                                 <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                                 <p className="text-xs text-gray-500">{user.email}</p>
@@ -257,7 +259,7 @@ export default function Navbar() {
                                         <button
                                             onClick={() => setActiveMobileDropdown(activeMobileDropdown === index ? null : index)}
                                             className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                                            >
+                                        >
                                             <div className="flex items-center space-x-2">
                                                 {menu.icon && <menu.icon className="w-5 h-5" />}
                                                 <span>{menu.label}</span>
@@ -314,21 +316,21 @@ export default function Navbar() {
                             {userMenus.map((item, index) => {
                                 const Icon = item.icon;
                                 return (
-                                <button
-                                    key={index}
-                                    onClick={() => {
-                                        item.action();
-                                        setIsMobileMenuOpen(false);
-                                    }}
-                                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    item.danger
-                                        ? 'text-red-600 hover:bg-red-50'
-                                        : 'text-gray-700 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <Icon className="w-4 h-4" />
-                                    <span>{item.label}</span>
-                                </button>
+                                    <button
+                                        key={index}
+                                        onClick={() => {
+                                            item.action();
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                        className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                        item.danger
+                                            ? 'text-red-600 hover:bg-red-50'
+                                            : 'text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        <Icon className="w-4 h-4" />
+                                        <span>{item.label}</span>
+                                    </button>
                                 );
                             })}
                         </div>
