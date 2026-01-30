@@ -2,6 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { useAuth } from '../../hooks/useAuth';
+import { useEffect } from 'react';
 
 const ProtectedLayout = () => {
     const { isAuthenticated } = useAuth();
@@ -12,6 +13,14 @@ const ProtectedLayout = () => {
 
     const testMethod = (): string => {
         return '';
+    }
+
+    useEffect(() => {
+        testMethod2();
+    }, []);
+
+    const testMethod2 = (): void => {
+        console.log("Test");
     }
 
     return (
