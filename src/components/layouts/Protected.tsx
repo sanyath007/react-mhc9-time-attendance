@@ -7,7 +7,11 @@ const ProtectedLayout = () => {
     const { isAuthenticated } = useAuth();
 
     if (!isAuthenticated) {
-        return <Navigate replace to={"/"} />;
+        return <Navigate replace to={"/login"} />;
+    }
+
+    const testMethod = (): string => {
+        return '';
     }
 
     return (
