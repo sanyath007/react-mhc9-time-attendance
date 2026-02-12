@@ -9,6 +9,7 @@ import EmployeeForm from '../pages/Employee/Form'
 import AttendanceList from '../pages/Attendance/List'
 import CheckInContainer from '../pages/CheckIn'
 import EmployeeFaceRegistration from '../pages/Employee/FaceRegistration'
+import DefaultLayout from './layouts/Default'
 
 function App() {
     return (
@@ -32,6 +33,11 @@ function App() {
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/reset-password" element={<ResetPassword />} /> */}
+                </Route>
+
+                {/* Public routes */}
+                <Route path="/" element={<DefaultLayout />}>
+                    <Route path="/check-in" element={<CheckInContainer />} />
                 </Route>
 
                 {/* Error routes */}
