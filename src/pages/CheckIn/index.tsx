@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Clock, MapPin, Navigation, NavigationOff, User } from 'lucide-react';
+import { CircleChevronLeft, Clock, MapPin, Navigation, NavigationOff, User } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import CheckIn from '../../components/features/CheckIn';
 import { useGeolocation } from '../../hooks/useLocation';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
@@ -9,6 +10,7 @@ const OFFICE_LATITUDE = import.meta.env.VITE_OFFICE_LATITUDE ? parseFloat(import
 const OFFICE_LONGITUDE = import.meta.env.VITE_OFFICE_LONGITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LONGITUDE) : 102.10488443930059;
 
 export default function CheckInContainer() {
+    const path = useLocation().pathname;
     const [currentTime, setCurrentTime] = useState(new Date());
     const { calculateDistance } = useGeolocation();
     const [distance, setDistance] = useState<number>(0);
@@ -40,39 +42,50 @@ export default function CheckInContainer() {
     return (
         <div className="max-w-4xl mx-auto">
             {/* Header */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-6 max-md:p-3 max-md:mb-3">
+            <div className={`bg-white rounded-lg shadow-lg ${path === '/check-in' ? 'p-4 mb-4 max-md:p-2 max-md:mb-2' : 'p-6 mb-6 max-md:p-3 max-md:mb-3'}`}>
                 <div className="flex max-md:flex-col items-center justify-between max-md:items-start gap-2">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-indigo-600 p-3 max-md:p-2 rounded-lg">
-                            <HeaderIcon Icon={User} />
+                    {path === '/check-in'
+                    ? (
+                        <div className="flex items-center">
+                            <Link to="/login" reloadDocument className="text-indigo-600 hover:text-indigo-800 font-semibold">
+                                <CircleChevronLeft className="w-8 h-8 max-md:w-5 max-md:h-5 mr-1" />
+                            </Link>
                         </div>
-                        <div>
-                            <h1 className="text-2xl max-md:text-xl font-bold text-gray-800">Time Attendance System</h1>
-                            <p className="max-md:hidden text-gray-600">Employee Check-In</p>
-                            <div className="hidden max-md:flex items-center justify-start gap-2 text-gray-700">
-                                <Clock className="w-5 h-5 max-md:w-4 max-md:h-4" />
-                                <span className="text-lg max-md:text-sm font-semibold">
-                                    {currentTime.toLocaleTimeString()}
-                                </span>
+                    ) : (
+                        <>
+                            <div className="flex items-center gap-3">
+                                <div className="bg-indigo-600 p-3 max-md:p-2 rounded-lg">
+                                    <HeaderIcon Icon={User} />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl max-md:text-xl font-bold text-gray-800">Time Attendance System</h1>
+                                    <p className="max-md:hidden text-gray-600">Employee Check-In</p>
+                                    <div className="hidden max-md:flex items-center justify-start gap-2 text-gray-700">
+                                        <Clock className="w-5 h-5 max-md:w-4 max-md:h-4" />
+                                        <span className="text-lg max-md:text-sm font-semibold">
+                                            {currentTime.toLocaleTimeString()}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div className="text-right max-md:hidden">
-                        <div className="flex items-center justify-end gap-2 text-gray-700">
-                            <Clock className="w-5 h-5" />
-                            <span className="text-lg font-semibold">
-                                {currentTime.toLocaleTimeString()}
-                            </span>
-                        </div>
-                        <p className="text-sm text-gray-500">
-                            {currentTime.toLocaleDateString('en-US', { 
-                                weekday: 'long', 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric' 
-                            })}
-                        </p>
-                    </div>
+                            <div className="text-right max-md:hidden">
+                                <div className="flex items-center justify-end gap-2 text-gray-700">
+                                    <Clock className="w-5 h-5" />
+                                    <span className="text-lg font-semibold">
+                                        {currentTime.toLocaleTimeString()}
+                                    </span>
+                                </div>
+                                <p className="text-sm text-gray-500">
+                                    {currentTime.toLocaleDateString('en-US', { 
+                                        weekday: 'long', 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric' 
+                                    })}
+                                </p>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
             
