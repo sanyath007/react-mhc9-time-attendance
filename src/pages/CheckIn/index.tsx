@@ -47,7 +47,7 @@ export default function CheckInContainer() {
                     {path === '/check-in'
                     ? (
                         <div className="flex items-center">
-                            <Link to="/login" reloadDocument className="text-indigo-600 hover:text-indigo-800 font-semibold">
+                            <Link to="/login" reloadDocument className="text-indigo-500 hover:text-indigo-800 font-semibold">
                                 <CircleChevronLeft className="w-8 h-8 max-md:w-5 max-md:h-5 mr-1" />
                             </Link>
                         </div>

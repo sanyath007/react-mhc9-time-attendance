@@ -27,7 +27,7 @@ function App() {
                 </Route>
 
                 {/* Auth routes */}
-                <Route path="/" element={<AuthLayout />}>
+                <Route element={<AuthLayout />}>
                     <Route path="/login" element={<Login />} />
                     {/* <Route path="/register" element={<Register />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -36,7 +36,7 @@ function App() {
                 </Route>
 
                 {/* Public routes */}
-                <Route path="/" element={<DefaultLayout />}>
+                <Route element={<DefaultLayout />}>
                     <Route path="/check-in" element={<CheckInContainer />} />
                 </Route>
 
