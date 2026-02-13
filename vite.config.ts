@@ -18,4 +18,5 @@ export default defineConfig({
             },
         }),
     ],
+    base: '/',  // Set the base path for the application in production set to '/check-in/'
 })
