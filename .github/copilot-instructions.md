@@ -4,9 +4,9 @@
 This is a React TypeScript application for employee time attendance management, part of a larger MHC9 ERP system with multiple interconnected applications (Laravel backends + React frontends).
 
 **Key Components:**
-- **Frontend**: React 19.2 + TypeScript + Vite
+- **Frontend**: React 19.2.0 + TypeScript + Vite
 - **Backend**: Laravel APIs (separate repositories)
-- **Features**: Face recognition check-in, employee management, attendance tracking
+- **Features**: Face recognition check-in, employee management, attendance tracking, geolocation validation
 
 ## Core Patterns & Conventions
 
@@ -39,7 +39,7 @@ src/
 - **Route Structure**: Feature-based organization (`/attendance/*`, `/employee/*`)
 
 ### Styling
-- **Tailwind CSS v4**: Use utility classes extensively
+- **Tailwind CSS v3**: Use utility classes extensively
 - **Responsive Design**: Always include mobile variants (`max-md:*`)
 - **Conditional Classes**: Use `cn()` utility from `src/utils/tailwindcss.ts`
 - **Icons**: Lucide React icons with consistent sizing
@@ -58,16 +58,17 @@ src/
 ## Development Workflow
 
 ### Environment Setup
-1. Copy `.env.example` to `.env`
+1. Copy `.env` to `.env.local` and configure variables
 2. Set `VITE_API_URL` to backend API URL
 3. For production builds:
    - Set `homepage` in `package.json` to deployment path
-   - Set `base` in `vite.config.ts` to match deployment path
+   - Set `base` in `vite.config.ts` to match deployment path (e.g., '/check-in/')
    - Update `VITE_API_URL` to production URL
+   - Set office coordinates: `VITE_OFFICE_LATITUDE`, `VITE_OFFICE_LONGITUDE`
 
 ### Build Commands
 ```bash
-npm run dev          # Development server
+npm run dev          # Development server (default port 5002)
 npm run build        # Production build (includes TypeScript compilation)
 npm run lint         # ESLint checking
 npm run preview      # Preview production build
@@ -79,6 +80,9 @@ npm run preview      # Preview production build
 - `src/components/layouts/Protected.tsx` - Protected route layout
 - `src/lib/types.ts` - TypeScript type definitions
 - `src/utils/tailwindcss.ts` - Tailwind utility function
+- `src/utils/face-recognition.ts` - Face API model loading
+- `src/hooks/useLocation.ts` - Geolocation utilities
+- `src/hooks/useLiveLocation.ts` - Live location tracking
 
 ## Common Patterns
 
@@ -121,17 +125,44 @@ const MyComponent = () => {
 };
 ```
 
+### Face Recognition Integration
+```typescript
+import { loadModels } from '../../utils/face-recognition';
+
+// Load face-api.js models
+loadModels(() => {
+  // Models loaded, start detection
+});
+```
+
+### Geolocation Validation
+```typescript
+import { useLiveLocation } from '../../hooks/useLiveLocation';
+import { useGeolocation } from '../../hooks/useLocation';
+
+const location = useLiveLocation();
+const { calculateDistance } = useGeolocation();
+
+const distance = calculateDistance(
+  location.latitude, location.longitude,
+  OFFICE_LATITUDE, OFFICE_LONGITUDE
+);
+```
+
 ## Integration Points
 - **Laravel Backend**: RESTful APIs with JWT authentication
 - **Face Recognition**: Uses `face-api.js` for employee face registration/verification
+- **Geolocation**: Validates check-in distance from office coordinates
 - **File Uploads**: Employee avatars stored on backend, accessed via `REACT_APP_API_URL/uploads/`
 
 ## Error Handling
 - API errors: Handle in interceptors and component try/catch blocks
 - Authentication errors: Redirect to login page
 - Validation errors: Display using React Hook Form error state
+- Face recognition errors: Alert user and retry model loading
 
 ## Deployment Notes
-- Build output goes to `build/` directory
+- Build output goes to `dist/` directory
 - Configure web server for SPA routing (handle client-side routes)
 - Ensure API endpoints are accessible from deployment domain
+- Face recognition models served from `/models/` or `/check-in/models/` in production
