@@ -26,6 +26,25 @@ export default function EmployeeFaceRegistration() {
     const [showPreview, setShowPreview] = useState<boolean>(false);
     const [preview, setPreview] = useState('');
     const [employee, setEmployee] = useState<Employee | null>(null);
+    const [videoDimensions, setVideoDimensions] = useState({ width: 640, height: 480 });
+    const intervalRef = useRef<any>(null);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const isMobile = window.innerWidth < 768;
+            setVideoDimensions({
+                width: isMobile ? window.innerWidth - 32 : 640,
+                height: isMobile ? (window.innerWidth - 32) * 4 / 3 : 480
+            });
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            if (intervalRef.current) clearInterval(intervalRef.current);
+        };
+    }, []);
 
     useEffect(() => {
         const fetchEmployee = async (id: string) => {
@@ -53,13 +72,17 @@ export default function EmployeeFaceRegistration() {
 
             /** Draw detection box on canvas */
             const displaySize = { 
-                width: videoRef.current.videoWidth, 
-                height: videoRef.current.videoHeight 
+                width: video.videoWidth, 
+                height: video.videoHeight 
             };
 
             faceapi.matchDimensions(canvas!, displaySize);
 
-            setInterval(async () => {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+
+            intervalRef.current = setInterval(async () => {
+                if (!video || video.paused || video.ended) return;
+
                 const detections = await faceapi
                     .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
                     .withFaceLandmarks()
@@ -72,9 +95,11 @@ export default function EmployeeFaceRegistration() {
 
                     const context = canvas?.getContext('2d');
                     context?.clearRect(0, 0, canvas!.width, canvas!.height);
-                    faceapi.draw.drawDetections(canvas || '', resizedDetections);
+                    faceapi.draw.drawDetections(canvas!, resizedDetections);
                 } else {
                     setFaceDetected(false);
+                    const context = canvas?.getContext('2d');
+                    context?.clearRect(0, 0, canvas!.width, canvas!.height);
                 }
             }, 100);
         } catch (err) {
@@ -321,8 +346,15 @@ export default function EmployeeFaceRegistration() {
                         </div>
 
                         {/* Camera */}
-                        <div className="relative mb-4 max-md:mb-2">
-                            <div className="bg-gray-900 rounded-lg overflow-hidden aspect-video flex items-center justify-center relative">
+                        <div className="relative mb-4 max-md:mb-2 flex justify-center">
+                            <div 
+                                className="bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center relative shadow-md"
+                                style={{ 
+                                    width: '100%', 
+                                    maxWidth: videoDimensions.width > 640 ? '100%' : videoDimensions.width,
+                                    aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`
+                                }}
+                            >
                                 {/* {isCameraActive ? ( */}
                                     <>
                                         <video
@@ -330,6 +362,14 @@ export default function EmployeeFaceRegistration() {
                                             autoPlay
                                             playsInline
                                             className="w-full h-full object-cover"
+                                            onLoadedMetadata={() => {
+                                                if (videoRef.current) {
+                                                    setVideoDimensions({
+                                                        width: videoRef.current.videoWidth,
+                                                        height: videoRef.current.videoHeight
+                                                    });
+                                                }
+                                            }}
                                         />
 
                                         <canvas

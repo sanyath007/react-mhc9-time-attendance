@@ -25,17 +25,39 @@ export default function CheckIn({ distance }: { distance: number }) {
     const [detectedEmployee, setDetectedEmployee] = useState<DetectedEmployee | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [compared, setCompared] = useState<string>(ComparationStatus.IDLE); // "idle" | "success" | "error"
+    const [videoDimensions, setVideoDimensions] = useState({ width: 640, height: 480 });
+    const intervalRef = useRef<any>(null);
 
     // Call LoadModels on mounted
     useEffect(() => {
         loadModels(() => setModelsLoaded(true));
+
+        const handleResize = () => {
+            const isMobile = window.innerWidth < 768;
+            setVideoDimensions(prev => ({
+                width: isMobile ? window.innerWidth - 32 : 640,
+                height: isMobile ? (window.innerWidth - 32) * 4 / 3 : 480
+            }));
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            if (intervalRef.current) clearInterval(intervalRef.current);
+        };
     }, []);
 
     // Start camera
     const startCamera = async () => {
         try {
+            const isMobile = window.innerWidth < 768;
             const mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { width: 640, height: 480, facingMode: 'user' }
+                video: { 
+                    width: { ideal: isMobile ? 480 : 640 }, 
+                    height: { ideal: isMobile ? 640 : 480 }, 
+                    facingMode: 'user' 
+                }
             });
 
             if (videoRef.current) {
@@ -44,9 +66,18 @@ export default function CheckIn({ distance }: { distance: number }) {
                 setIsCameraActive(true);
 
                  /** Start face detection after camera is ready */
-                videoRef.current.addEventListener('play', () => {
+                videoRef.current.onloadedmetadata = () => {
+                    if (videoRef.current) {
+                        setVideoDimensions({
+                            width: videoRef.current.videoWidth,
+                            height: videoRef.current.videoHeight
+                        });
+                    }
+                };
+
+                videoRef.current.onplay = () => {
                     detectFaces();
-                });
+                };
             }
         } catch (err) {
             console.error('Error accessing camera:', err);
@@ -62,6 +93,11 @@ export default function CheckIn({ distance }: { distance: number }) {
             setStream(null);
             setIsCameraActive(false);
             setFaceDetected(false);
+        }
+
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
         }
     };
 
@@ -81,7 +117,11 @@ export default function CheckIn({ distance }: { distance: number }) {
 
             faceapi.matchDimensions(canvas!, displaySize);
 
-            setInterval(async () => {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+
+            intervalRef.current = setInterval(async () => {
+                if (!video || video.paused || video.ended) return;
+
                 const detections = await faceapi
                     .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
                     .withFaceLandmarks()
@@ -94,9 +134,11 @@ export default function CheckIn({ distance }: { distance: number }) {
 
                     const context = canvas?.getContext('2d');
                     context?.clearRect(0, 0, canvas!.width, canvas!.height);
-                    faceapi.draw.drawDetections(canvas || '', resizedDetections);
+                    faceapi.draw.drawDetections(canvas!, resizedDetections);
                 } else {
                     setFaceDetected(false);
+                    const context = canvas?.getContext('2d');
+                    context?.clearRect(0, 0, canvas!.width, canvas!.height);
                 }
             }, 100);
         } catch (err) {
@@ -242,8 +284,15 @@ export default function CheckIn({ distance }: { distance: number }) {
             )}
 
             {/* Camera/Preview Section */}
-            <div className="relative mb-6 max-md:mb-3">
-                <div className="bg-gray-900 rounded-lg overflow-hidden aspect-video flex items-center justify-center">
+            <div className="relative mb-6 max-md:mb-3 flex justify-center">
+                <div 
+                    className="bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center shadow-lg relative"
+                    style={{ 
+                        width: '100%', 
+                        maxWidth: videoDimensions.width > 640 ? '100%' : videoDimensions.width,
+                        aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`
+                    }}
+                >
                     {!capturedImage ? (
                         <>
                             <video
