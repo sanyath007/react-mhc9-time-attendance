@@ -286,14 +286,14 @@ export default function EmployeeForm() {
     return (
         <div className="max-w-4xl mx-auto">
             {/* Header */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                <div className="flex items-center gap-3">
-                    <div className="bg-purple-600 p-3 rounded-lg">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-2 mb-6">
+                <div className="flex items-center gap-4">
+                    <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-3 rounded-xl shadow-md shadow-blue-500/20">
                         <UserPlus className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Employee Registration</h1>
-                        <p className="text-gray-600">Register new employee with facial recognition</p>
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">ลงทะเบียนบุคลากรใหม่</h1>
+                        <p className="text-sm text-gray-500">ลงทะเบียนข้อมูลพนักงานและตั้งค่ารูปภาพสำหรับสแกนใบหน้า</p>
                     </div>
                 </div>
             </div>

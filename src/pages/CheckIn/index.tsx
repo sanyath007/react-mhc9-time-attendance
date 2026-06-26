@@ -42,51 +42,43 @@ export default function CheckInContainer() {
     return (
         <div className="max-w-4xl mx-auto">
             {/* Header */}
-            <div className={`bg-white rounded-lg shadow-lg ${path === '/check-in' ? 'p-4 mb-4 max-md:p-2 max-md:mb-2' : 'p-6 mb-6 max-md:p-3 max-md:mb-3'}`}>
-                <div className="flex max-md:flex-col items-center justify-between max-md:items-start gap-2">
-                    {path === '/check-in'
-                    ? (
-                        <div className="flex items-center">
-                            <Link to="/login" reloadDocument className="text-indigo-500 hover:text-indigo-800 font-semibold">
-                                <CircleChevronLeft className="w-8 h-8 max-md:w-5 max-md:h-5 mr-1" />
-                            </Link>
+            <div className={`flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-2 ${path === '/check-in' ? 'mb-4 max-md:mb-2' : 'mb-6 max-md:mb-3'}`}>
+                {path === '/check-in'
+                ? (
+                    <div className="flex items-center">
+                        <Link to="/login" reloadDocument className="text-indigo-600 hover:text-indigo-800 transition-colors font-semibold">
+                            <CircleChevronLeft className="w-8 h-8 max-md:w-6 max-md:h-6 mr-1" />
+                        </Link>
+                    </div>
+                ) : (
+                    <>
+                        <div className="flex items-center gap-4">
+                            <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-3 rounded-xl shadow-md shadow-blue-500/20">
+                                <User className="w-8 h-8 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                                    ลงเวลาปฏิบัติงาน
+                                </h1>
+                                <p className="text-sm text-gray-500">ระบบบันทึกเวลาทำงานด้วยการสแกนใบหน้า</p>
+                            </div>
                         </div>
-                    ) : (
-                        <>
-                            <div className="flex items-center gap-3">
-                                <div className="bg-indigo-600 p-3 max-md:p-2 rounded-lg">
-                                    <HeaderIcon Icon={User} />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl max-md:text-xl font-bold text-gray-800">Time Attendance System</h1>
-                                    <p className="max-md:hidden text-gray-600">Employee Check-In</p>
-                                    <div className="hidden max-md:flex items-center justify-start gap-2 text-gray-700">
-                                        <Clock className="w-5 h-5 max-md:w-4 max-md:h-4" />
-                                        <span className="text-lg max-md:text-sm font-semibold">
-                                            {currentTime.toLocaleTimeString()}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="text-right max-md:hidden">
-                                <div className="flex items-center justify-end gap-2 text-gray-700">
-                                    <Clock className="w-5 h-5" />
-                                    <span className="text-lg font-semibold">
-                                        {currentTime.toLocaleTimeString()}
-                                    </span>
-                                </div>
-                                <p className="text-sm text-gray-500">
-                                    {currentTime.toLocaleDateString('en-US', { 
-                                        weekday: 'long', 
-                                        year: 'numeric', 
-                                        month: 'long', 
-                                        day: 'numeric' 
-                                    })}
-                                </p>
-                            </div>
-                        </>
-                    )}
-                </div>
+
+                        <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm text-gray-800 font-semibold text-sm">
+                            <Clock className="w-4 h-4 text-indigo-600 animate-pulse" />
+                            <span>{currentTime.toLocaleTimeString()}</span>
+                            <span className="text-gray-300 hidden sm:inline">|</span>
+                            <span className="text-gray-500 text-xs hidden sm:inline">
+                                {currentTime.toLocaleDateString('th-TH', { 
+                                    weekday: 'long', 
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric'
+                                })}
+                            </span>
+                        </div>
+                    </>
+                )}
             </div>
             
             {/* Main Content */}
