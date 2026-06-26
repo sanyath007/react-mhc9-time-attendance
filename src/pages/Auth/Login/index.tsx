@@ -10,7 +10,7 @@ import { AtSign, Lock, LogIn, ScanFace } from 'lucide-react';
 
 const loginSchema = z.object({
     email: z.string().nonempty('Email is required').email('Invalid email address'),
-    password: z.string().nonempty('Password is required').min(8, 'Password must be at least 8 characters long'),
+    password: z.string().nonempty('Password is required').min(4, 'Password must be at least 4 characters long'),
 });
 
 type LoginType = z.infer<typeof loginSchema>;
@@ -20,7 +20,7 @@ const Login = () => {
     // const [credentials, setCredentials] = useState<LoginType>({ email: '', password: '' });
     // const [errors, setErrors] = useState<any>(null)
     const { login, isAuthenticated } = useAuth();
-    const { register, handleSubmit, formState: { errors }} = useForm<LoginType>({
+    const { register, handleSubmit, formState: { errors } } = useForm<LoginType>({
         resolver: zodResolver(loginSchema),
         mode: "onBlur"
     })
@@ -32,11 +32,11 @@ const Login = () => {
 
         try {
             // if (validator.success) {
-                const result = await login(data);
+            const result = await login(data);
 
-                if (result.success) {
-                    navigate('/');
-                }
+            if (result.success) {
+                navigate('/');
+            }
             // } else {
             //     setErrors(validator.error.issues);
             // }
