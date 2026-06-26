@@ -1,5 +1,6 @@
-import { type ChangeEvent, useState } from 'react'
+import { useState } from 'react'
 import { type AttendanceFilters } from '../../lib/types';
+import DatePicker from '../../components/ui/Forms/DatePicker';
 
 type FilteringInputsProps = {
     initialValues: AttendanceFilters;
@@ -9,23 +10,22 @@ type FilteringInputsProps = {
 const FliteringInputs = ({ initialValues, onFilter }: FilteringInputsProps) => {
     const [filters, setFilters] = useState<AttendanceFilters>(initialValues);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }))
-        onFilter!({ ...filters, [e.target.name]: e.target.value })
+    const handleDateChange = (date: string) => {
+        const nextFilters = { ...filters, toDay: date };
+        setFilters(nextFilters);
+        if (onFilter) {
+            onFilter(nextFilters);
+        }
     }
 
     return (
-        <div className='border rounded-md p-4'>
-            <div className='flex flex-row items-center space-x-2 text-base'>
-                <label htmlFor="">วันที่</label>
-                <input
-                    type="date"
-                    name="toDay"
-                    value={filters.toDay}
-                    onChange={handleChange}
-                    className='border py-1 px-4 rounded-full'
-                />
-            </div>
+        <div className="w-full sm:w-60">
+            <DatePicker
+                value={filters.toDay}
+                onChange={handleDateChange}
+                placeholder="เลือกวันที่"
+                inputCss="py-2.5 bg-gray-50 border-gray-200 focus:bg-white rounded-xl text-sm font-semibold transition-all text-gray-700 cursor-pointer"
+            />
         </div>
     )
 }
