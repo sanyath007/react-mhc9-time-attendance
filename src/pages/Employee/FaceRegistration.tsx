@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, type RefObject } from 'react';
-import { Camera, UserPlus, XCircle, CheckCircle, AlertCircle, Trash2, Eye } from 'lucide-react';
+import { Camera, UserPlus, XCircle, CheckCircle, AlertCircle, Trash2, Eye, ShieldAlert } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import * as faceapi from 'face-api.js';
 import api from '../../api';
@@ -47,14 +47,17 @@ export default function EmployeeFaceRegistration() {
     }, []);
 
     useEffect(() => {
-        const fetchEmployee = async (id: string) => {
-            const res = await api.get(`/api/employees/${id}`);
-
-            if (res.status === 200) {
-                setEmployee(res.data);
-                setFormData(prev => ({ ...prev, id }));
+        const fetchEmployee = async (employeeId: string) => {
+            try {
+                const res = await api.get(`/api/employees/${employeeId}`);
+                if (res.status === 200) {
+                    setEmployee(res.data);
+                    setFormData(prev => ({ ...prev, id: employeeId }));
+                }
+            } catch (err) {
+                console.error("Error fetching employee:", err);
             }
-        }
+        };
 
         if (id) fetchEmployee(id);
     }, [id]);
@@ -130,7 +133,7 @@ export default function EmployeeFaceRegistration() {
             if (detections) {
                 const faceDescriptor = detections.descriptor;
 
-                setCapturedImages([...capturedImages, { 
+                setCapturedImages(prev => [...prev, { 
                     image: imageData, 
                     descriptor: Array.from(faceDescriptor),
                     timestamp: new Date().toISOString()
@@ -140,34 +143,28 @@ export default function EmployeeFaceRegistration() {
             setIsProcessing(false);
 
             if (capturedImages.length >= 4) {
-                stopCamera(stream!, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); });
+                stopCamera(stream!, () => { 
+                    setStream(null); 
+                    setIsCameraActive(false); 
+                    setFaceDetected(false); 
+                });
             }
         }
     };
 
     const removeImage = (index: number) => {
-        setCapturedImages(capturedImages.filter((_, i) => i !== index));
+        setCapturedImages(prev => prev.filter((_, i) => i !== index));
     };
-
-    // const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    //     const { name, value } = e.target;
-    //     setFormData({ ...formData, [name]: value });
-
-    //     if (errors && name in errors) {
-    //         setErrors({ ...errors, [name]: '' });
-    //     }
-    // };
 
     const validateForm = () => {
         const newErrors: any = {};
 
         if (!formData?.id.trim()) newErrors.id = 'ID is required';
         if (capturedImages.length < 3) {
-            newErrors.amountOfImage = 'Please capture at least 3 photos for accurate recognition';
+            newErrors.amountOfImage = 'กรุณาถ่ายรูปสะสมให้ได้อย่างน้อย 3 รูปเพื่อใช้จัดทำโครงสร้างจดจำใบหน้า';
         }
 
         setErrors(newErrors);
-
         return Object.keys(newErrors).length === 0;
     };
 
@@ -179,18 +176,6 @@ export default function EmployeeFaceRegistration() {
         try {
             let avgDescriptor = null;
             if (capturedImages.length > 0) {
-                /**
-                 * ===================== Method 1 =====================
-                 */
-                // const avgDescriptor = capturedImages[0].descriptor.map((_, i) => {
-                //     const sum = capturedImages.reduce((acc, img) => acc + img.descriptor[i], 0);
-
-                //     return sum / capturedImages.length;
-                // });
-
-                /**
-                 * ===================== Method 2 =====================
-                 */
                 avgDescriptor = capturedImages[0].descriptor.map((val: number, i: number) => {
                     let sum = val;
                     for (let j = 1; j < capturedImages.length; j++) {
@@ -207,15 +192,6 @@ export default function EmployeeFaceRegistration() {
 
                 if (result.status === 200) {
                     setRegistrationStatus('success');
-        
-                    // setTimeout(() => {
-                    //     setFormData({
-                    //         id: '',
-                    //         face_descriptor: '',
-                    //     });
-                    //     setCapturedImages([]);
-                    //     setRegistrationStatus(null);
-                    // }, 3000);
                 }
             }
         } catch (err) {
@@ -225,262 +201,303 @@ export default function EmployeeFaceRegistration() {
     };
 
     const handleReset = () => {
-        // setFormData({
-        //     id: '',
-        //     face_descriptor: '',
-        // });
-
         setCapturedImages([]);
         setErrors(null);
         setRegistrationStatus(null);
-        stopCamera(stream!, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); });
+        if (stream) {
+            stopCamera(stream, () => { 
+                setStream(null); 
+                setIsCameraActive(false); 
+                setFaceDetected(false); 
+            });
+        }
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-2 mb-6">
-                <div className="flex items-center gap-4">
-                    <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-3 rounded-xl shadow-md shadow-blue-500/20">
-                        <UserPlus className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">ลงทะเบียนใบหน้า</h1>
-                        <p className="text-sm text-gray-500">บันทึกรูปภาพและจัดทำข้อมูลการจดจำใบหน้าของบุคลากร</p>
-                    </div>
+        <div className="space-y-6">
+            {/* Page Header */}
+            <div className="flex items-center gap-4 py-2">
+                <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-3 rounded-2xl shadow-lg shadow-blue-500/20 text-white shrink-0">
+                    <UserPlus className="w-6 h-6" />
+                </div>
+                <div>
+                    <h1 className="text-2xl font-black bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent">
+                        ลงทะเบียนใบหน้า
+                    </h1>
+                    <p className="text-xs text-gray-500 font-semibold mt-0.5">
+                        บันทึกรูปภาพและจัดทำข้อมูลการจดจำใบหน้าของบุคลากร
+                    </p>
                 </div>
             </div>
 
+            {/* Alert / Notification Bars */}
             {!modelsLoaded && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
-                    <div className="flex items-center gap-2 text-yellow-800">
-                        <AlertCircle className="w-5 h-5" />
-                        <p>Loading facial recognition models...</p>
-                    </div>
+                <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-center gap-3 text-amber-800">
+                    <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+                    <p className="text-xs font-semibold">กำลังโหลดโมเดลปัญญาประดิษฐ์สแกนใบหน้า...</p>
                 </div>
             )}
 
             {registrationStatus === 'success' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
-                    <div className="flex items-center gap-2 text-green-800">
-                        <CheckCircle className="w-5 h-5" />
-                        <p className="font-medium">Employee registered successfully!</p>
-                    </div>
+                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center gap-3 text-emerald-800">
+                    <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <p className="text-xs font-semibold">ลงทะเบียนข้อมูลใบหน้าเรียบร้อยแล้ว!</p>
                 </div>
             )}
 
             {registrationStatus === 'error' && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
-                    <div className="flex items-center gap-2 text-red-800">
-                        <XCircle className="w-5 h-5" />
-                        <p className="font-medium">Registration failed. Please try again.</p>
-                    </div>
+                <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3 text-red-800">
+                    <XCircle className="w-5 h-5 text-red-500 shrink-0" />
+                    <p className="text-xs font-semibold">เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่อีกครั้ง</p>
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-md:gap-3">
-                {/* Employee Information */}
-                <div className="bg-white rounded-lg shadow-lg p-6 max-md:p-4">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">ข้อมูลบุคลากร</h2>
+            {/* Grid Layout Container */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left Column - Employee Information Card */}
+                <div className="lg:col-span-5 bg-white rounded-3xl border border-gray-100 shadow-xl p-6 flex flex-col justify-between">
+                    <div>
+                        <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">
+                            ข้อมูลรายละเอียดบุคลากร
+                        </h2>
 
-                    {employee && (
-                        <div className="flex flex-col items-center justify-between gap-4 h-[95%] max-md:h-auto py-6 max-md:py-0">
-                            <div className="w-full flex flex-col items-center space-y-8">
-                                <EmployeeAvatar
-                                    image={`${import.meta.env.VITE_API_URL}/uploads/${employee?.avatar_url}`}
-                                    alt={employee.firstname}
-                                    width="150px"
-                                    height="150px"
-                                />
+                        {employee && (
+                            <div className="flex flex-col items-center space-y-5">
+                                {/* Avatar frame */}
+                                <div className="p-1 rounded-full border border-gray-200">
+                                    <EmployeeAvatar
+                                        image={`${import.meta.env.VITE_API_URL}/uploads/${employee?.avatar_url}`}
+                                        alt={employee.firstname}
+                                        width="90px"
+                                        height="90px"
+                                    />
+                                </div>
 
-                                <div className="w-[90%] max-md:w-[95%] space-y-2">
-                                    <p className="max-md:text-sm lg:text-lg">
-                                        <span className="font-bold">ชื่อ-สกุล: </span>{employee.prefix?.name}{employee.firstname} {employee.lastname}
-                                    </p>
-                                    <p className="max-md:text-sm lg:text-lg">
-                                        <span className="font-bold">ตำแหน่ง: </span>
-                                        <EmployeePosition
-                                            position={employee.position}
-                                            level={employee.level}
-                                        />
-                                    </p>
-                                    <p className="max-md:text-sm lg:text-lg">
-                                        <span className="font-bold">ที่อยู่: </span>
-                                        {employee.address_no} ต.{employee.tambon ? employee.tambon?.name : '-'} <br className="max-md:hidden" />
-                                        อ.{employee.amphur ? employee.amphur?.name : '-'} จ.{employee.changwat ? employee.changwat?.name : '-'} {employee.zipcode ? employee.zipcode : '-'}
-                                    </p>
-                                    <p className="max-md:text-sm lg:text-lg">
-                                        <span className="font-bold">เบอร์ติดต่อ: </span>{employee.tel}
-                                    </p>
-                                    <p className="max-md:text-sm lg:text-lg">
-                                        <span className="font-bold">อีเมล: </span>{employee.email}
-                                    </p>
+                                {/* Information Lists */}
+                                <div className="w-full space-y-3.5 pt-2">
+                                    <div className="bg-gray-50/50 p-3 rounded-2xl border border-gray-100/60 text-xs">
+                                        <span className="text-gray-400 font-semibold block mb-0.5">ชื่อ-นามสกุล</span>
+                                        <span className="font-bold text-gray-800">
+                                            {employee.prefix?.name || ''}{employee.firstname} {employee.lastname}
+                                        </span>
+                                    </div>
+
+                                    <div className="bg-gray-50/50 p-3 rounded-2xl border border-gray-100/60 text-xs">
+                                        <span className="text-gray-400 font-semibold block mb-0.5">ตำแหน่งงาน / ระดับปฏิบัติงาน</span>
+                                        <span className="font-bold text-gray-800">
+                                            <EmployeePosition position={employee.position} level={employee.level} />
+                                        </span>
+                                    </div>
+
+                                    <div className="bg-gray-50/50 p-3 rounded-2xl border border-gray-100/60 text-xs">
+                                        <span className="text-gray-400 font-semibold block mb-0.5">อีเมลติดต่อ</span>
+                                        <span className="font-bold text-gray-800">{employee.email || 'ไม่ได้ระบุ'}</span>
+                                    </div>
+
+                                    <div className="bg-gray-50/50 p-3 rounded-2xl border border-gray-100/60 text-xs">
+                                        <span className="text-gray-400 font-semibold block mb-0.5">เบอร์โทรศัพท์</span>
+                                        <span className="font-bold text-gray-800">{employee.tel || 'ไม่ได้ระบุ'}</span>
+                                    </div>
+
+                                    <div className="bg-gray-50/50 p-3 rounded-2xl border border-gray-100/60 text-xs">
+                                        <span className="text-gray-400 font-semibold block mb-0.5">ที่อยู่ที่ติดต่อได้</span>
+                                        <span className="font-bold text-gray-800 leading-relaxed block">
+                                            {employee.address_no || '-'} ตำบล{employee.tambon?.name || '-'} อำเภอ{employee.amphur?.name || '-'} จังหวัด{employee.changwat?.name || '-'} {employee.zipcode || ''}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
+                        )}
+                    </div>
 
-                            <div className="flex gap-3 pt-4 w-full">
-                                <button
-                                    onClick={handleReset}
-                                    className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition-colors"
-                                >
-                                    ยกเลิก
-                                </button>
-                                <button
-                                    onClick={handleSubmit}
-                                    disabled={registrationStatus === 'processing' || !modelsLoaded}
-                                    className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    {registrationStatus === 'processing' ? 'กำลังลงทะเบียน...' : 'ลงทะเบียน'}
-                                </button>
-                            </div>
+                    {/* Action buttons inside Profile Card */}
+                    {employee && (
+                        <div className="flex gap-3 pt-6 border-t border-gray-100 mt-6 shrink-0">
+                            <button
+                                onClick={handleReset}
+                                className="flex-1 px-5 py-3 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold text-xs rounded-xl border border-gray-200 transition-all cursor-pointer text-center"
+                            >
+                                ยกเลิก / รีเซ็ต
+                            </button>
+                            <button
+                                onClick={handleSubmit}
+                                disabled={registrationStatus === 'processing' || !modelsLoaded || capturedImages.length < 3}
+                                className="flex-1 px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-indigo-500/10 hover:shadow-lg disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed cursor-pointer text-center"
+                            >
+                                {registrationStatus === 'processing' ? 'กำลังบันทึก...' : 'ลงทะเบียนใบหน้า'}
+                            </button>
                         </div>
                     )}
                 </div>
-                
-                {/* Capturing Section */}
-                <div className="space-y-6">
-                    <div className="bg-white rounded-lg shadow-lg p-6 max-md:p-4">
-                        <div className="flex items-center justify-between mb-4 max-md:mb-2">
-                            <h2 className="text-xl font-bold text-gray-800">Facial Recognition Setup</h2>
-                            <span className="text-sm text-gray-600">{capturedImages.length}/5 photos</span>
+
+                {/* Right Column - Facial Recognition Scanner Panel */}
+                <div className="lg:col-span-7 space-y-6">
+                    {/* Scanner Card */}
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-xl p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                                กล้องบันทึกวิเคราะห์ใบหน้า
+                            </h2>
+                            <span className="px-2.5 py-1 bg-indigo-50 border border-indigo-100 rounded-lg text-[10px] font-black text-indigo-600 shrink-0">
+                                ถ่ายภาพ {capturedImages.length} / 5 ภาพ
+                            </span>
                         </div>
 
-                        {/* Camera */}
-                        <div className="relative mb-4 max-md:mb-2 flex justify-center">
+                        {/* Progress Bar Status */}
+                        <div className="space-y-1.5 mb-4">
+                            <div className="flex items-center justify-between text-[10px] text-gray-400 font-bold">
+                                <span>ความก้าวหน้าการจัดทำชุดข้อมูล</span>
+                                <span>{Math.round((capturedImages.length / 5) * 100)}%</span>
+                            </div>
+                            <div className="h-2 bg-gray-50 border border-gray-100 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-500"
+                                    style={{ width: `${(capturedImages.length / 5) * 100}%` }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        {/* Scanner Video Viewport */}
+                        <div className="relative mb-5 flex justify-center">
                             <div 
-                                className="bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center relative shadow-md"
+                                className="bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center relative shadow-inner border border-slate-900"
                                 style={{ 
                                     width: '100%', 
                                     maxWidth: videoDimensions.width > 640 ? '100%' : videoDimensions.width,
                                     aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`
                                 }}
                             >
-                                {/* {isCameraActive ? ( */}
-                                    <>
-                                        <video
-                                            ref={videoRef}
-                                            autoPlay
-                                            playsInline
-                                            className="w-full h-full object-cover"
-                                            onLoadedMetadata={() => {
-                                                if (videoRef.current) {
-                                                    setVideoDimensions({
-                                                        width: videoRef.current.videoWidth,
-                                                        height: videoRef.current.videoHeight
-                                                    });
-                                                }
-                                            }}
-                                        />
+                                <video
+                                    ref={videoRef}
+                                    autoPlay
+                                    playsInline
+                                    className="w-full h-full object-cover animate-fade-in"
+                                    onLoadedMetadata={() => {
+                                        if (videoRef.current) {
+                                            setVideoDimensions({
+                                                width: videoRef.current.videoWidth,
+                                                height: videoRef.current.videoHeight
+                                            });
+                                        }
+                                    }}
+                                />
 
-                                        <canvas
-                                            ref={canvasRef}
-                                            className="absolute top-0 left-0 w-full h-full pointer-events-none"
-                                        />
+                                <canvas
+                                    ref={canvasRef}
+                                    className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                                />
 
-                                        {(isCameraActive && modelsLoaded) && (
-                                            <div className="absolute top-4 right-4">
-                                                <div className={`flex items-center gap-2 px-3 py-2 rounded-full ${
-                                                    faceDetected ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
-                                                }`}>
-                                                    <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                                                    <span className="text-sm font-medium">{faceDetected ? 'Face Detected' : 'Detecting...'}</span>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {isProcessing && (
-                                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                                                <div className="bg-white px-6 py-4 rounded-lg">
-                                                    <p className="text-gray-800 font-medium">Capturing...</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </>
-                                {/* ) : (
-                                    <div className="text-center p-8">
-                                        <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                                        <p className="text-gray-400">Camera not active</p>
+                                {/* Floating camera active indicator */}
+                                {(isCameraActive && modelsLoaded) && (
+                                    <div className="absolute top-4 right-4 z-10">
+                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${
+                                            faceDetected ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'
+                                        } shadow-md`}>
+                                            <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                                            <span className="text-[10px] font-bold">
+                                                {faceDetected ? 'ตรวจพบใบหน้า' : 'กรุณาขยับหน้าเข้าใกล้'}
+                                            </span>
+                                        </div>
                                     </div>
-                                )} */}
+                                )}
+
+                                {isProcessing && (
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
+                                        <div className="bg-white px-5 py-3 rounded-2xl flex items-center gap-2 shadow-xl animate-bounce">
+                                            <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 animate-ping"></span>
+                                            <p className="text-gray-800 text-xs font-bold">กำลังบันทึกภาพถ่าย...</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
+                        {/* Scanner Warnings / Guide messages */}
                         {isCameraActive && capturedImages.length < 5 && (
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 max-md:mb-2">
-                                <p className="text-blue-800 text-sm max-md:text-xs text-center">
-                                    Capture 3-5 photos from different angles for better accuracy
+                            <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-3 mb-4 flex items-start gap-2.5 text-blue-800">
+                                <AlertCircle className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                                <p className="text-[11px] font-medium leading-relaxed">
+                                    กรุณามองตรงไปที่กล้อง เอียงศีรษะหรือปรับมุมเล็กน้อยในการถ่ายแต่ละครั้งเพื่อให้ได้ข้อมูลใบหน้าที่ถูกต้องครบถ้วน (ต้องการอย่างน้อย 3 ภาพ)
                                 </p>
                             </div>
                         )}
 
                         {errors?.amountOfImage && (
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 max-md:mb-2">
-                                <p className="text-red-800 text-sm max-md:text-xs text-center">{errors?.amountOfImage}</p>
+                            <div className="bg-red-50 border border-red-150 rounded-2xl p-3 mb-4 flex items-start gap-2 text-red-800">
+                                <ShieldAlert className="w-4.5 h-4.5 text-red-500 shrink-0 mt-0.5" />
+                                <p className="text-[11px] font-bold leading-relaxed">{errors?.amountOfImage}</p>
                             </div>
                         )}
 
-                        {/* Action Buttons */}
+                        {/* Scanner Actions Trigger bar */}
                         <div className="flex gap-3">
                             {!isCameraActive ? (
                                 <button
                                     onClick={() => startCamera(videoRef as RefObject<HTMLVideoElement>, detectFaces, (mediaStream) => { setStream(mediaStream); setIsCameraActive(true); })}
                                     disabled={!modelsLoaded || capturedImages.length >= 5}
-                                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99] disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed"
                                 >
-                                    <Camera className="w-5 h-5" />
-                                    Start Camera
+                                    <Camera className="w-4.5 h-4.5" />
+                                    <span>เปิดกล้องสแกน</span>
                                 </button>
                             ) : (
                                 <>
                                     <button
                                         onClick={() => stopCamera(stream!, () => { setStream(null); setIsCameraActive(false); setFaceDetected(false); })}
-                                        className="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
+                                        className="flex-1 px-6 py-3.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-150 font-bold text-xs rounded-xl transition-all cursor-pointer text-center animate-fade-in"
                                     >
-                                        Stop Camera
+                                        ปิดกล้อง
                                     </button>
                                     <button
                                         onClick={capturePhoto}
                                         disabled={!faceDetected || isProcessing || capturedImages.length >= 5}
-                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99] disabled:bg-gray-300 disabled:cursor-not-allowed text-center animate-fade-in"
                                     >
-                                        <Camera className="w-5 h-5" />
-                                        Capture
+                                        <Camera className="w-4.5 h-4.5" />
+                                        <span>ถ่ายรูปใบหน้า</span>
                                     </button>
                                 </>
                             )}
                         </div>
                     </div>
 
-                    {/* Captured Images List */}
+                    {/* Captured Photos Grid Gallery */}
                     {capturedImages.length > 0 && (
-                        <div className="bg-white rounded-lg shadow-lg p-6">
-                            <h3 className="text-lg font-bold text-gray-800 mb-4">Captured Photos</h3>
-                            <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-white rounded-3xl border border-gray-100 shadow-xl p-6">
+                            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">
+                                รูปถ่ายสะสมในระบบ
+                            </h3>
+                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3.5">
                                 {capturedImages.map((img, index) => (
-                                    <div key={index} className="relative group">
+                                    <div key={index} className="relative group rounded-xl overflow-hidden border border-gray-150 shadow-sm aspect-square bg-gray-50 flex items-center justify-center transition-all hover:shadow-md">
                                         <img 
                                             src={img.image} 
                                             alt={`Capture ${index + 1}`}
-                                            className="w-full h-24 object-cover rounded-lg border-2 border-gray-200"
+                                            className="w-full h-full object-cover"
                                         />
-                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                                        
+                                        {/* Hover Overlay Action icons */}
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                             <button
                                                 onClick={() => {
                                                     setShowPreview(true);
                                                     setPreview(img.image);
                                                 }}
-                                                className="opacity-0 group-hover:opacity-100 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all"
+                                                className="p-1.5 bg-white/25 hover:bg-white/40 text-white rounded-lg transition-all cursor-pointer"
+                                                title="พรีวิวรูปใหญ่"
                                             >
                                                 <Eye className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={() => removeImage(index)}
-                                                className="opacity-0 group-hover:opacity-100 p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-all"
+                                                className="p-1.5 bg-red-600/95 hover:bg-red-700 text-white rounded-lg transition-all cursor-pointer"
+                                                title="ลบรูปนี้"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
-                                        <div className="absolute top-1 left-1 bg-purple-600 text-white text-xs px-2 py-1 rounded">
+
+                                        <div className="absolute top-1 left-1.5 bg-indigo-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-lg shadow-sm">
                                             #{index + 1}
                                         </div>
                                     </div>
@@ -491,7 +508,7 @@ export default function EmployeeFaceRegistration() {
                 </div>
             </div>
 
-            {/* Show preview button */}
+            {/* Lightbox Overlay image viewer */}
             <ImageViewer
                 isShow={showPreview}
                 onHide={(hide: boolean) => {

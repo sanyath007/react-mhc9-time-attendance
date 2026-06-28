@@ -9,6 +9,7 @@ import EmployeeForm from '../pages/Employee/Form'
 import AttendanceList from '../pages/Attendance/List'
 import CheckInContainer from '../pages/CheckIn'
 import EmployeeFaceRegistration from '../pages/Employee/FaceRegistration'
+import Profile from '../pages/Profile'
 import DefaultLayout from './layouts/Default'
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
                     <Route path="/employee" element={<EmployeeList />} />
                     <Route path="/employee/register" element={<EmployeeForm />} />
                     <Route path="/employee/:id/face" element={<EmployeeFaceRegistration />} />
+                    <Route path="/profile" element={<Profile />} />
                 </Route>
 
                 {/* Auth routes */}

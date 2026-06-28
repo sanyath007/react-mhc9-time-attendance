@@ -37,7 +37,7 @@ export default function Navbar() {
         {
             label: 'โปรไฟล์',
             icon: User,
-            action: () => console.log('Navigate to Profile')
+            action: () => navigate('/profile')
         },
         {
             label: 'ตั้งค่า',
