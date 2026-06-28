@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { CalendarClock, Search, Clock, CheckCircle2, AlertCircle, Users, FileQuestion } from 'lucide-react';
+import { CalendarClock, Search, Clock, CheckCircle2, AlertCircle, Users, FileQuestion, Grid, List as ListIcon } from 'lucide-react';
 import moment from 'moment';
 import api from '../../api';
 import { type AttendanceFilters } from '../../lib/types';
@@ -11,6 +11,10 @@ const AttendanceList = () => {
     const [attendances, setAttendances] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [currentDate, setCurrentDate] = useState<string>(moment().format('YYYY-MM-DD'));
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+        const saved = localStorage.getItem("attendance_view_mode");
+        return (saved === 'list' || saved === 'grid') ? saved : 'grid';
+    });
     
     const imgUrl = moment(STARTING_DATE).diff(moment(currentDate), "day") > 1 
         ? 'https://mhc9dmh.com/DATA/PhotoCheckTime' 
@@ -32,6 +36,11 @@ const AttendanceList = () => {
             setIsLoading(false)
         }
     }
+
+    const toggleViewMode = (mode: 'grid' | 'list') => {
+        setViewMode(mode);
+        localStorage.setItem("attendance_view_mode", mode);
+    };
 
     // Filter check-ins (CheTmType === 'เข้า') and match search term
     const filteredCheckIns = useMemo(() => {
@@ -118,9 +127,9 @@ const AttendanceList = () => {
             </div>
 
             {/* Unified Toolbar */}
-            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
                 {/* Search Bar */}
-                <div className="relative w-full sm:w-80">
+                <div className="relative w-full md:w-80">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
                     <input
                         type="text"
@@ -131,30 +140,78 @@ const AttendanceList = () => {
                     />
                 </div>
 
-                {/* Date Filter Input Component */}
-                <FliteringInputs
-                    initialValues={{ toDay: currentDate }}
-                    onFilter={(filters: AttendanceFilters) => {
-                        setCurrentDate(filters.toDay);
-                    }}
-                />
+                {/* Filters & View toggler */}
+                <div className="flex w-full md:w-auto items-center justify-between md:justify-end gap-3">
+                    {/* Date Filter Input Component */}
+                    <FliteringInputs
+                        initialValues={{ toDay: currentDate }}
+                        onFilter={(filters: AttendanceFilters) => {
+                            setCurrentDate(filters.toDay);
+                        }}
+                    />
+
+                    {/* Divider */}
+                    <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
+
+                    {/* Grid/List Toggle */}
+                    <div className="flex bg-gray-50 p-1 border border-gray-200 rounded-xl">
+                        <button
+                            onClick={() => toggleViewMode('grid')}
+                            className={`p-2 rounded-lg transition-all ${
+                                viewMode === 'grid' 
+                                    ? 'bg-white text-blue-600 shadow-sm' 
+                                    : 'text-gray-400 hover:text-gray-600'
+                            }`}
+                            title="แสดงแบบการ์ด"
+                        >
+                            <Grid className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => toggleViewMode('list')}
+                            className={`p-2 rounded-lg transition-all ${
+                                viewMode === 'list' 
+                                    ? 'bg-white text-blue-600 shadow-sm' 
+                                    : 'text-gray-400 hover:text-gray-600'
+                            }`}
+                            title="แสดงแบบรายการ"
+                        >
+                            <ListIcon className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* Content area */}
             {isLoading ? (
                 /* Skeleton Loader */
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden divide-y divide-gray-100 shadow-sm">
-                    {[...Array(5)].map((_, i) => (
-                        <div key={i} className="p-5 flex items-center gap-4 animate-pulse">
-                            <div className="w-16 h-16 bg-gray-100 rounded-xl"></div>
-                            <div className="flex-1 space-y-2">
-                                <div className="w-40 h-5 bg-gray-200 rounded-md"></div>
-                                <div className="w-28 h-4 bg-gray-100 rounded-md"></div>
+                viewMode === 'grid' ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col items-center animate-pulse">
+                                <div className="w-full h-40 bg-gray-100 rounded-xl mb-4"></div>
+                                <div className="w-28 h-5 bg-gray-200 rounded-md mb-2"></div>
+                                <div className="w-20 h-4 bg-gray-100 rounded-md mb-4"></div>
+                                <div className="w-full flex gap-3 mt-auto">
+                                    <div className="h-8 bg-gray-100 rounded-full flex-1"></div>
+                                    <div className="h-8 bg-gray-100 rounded-full flex-1"></div>
+                                </div>
                             </div>
-                            <div className="w-24 h-8 bg-gray-100 rounded-full"></div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden divide-y divide-gray-100 shadow-sm">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className="p-5 flex items-center gap-4 animate-pulse">
+                                <div className="w-16 h-16 bg-gray-100 rounded-xl"></div>
+                                <div className="flex-1 space-y-2">
+                                    <div className="w-40 h-5 bg-gray-200 rounded-md"></div>
+                                    <div className="w-28 h-4 bg-gray-100 rounded-md"></div>
+                                </div>
+                                <div className="w-24 h-8 bg-gray-100 rounded-full"></div>
+                            </div>
+                        ))}
+                    </div>
+                )
             ) : filteredCheckIns.length === 0 ? (
                 /* Empty logs list */
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 flex flex-col items-center text-center">
@@ -168,8 +225,79 @@ const AttendanceList = () => {
                             : "ในวันที่เลือกยังไม่มีข้อมูลพนักงานสแกนเข้าปฏิบัติงาน"}
                     </p>
                 </div>
+            ) : viewMode === 'grid' ? (
+                /* Grid View Layout */
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredCheckIns.map((attendance: any) => {
+                        const dateObj = moment(attendance.CheTmDate);
+                        const timeStr = dateObj.format('HH:mm:ss');
+                        const isLate = timeStr > '08:30:00';
+                        
+                        return (
+                            <div 
+                                key={attendance.CheTmID} 
+                                className="group bg-white rounded-2xl border border-gray-100 hover:border-blue-150 p-4 flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative"
+                            >
+                                {/* Photo frame with Zoom effect */}
+                                <div className="relative overflow-hidden rounded-xl aspect-[4/3] w-full border border-gray-50 bg-gray-50 mb-4 group/photo">
+                                    {attendance.CheTmPic ? (
+                                        <img
+                                            src={`${imgUrl}/${attendance.CheTmPic}`}
+                                            className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
+                                            alt="check-in-pic"
+                                        />
+                                    ) : (
+                                        <img
+                                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(attendance.employee?.EmName || 'Unknown')}&background=${attendance.employee?.EmColor || '4f46e5'}&color=fff&size=256`}
+                                            className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
+                                            alt="check-in-pic"
+                                        />
+                                    )}
+
+                                    {/* Floating type badge */}
+                                    <span className="absolute top-2 left-2 inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-blue-500 text-white shadow-sm border border-blue-400">
+                                        {attendance.CheTmType || 'เข้า'}
+                                    </span>
+                                </div>
+
+                                {/* Employee Name */}
+                                <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                    {attendance.employee ? attendance.employee?.EmName : 'Unknown Employee'}
+                                </h3>
+
+                                {/* DateTime details */}
+                                <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-1.5 text-xs text-gray-500">
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-semibold text-gray-400">วันที่:</span>
+                                        <span>{dateObj.format('DD/MM/YYYY')}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Clock className="w-3.5 h-3.5 text-gray-400" />
+                                        <span className="font-semibold text-gray-400">เวลา:</span>
+                                        <span className="font-bold text-gray-700">{timeStr}</span>
+                                    </div>
+                                </div>
+
+                                {/* Late/On-Time capsule Badge */}
+                                <div className="mt-4">
+                                    {isLate ? (
+                                        <span className="inline-flex w-full items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100/60">
+                                            <AlertCircle className="w-3.5 h-3.5" />
+                                            มาสาย
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex w-full items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100/60">
+                                            <CheckCircle2 className="w-3.5 h-3.5" />
+                                            ตรงเวลา
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             ) : (
-                /* Logs List */
+                /* List View Layout */
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
                     {filteredCheckIns.map((attendance: any) => {
                         const dateObj = moment(attendance.CheTmDate);

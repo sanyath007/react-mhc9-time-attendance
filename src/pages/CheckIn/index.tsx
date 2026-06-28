@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { CircleChevronLeft, Clock, MapPin, Navigation, NavigationOff, User } from 'lucide-react';
+import { CircleChevronLeft, MapPin, Navigation, NavigationOff, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import CheckIn from '../../components/features/CheckIn';
 import { useGeolocation } from '../../hooks/useLocation';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
-import HeaderIcon from '../../components/ui/HeaderIcon';
 
 const OFFICE_LATITUDE = import.meta.env.VITE_OFFICE_LATITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LATITUDE) : 14.98326727612899;
 const OFFICE_LONGITUDE = import.meta.env.VITE_OFFICE_LONGITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LONGITUDE) : 102.10488443930059;
@@ -26,8 +25,6 @@ export default function CheckInContainer() {
                 OFFICE_LONGITUDE
             ));
         }
-
-        console.log(location, distance);
     }, [location]);
 
     /** Update time every second */
@@ -40,74 +37,126 @@ export default function CheckInContainer() {
     }, []);
 
     return (
-        <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className={`flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-2 ${path === '/check-in' ? 'mb-4 max-md:mb-2' : 'mb-6 max-md:mb-3'}`}>
-                {path === '/check-in'
-                ? (
-                    <div className="flex items-center">
-                        <Link to="/login" reloadDocument className="text-indigo-600 hover:text-indigo-800 transition-colors font-semibold">
-                            <CircleChevronLeft className="w-8 h-8 max-md:w-6 max-md:h-6 mr-1" />
+        <div className="w-full max-w-md mx-auto space-y-4 px-0 py-1">
+            {/* Header with Integrated Clock */}
+            {path === '/check-in' ? (
+                <div className="flex items-center justify-between bg-white px-4 py-3 border border-gray-100 rounded-2xl shadow-sm">
+                    <div className="flex items-center gap-2">
+                        <Link 
+                            to="/login" 
+                            reloadDocument 
+                            className="p-2 bg-transparent border border-transparent hover:bg-gray-50 hover:border-gray-200/80 text-gray-400 hover:text-gray-700 rounded-xl transition-all flex items-center justify-center cursor-pointer"
+                            title="กลับไปหน้าหลัก"
+                        >
+                            <CircleChevronLeft className="w-5 h-5" />
                         </Link>
-                    </div>
-                ) : (
-                    <>
-                        <div className="flex items-center gap-4">
-                            <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-3 rounded-xl shadow-md shadow-blue-500/20">
-                                <User className="w-8 h-8 text-white" />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                                    ลงเวลาปฏิบัติงาน
-                                </h1>
-                                <p className="text-sm text-gray-500">ระบบบันทึกเวลาทำงานด้วยการสแกนใบหน้า</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm text-gray-800 font-semibold text-sm">
-                            <Clock className="w-4 h-4 text-indigo-600 animate-pulse" />
-                            <span>{currentTime.toLocaleTimeString()}</span>
-                            <span className="text-gray-300 hidden sm:inline">|</span>
-                            <span className="text-gray-500 text-xs hidden sm:inline">
-                                {currentTime.toLocaleDateString('th-TH', { 
-                                    weekday: 'long', 
-                                    day: 'numeric',
-                                    month: 'long',
-                                    year: 'numeric'
-                                })}
+                        <div>
+                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block leading-none mb-1">
+                                MHC9 Attendance
+                            </span>
+                            <span className="text-xs font-bold text-gray-800 block leading-none">
+                                ลงเวลาปฏิบัติงาน
                             </span>
                         </div>
-                    </>
-                )}
-            </div>
-            
-            {/* Main Content */}
-            <div className="bg-white rounded-lg shadow-lg p-6 max-md:p-4">
-                {/* User Location Info */}
-                <div className="flex flex-row max-md:flex-col items-center max-md:items-start justify-between mb-3">
-                    <p className="text-gray-700 max-md:text-sm">
-                        <MapPin className="inline w-5 h-5 max-md:w-4 max-md:h-4 mb-1 mr-[2px] text-indigo-700" />
-                        <span>Current Location:</span>
-                        <span className="max-md:hidden font-bold ml-2">
-                            {location?.latitude}, {location?.longitude}
+                    </div>
+                    {/* Compact Header Clock */}
+                    <div className="text-right shrink-0">
+                        <span className="text-base font-black font-mono text-indigo-600 block leading-none">
+                            {currentTime.toLocaleTimeString()}
                         </span>
-                        <span className="hidden max-md:inline max-md:text-xs font-bold ml-2">
-                            {location?.latitude.toFixed(4)}, {location?.longitude.toFixed(4)}
+                        <span className="text-[9px] text-gray-400 font-semibold block mt-1 leading-none">
+                            {currentTime.toLocaleDateString('th-TH', { 
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                            })}
                         </span>
-                    </p>
-                    <p className="text-gray-700 max-md:text-sm">
-                        {distance > 500 
-                            ? <NavigationOff className="inline w-5 h-5 max-md:w-4 max-md:h-4 mb-1 mr-[2px] text-red-500" />
-                            : <Navigation className="inline w-5 h-5 max-md:w-4 max-md:h-4 mb-1 mr-[2px] text-indigo-700" />
-                        }
-                        <span>Distance to Office:</span>
-                        <span className={`${distance > 500 ? 'text-red-500' : 'text-green-500'} font-bold ml-2`}>
-                            {distance.toFixed(2)}
-                        </span> meters
-                    </p>
+                    </div>
+                </div>
+            ) : (
+                <div className="flex items-center justify-between py-2 border-b border-gray-100 pb-3 mb-2">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2 rounded-xl shadow-md shadow-blue-500/20 text-white shrink-0">
+                            <User className="w-4.5 h-4.5" />
+                        </div>
+                        <div>
+                            <h1 className="text-sm font-bold text-gray-800">
+                                ลงเวลาปฏิบัติงาน
+                            </h1>
+                            <p className="text-[9px] text-gray-500">ระบบบันทึกเวลาสแกนใบหน้า</p>
+                        </div>
+                    </div>
+                    
+                    {/* Compact Header Clock */}
+                    <div className="text-right shrink-0">
+                        <span className="text-base font-black font-mono text-indigo-600 block leading-none">
+                            {currentTime.toLocaleTimeString()}
+                        </span>
+                        <span className="text-[9px] text-gray-400 font-semibold block mt-1 leading-none">
+                            {currentTime.toLocaleDateString('th-TH', { 
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                            })}
+                        </span>
+                    </div>
+                </div>
+            )}
+
+            {/* Map Radar Location Status Card */}
+            <div className={`rounded-2xl border p-4 shadow-sm transition-all duration-300 bg-white ${
+                distance > 500 
+                    ? 'border-amber-100/60 shadow-amber-500/5' 
+                    : 'border-indigo-100/60 shadow-indigo-500/5'
+            }`}>
+                <div className="flex items-center justify-between mb-3.5">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={`p-2 rounded-xl shrink-0 ${distance > 500 ? 'bg-amber-500/10 text-amber-600' : 'bg-indigo-500/10 text-indigo-600'}`}>
+                            {distance > 500 ? <NavigationOff className="w-4.5 h-4.5" /> : <Navigation className="w-4.5 h-4.5" />}
+                        </div>
+                        <div className="min-w-0">
+                            <h3 className="text-xs font-bold text-gray-800">ตำแหน่งพนักงาน</h3>
+                            <p className="text-[10px] text-gray-400 font-mono mt-0.5 truncate">
+                                {location ? `${location.latitude.toFixed(5)}, ${location.longitude.toFixed(5)}` : 'กำลังเชื่อมโยง GPS...'}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Pulsing Radar Badge */}
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border border-gray-100 bg-gray-50/50 shadow-sm shrink-0">
+                        <span className="relative flex h-1.5 w-1.5">
+                            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                                distance > 500 ? 'bg-amber-400' : 'bg-indigo-400'
+                            }`}></span>
+                            <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${
+                                distance > 500 ? 'bg-amber-500' : 'bg-indigo-500'
+                            }`}></span>
+                        </span>
+                        <span className={`text-[9px] font-bold ${distance > 500 ? 'text-amber-700' : 'text-indigo-700'}`}>
+                            {distance > 500 ? 'นอกพื้นที่งาน' : 'อยู่ในพื้นที่'}
+                        </span>
+                    </div>
                 </div>
 
-                {/* CheckIn Component */}
+                {/* Accuracy / Distance Details */}
+                <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100 text-[11px]">
+                    <div>
+                        <p className="text-gray-400 font-medium">ระยะห่างจากที่ทำงาน</p>
+                        <p className={`text-sm font-black mt-0.5 ${distance > 500 ? 'text-amber-600' : 'text-indigo-600'}`}>
+                            {distance.toFixed(1)} เมตร
+                        </p>
+                    </div>
+                    <div>
+                        <p className="text-gray-400 font-medium">ความแม่นยำ GPS</p>
+                        <p className="text-sm font-black text-gray-700 mt-0.5">
+                            {location ? `${location.accuracy.toFixed(1)} เมตร` : 'กำลังค้นหา...'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* CheckIn Form Component */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-4">
                 <CheckIn distance={distance} />
             </div>
         </div>
