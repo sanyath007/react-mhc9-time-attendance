@@ -5,7 +5,11 @@ export default {
     "./index.html",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Prompt', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }
