@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from 'react'
-import { CalendarClock, Search, Clock, CheckCircle2, AlertCircle, Users, FileQuestion, Grid, List as ListIcon } from 'lucide-react';
+import { CalendarClock, Search, CheckCircle2, AlertCircle, Users, FileQuestion, Grid, List as ListIcon, UserMinus, Briefcase } from 'lucide-react';
 import moment from 'moment';
 import api from '../../api';
 import { type AttendanceFilters } from '../../lib/types';
 import { STARTING_DATE } from '../../lib/constants';
 import FliteringInputs from './FliteringInputs';
+import { SummaryCard } from '../../components/ui/Cards/SummaryCard';
 
 const AttendanceList = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -15,11 +16,11 @@ const AttendanceList = () => {
         const saved = localStorage.getItem("attendance_view_mode");
         return (saved === 'list' || saved === 'grid') ? saved : 'grid';
     });
-    
-    const imgUrl = moment(STARTING_DATE).diff(moment(currentDate), "day") > 1 
-        ? 'https://mhc9dmh.com/DATA/PhotoCheckTime' 
+
+    const imgUrl = moment(STARTING_DATE).diff(moment(currentDate), "day") > 1
+        ? 'https://mhc9dmh.com/DATA/PhotoCheckTime'
         : `${import.meta.env.VITE_API_URL}/uploads`;
-    
+
     useEffect(() => {
         getAttendances(currentDate)
     }, [currentDate]);
@@ -48,7 +49,7 @@ const AttendanceList = () => {
 
         attendances.forEach((att: any) => {
             const empId = att.employee?.id || att.employee?.EmID || att.employee?.employee_no || att.employee?.EmName || `unknown-${att.CheTmID}`;
-            
+
             if (!map.has(empId)) {
                 map.set(empId, {
                     id: empId,
@@ -57,9 +58,9 @@ const AttendanceList = () => {
                     checkOut: null
                 });
             }
-            
+
             const group = map.get(empId);
-            
+
             if (att.CheTmType === 'เข้า') {
                 if (!group.checkIn || moment(att.CheTmDate).isBefore(moment(group.checkIn.CheTmDate))) {
                     group.checkIn = att;
@@ -72,14 +73,14 @@ const AttendanceList = () => {
         });
 
         let result = Array.from(map.values()).filter(group => group.checkIn || group.checkOut);
-        
+
         if (searchTerm) {
             result = result.filter(group => {
                 const name = group.employee?.EmName || 'Unknown Employee';
                 return name.toLowerCase().includes(searchTerm.toLowerCase());
             });
         }
-        
+
         return result.sort((a, b) => {
             const timeA = a.checkIn ? moment(a.checkIn.CheTmDate).valueOf() : (a.checkOut ? moment(a.checkOut.CheTmDate).valueOf() : Number.MAX_SAFE_INTEGER);
             const timeB = b.checkIn ? moment(b.checkIn.CheTmDate).valueOf() : (b.checkOut ? moment(b.checkOut.CheTmDate).valueOf() : Number.MAX_SAFE_INTEGER);
@@ -91,10 +92,10 @@ const AttendanceList = () => {
     const stats = useMemo(() => {
         const checkIns = combinedAttendances.filter(group => group.checkIn);
         const total = checkIns.length;
-        
+
         let onTime = 0;
         let late = 0;
-        
+
         checkIns.forEach(group => {
             const timeStr = moment(group.checkIn.CheTmDate).format('HH:mm:ss');
             if (timeStr <= '08:30:00') {
@@ -103,8 +104,8 @@ const AttendanceList = () => {
                 late++;
             }
         });
-        
-        return { total, onTime, late };
+
+        return { total, onTime, late, leave: 0, officialDuty: 0 };
     }, [combinedAttendances]);
 
     return (
@@ -123,41 +124,58 @@ const AttendanceList = () => {
             </div>
 
             {/* Dashboard Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Total Checkins */}
-                <div className="bg-gradient-to-br from-indigo-50 to-blue-50/50 border border-indigo-100/60 rounded-2xl p-5 shadow-sm flex items-center justify-between hover:shadow-md transition-all duration-300">
-                    <div>
-                        <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">ลงเวลาทั้งหมด</p>
-                        <h3 className="text-3xl font-extrabold text-indigo-950 mt-1">{isLoading ? '...' : stats.total}</h3>
-                        <p className="text-xs text-indigo-500/80 mt-1">ยอดผู้เข้าปฏิบัติงานของวัน</p>
-                    </div>
-                    <div className="bg-indigo-500/10 p-3.5 rounded-xl text-indigo-600">
-                        <Users className="w-8 h-8" />
-                    </div>
+            <div className="flex flex-col gap-4">
+                {/* Main Stats Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Total Checkins */}
+                    <SummaryCard
+                        title="ลงเวลาทั้งหมด"
+                        value={isLoading ? '...' : stats.total}
+                        subtitle="ยอดผู้เข้าปฏิบัติงาน"
+                        icon={<Users className="w-6 h-6 sm:w-8 sm:h-8" />}
+                        theme="indigo"
+                    />
+
+                    {/* On Time */}
+                    <SummaryCard
+                        title="ตรงเวลา"
+                        value={isLoading ? '...' : stats.onTime}
+                        subtitle="ก่อน 08:30 น."
+                        icon={<CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8" />}
+                        theme="emerald"
+                    />
+
+                    {/* Late */}
+                    <SummaryCard
+                        title="มาสาย"
+                        value={isLoading ? '...' : stats.late}
+                        subtitle="หลัง 08:30 น."
+                        icon={<AlertCircle className="w-6 h-6 sm:w-8 sm:h-8" />}
+                        theme="rose"
+                    />
                 </div>
 
-                {/* On Time */}
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50/50 border border-emerald-100/60 rounded-2xl p-5 shadow-sm flex items-center justify-between hover:shadow-md transition-all duration-300">
-                    <div>
-                        <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">ตรงเวลา</p>
-                        <h3 className="text-3xl font-extrabold text-emerald-950 mt-1">{isLoading ? '...' : stats.onTime}</h3>
-                        <p className="text-xs text-emerald-500/80 mt-1">ลงเวลาเข้างานก่อน 08:30 น.</p>
-                    </div>
-                    <div className="bg-emerald-500/10 p-3.5 rounded-xl text-emerald-600">
-                        <CheckCircle2 className="w-8 h-8" />
-                    </div>
-                </div>
+                {/* Additional Stats Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Leave */}
+                    <SummaryCard
+                        title="ลางาน"
+                        value={isLoading ? '...' : stats.leave}
+                        subtitle="จำนวนพนักงานที่ลา"
+                        icon={<UserMinus className="w-6 h-6 sm:w-8 sm:h-8" />}
+                        theme="amber"
+                        to="/leave"
+                    />
 
-                {/* Late */}
-                <div className="bg-gradient-to-br from-rose-50 to-orange-50/50 border border-rose-100/60 rounded-2xl p-5 shadow-sm flex items-center justify-between hover:shadow-md transition-all duration-300">
-                    <div>
-                        <p className="text-xs font-semibold text-rose-600 uppercase tracking-wider">มาสาย</p>
-                        <h3 className="text-3xl font-extrabold text-rose-950 mt-1">{isLoading ? '...' : stats.late}</h3>
-                        <p className="text-xs text-rose-500/80 mt-1">ลงเวลาเข้างานหลัง 08:30 น.</p>
-                    </div>
-                    <div className="bg-rose-500/10 p-3.5 rounded-xl text-rose-600">
-                        <AlertCircle className="w-8 h-8" />
-                    </div>
+                    {/* Official Duty */}
+                    <SummaryCard
+                        title="ไปราชการ"
+                        value={isLoading ? '...' : stats.officialDuty}
+                        subtitle="พนักงานไปราชการ"
+                        icon={<Briefcase className="w-6 h-6 sm:w-8 sm:h-8" />}
+                        theme="purple"
+                        to="/official-duty"
+                    />
                 </div>
             </div>
 
@@ -192,22 +210,20 @@ const AttendanceList = () => {
                     <div className="flex bg-gray-50 p-1 border border-gray-200 rounded-xl">
                         <button
                             onClick={() => toggleViewMode('grid')}
-                            className={`p-2 rounded-lg transition-all ${
-                                viewMode === 'grid' 
-                                    ? 'bg-white text-blue-600 shadow-sm' 
-                                    : 'text-gray-400 hover:text-gray-600'
-                            }`}
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'grid'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-600'
+                                }`}
                             title="แสดงแบบการ์ด"
                         >
                             <Grid className="w-4 h-4" />
                         </button>
                         <button
                             onClick={() => toggleViewMode('list')}
-                            className={`p-2 rounded-lg transition-all ${
-                                viewMode === 'list' 
-                                    ? 'bg-white text-blue-600 shadow-sm' 
-                                    : 'text-gray-400 hover:text-gray-600'
-                            }`}
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'list'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-600'
+                                }`}
                             title="แสดงแบบรายการ"
                         >
                             <ListIcon className="w-4 h-4" />
@@ -255,8 +271,8 @@ const AttendanceList = () => {
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-1">ไม่พบข้อมูลการลงเวลา</h3>
                     <p className="text-sm text-gray-500 max-w-sm">
-                        {searchTerm 
-                            ? "ไม่พบรายชื่อพนักงานที่ระบุสำหรับวันดังกล่าว กรุณาลองใช้ชื่ออื่นในการค้นหา" 
+                        {searchTerm
+                            ? "ไม่พบรายชื่อพนักงานที่ระบุสำหรับวันดังกล่าว กรุณาลองใช้ชื่ออื่นในการค้นหา"
                             : "ในวันที่เลือกยังไม่มีข้อมูลพนักงานสแกนเข้าปฏิบัติงาน"}
                     </p>
                 </div>
@@ -266,17 +282,17 @@ const AttendanceList = () => {
                     {combinedAttendances.map((group: any) => {
                         const checkIn = group.checkIn;
                         const checkOut = group.checkOut;
-                        
+
                         const checkInTime = checkIn ? moment(checkIn.CheTmDate).format('HH:mm:ss') : '-';
                         const checkOutTime = checkOut ? moment(checkOut.CheTmDate).format('HH:mm:ss') : '-';
                         const isLate = checkIn && moment(checkIn.CheTmDate).format('HH:mm:ss') > '08:30:00';
-                        
+
                         // Use checkOut photo if available, otherwise checkIn photo
                         const mainAtt = checkOut || checkIn;
-                        
+
                         return (
-                            <div 
-                                key={group.id} 
+                            <div
+                                key={group.id}
                                 className="group bg-white rounded-2xl border border-gray-100 hover:border-blue-150 p-4 flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative"
                             >
                                 {/* Photo frame with Zoom effect */}
@@ -351,13 +367,13 @@ const AttendanceList = () => {
                     {combinedAttendances.map((group: any) => {
                         const checkIn = group.checkIn;
                         const checkOut = group.checkOut;
-                        
+
                         const checkInTime = checkIn ? moment(checkIn.CheTmDate).format('HH:mm:ss') : '-';
                         const checkOutTime = checkOut ? moment(checkOut.CheTmDate).format('HH:mm:ss') : '-';
                         const isLate = checkIn && moment(checkIn.CheTmDate).format('HH:mm:ss') > '08:30:00';
-                        
+
                         const mainAtt = checkOut || checkIn;
-                        
+
                         return (
                             <div key={group.id} className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
                                 <div className="flex items-center gap-4 min-w-0">
