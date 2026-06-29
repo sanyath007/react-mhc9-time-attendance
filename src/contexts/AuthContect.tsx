@@ -13,18 +13,24 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const initializeAuth = async () => {
-            const token = localStorage.getItem('access_token');
-            const storedUser = localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user') || '') : null;
+            try {
+                const token = localStorage.getItem('access_token');
+                const storedUser = localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user') || '') : null;
 
-            if (token && storedUser) {
-                setUser(storedUser);
-            } else {
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('auth_user');
+                if (token && storedUser) {
+                    setUser(storedUser);
+                } else {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('auth_user');
+                }
+            } catch (error) {
+                console.error("Auth init error:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 

@@ -4,7 +4,15 @@ import Footer from './Footer';
 import { useAuth } from '../../hooks/useAuth';
 
 const ProtectedLayout = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-slate-50">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent"></div>
+            </div>
+        );
+    }
 
     if (!isAuthenticated) {
         return <Navigate replace to={"/login"} />;

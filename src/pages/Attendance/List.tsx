@@ -42,26 +42,61 @@ const AttendanceList = () => {
         localStorage.setItem("attendance_view_mode", mode);
     };
 
-    // Filter check-ins (CheTmType === 'เข้า') and match search term
-    const filteredCheckIns = useMemo(() => {
-        return attendances.filter((att: any) => {
-            if (att.CheTmType !== 'เข้า') return false;
+    // Group and combine attendances per employee
+    const combinedAttendances = useMemo(() => {
+        const map = new Map<string, any>();
 
-            const name = att.employee?.EmName || 'Unknown Employee';
-            return name.toLowerCase().includes(searchTerm.toLowerCase());
+        attendances.forEach((att: any) => {
+            const empId = att.employee?.id || att.employee?.EmID || att.employee?.employee_no || att.employee?.EmName || `unknown-${att.CheTmID}`;
+            
+            if (!map.has(empId)) {
+                map.set(empId, {
+                    id: empId,
+                    employee: att.employee,
+                    checkIn: null,
+                    checkOut: null
+                });
+            }
+            
+            const group = map.get(empId);
+            
+            if (att.CheTmType === 'เข้า') {
+                if (!group.checkIn || moment(att.CheTmDate).isBefore(moment(group.checkIn.CheTmDate))) {
+                    group.checkIn = att;
+                }
+            } else if (att.CheTmType === 'ออก') {
+                if (!group.checkOut || moment(att.CheTmDate).isAfter(moment(group.checkOut.CheTmDate))) {
+                    group.checkOut = att;
+                }
+            }
+        });
+
+        let result = Array.from(map.values()).filter(group => group.checkIn || group.checkOut);
+        
+        if (searchTerm) {
+            result = result.filter(group => {
+                const name = group.employee?.EmName || 'Unknown Employee';
+                return name.toLowerCase().includes(searchTerm.toLowerCase());
+            });
+        }
+        
+        return result.sort((a, b) => {
+            const timeA = a.checkIn ? moment(a.checkIn.CheTmDate).valueOf() : (a.checkOut ? moment(a.checkOut.CheTmDate).valueOf() : Number.MAX_SAFE_INTEGER);
+            const timeB = b.checkIn ? moment(b.checkIn.CheTmDate).valueOf() : (b.checkOut ? moment(b.checkOut.CheTmDate).valueOf() : Number.MAX_SAFE_INTEGER);
+            return timeA - timeB; // Sort ascending: early time first
         });
     }, [attendances, searchTerm]);
 
     // Calculate Stats for the current day
     const stats = useMemo(() => {
-        const checkIns = attendances.filter((att: any) => att.CheTmType === 'เข้า');
+        const checkIns = combinedAttendances.filter(group => group.checkIn);
         const total = checkIns.length;
         
         let onTime = 0;
         let late = 0;
         
-        checkIns.forEach((att: any) => {
-            const timeStr = moment(att.CheTmDate).format('HH:mm:ss');
+        checkIns.forEach(group => {
+            const timeStr = moment(group.checkIn.CheTmDate).format('HH:mm:ss');
             if (timeStr <= '08:30:00') {
                 onTime++;
             } else {
@@ -70,7 +105,7 @@ const AttendanceList = () => {
         });
         
         return { total, onTime, late };
-    }, [attendances]);
+    }, [combinedAttendances]);
 
     return (
         <div className="max-w-5xl mx-auto space-y-6">
@@ -212,7 +247,7 @@ const AttendanceList = () => {
                         ))}
                     </div>
                 )
-            ) : filteredCheckIns.length === 0 ? (
+            ) : combinedAttendances.length === 0 ? (
                 /* Empty logs list */
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 flex flex-col items-center text-center">
                     <div className="bg-gray-50 p-4 rounded-full text-gray-400 mb-4">
@@ -228,70 +263,84 @@ const AttendanceList = () => {
             ) : viewMode === 'grid' ? (
                 /* Grid View Layout */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredCheckIns.map((attendance: any) => {
-                        const dateObj = moment(attendance.CheTmDate);
-                        const timeStr = dateObj.format('HH:mm:ss');
-                        const isLate = timeStr > '08:30:00';
+                    {combinedAttendances.map((group: any) => {
+                        const checkIn = group.checkIn;
+                        const checkOut = group.checkOut;
+                        
+                        const checkInTime = checkIn ? moment(checkIn.CheTmDate).format('HH:mm:ss') : '-';
+                        const checkOutTime = checkOut ? moment(checkOut.CheTmDate).format('HH:mm:ss') : '-';
+                        const isLate = checkIn && moment(checkIn.CheTmDate).format('HH:mm:ss') > '08:30:00';
+                        
+                        // Use checkOut photo if available, otherwise checkIn photo
+                        const mainAtt = checkOut || checkIn;
                         
                         return (
                             <div 
-                                key={attendance.CheTmID} 
+                                key={group.id} 
                                 className="group bg-white rounded-2xl border border-gray-100 hover:border-blue-150 p-4 flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative"
                             >
                                 {/* Photo frame with Zoom effect */}
                                 <div className="relative overflow-hidden rounded-xl aspect-[4/3] w-full border border-gray-50 bg-gray-50 mb-4 group/photo">
-                                    {attendance.CheTmPic ? (
+                                    {mainAtt?.CheTmPic ? (
                                         <img
-                                            src={`${imgUrl}/${attendance.CheTmPic}`}
+                                            src={`${imgUrl}/${mainAtt.CheTmPic}`}
                                             className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
                                             alt="check-in-pic"
                                         />
                                     ) : (
                                         <img
-                                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(attendance.employee?.EmName || 'Unknown')}&background=${attendance.employee?.EmColor || '4f46e5'}&color=fff&size=256`}
+                                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(group.employee?.EmName || 'Unknown')}&background=${group.employee?.EmColor || '4f46e5'}&color=fff&size=256`}
                                             className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
                                             alt="check-in-pic"
                                         />
                                     )}
-
-                                    {/* Floating type badge */}
-                                    <span className="absolute top-2 left-2 inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-blue-500 text-white shadow-sm border border-blue-400">
-                                        {attendance.CheTmType || 'เข้า'}
-                                    </span>
                                 </div>
 
                                 {/* Employee Name */}
                                 <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                    {attendance.employee ? attendance.employee?.EmName : 'Unknown Employee'}
+                                    {group.employee ? group.employee?.EmName : 'Unknown Employee'}
                                 </h3>
 
                                 {/* DateTime details */}
-                                <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-1.5 text-xs text-gray-500">
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-semibold text-gray-400">วันที่:</span>
-                                        <span>{dateObj.format('DD/MM/YYYY')}</span>
+                                <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-2 text-sm">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                            <span className="text-gray-500">เวลาเข้า:</span>
+                                        </div>
+                                        <span className="font-bold text-gray-800">{checkInTime}</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="w-3.5 h-3.5 text-gray-400" />
-                                        <span className="font-semibold text-gray-400">เวลา:</span>
-                                        <span className="font-bold text-gray-700">{timeStr}</span>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                                            <span className="text-gray-500">เวลาออก:</span>
+                                        </div>
+                                        {checkOut ? (
+                                            <span className="font-bold text-gray-800">{checkOutTime}</span>
+                                        ) : (
+                                            <span className="flex items-center gap-1 text-amber-600 text-[11px] font-semibold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">
+                                                <AlertCircle className="w-3 h-3" /> ยังไม่ลงเวลาออก
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Late/On-Time capsule Badge */}
-                                <div className="mt-4">
-                                    {isLate ? (
-                                        <span className="inline-flex w-full items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100/60">
-                                            <AlertCircle className="w-3.5 h-3.5" />
-                                            มาสาย
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex w-full items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100/60">
-                                            <CheckCircle2 className="w-3.5 h-3.5" />
-                                            ตรงเวลา
-                                        </span>
-                                    )}
-                                </div>
+                                {checkIn && (
+                                    <div className="mt-4">
+                                        {isLate ? (
+                                            <span className="inline-flex w-full items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100/60">
+                                                <AlertCircle className="w-3.5 h-3.5" />
+                                                มาสาย (เข้า {checkInTime})
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex w-full items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100/60">
+                                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                                ตรงเวลา (เข้า {checkInTime})
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         );
                     })}
@@ -299,25 +348,30 @@ const AttendanceList = () => {
             ) : (
                 /* List View Layout */
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
-                    {filteredCheckIns.map((attendance: any) => {
-                        const dateObj = moment(attendance.CheTmDate);
-                        const timeStr = dateObj.format('HH:mm:ss');
-                        const isLate = timeStr > '08:30:00';
+                    {combinedAttendances.map((group: any) => {
+                        const checkIn = group.checkIn;
+                        const checkOut = group.checkOut;
+                        
+                        const checkInTime = checkIn ? moment(checkIn.CheTmDate).format('HH:mm:ss') : '-';
+                        const checkOutTime = checkOut ? moment(checkOut.CheTmDate).format('HH:mm:ss') : '-';
+                        const isLate = checkIn && moment(checkIn.CheTmDate).format('HH:mm:ss') > '08:30:00';
+                        
+                        const mainAtt = checkOut || checkIn;
                         
                         return (
-                            <div key={attendance.CheTmID} className="p-4 sm:p-5 flex flex-row items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
+                            <div key={group.id} className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
                                 <div className="flex items-center gap-4 min-w-0">
-                                    {/* Check-In Photo frame with Zoom effect */}
+                                    {/* Photo frame with Zoom effect */}
                                     <div className="relative flex-shrink-0 group/photo overflow-hidden rounded-xl w-16 h-16 border border-gray-100 shadow-sm bg-gray-50">
-                                        {attendance.CheTmPic ? (
+                                        {mainAtt?.CheTmPic ? (
                                             <img
-                                                src={`${imgUrl}/${attendance.CheTmPic}`}
+                                                src={`${imgUrl}/${mainAtt.CheTmPic}`}
                                                 className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
                                                 alt="check-in-pic"
                                             />
                                         ) : (
                                             <img
-                                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(attendance.employee?.EmName || 'Unknown')}&background=${attendance.employee?.EmColor || '4f46e5'}&color=fff&size=128`}
+                                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(group.employee?.EmName || 'Unknown')}&background=${group.employee?.EmColor || '4f46e5'}&color=fff&size=128`}
                                                 className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
                                                 alt="check-in-pic"
                                             />
@@ -327,39 +381,43 @@ const AttendanceList = () => {
                                     {/* Name and Log Info */}
                                     <div className="min-w-0">
                                         <h2 className="text-base font-bold text-gray-900 truncate">
-                                            {attendance.employee ? attendance.employee?.EmName : 'Unknown Employee'}
+                                            {group.employee ? group.employee?.EmName : 'Unknown Employee'}
                                         </h2>
-                                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
-                                            <span className="font-medium">
-                                                วันที่: {dateObj.format('DD/MM/YYYY')}
-                                            </span>
-                                            <span className="text-gray-300 hidden sm:inline">|</span>
-                                            <span className="flex items-center gap-1">
-                                                <Clock className="w-3.5 h-3.5 text-gray-400" />
-                                                เวลา: {timeStr}
-                                            </span>
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-sm">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                <span className="text-gray-500">เข้า:</span>
+                                                <span className="font-semibold text-gray-700">{checkInTime}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                                <span className="text-gray-500">ออก:</span>
+                                                {checkOut ? (
+                                                    <span className="font-semibold text-gray-700">{checkOutTime}</span>
+                                                ) : (
+                                                    <span className="flex items-center gap-1 text-amber-600 text-[11px] font-medium bg-amber-50 px-2 py-0.5 rounded border border-amber-100">
+                                                        <AlertCircle className="w-3 h-3" /> ยังไม่ลงเวลาออก
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Status Badges */}
-                                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
-                                    {/* Check-in type badge */}
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
-                                        {attendance.CheTmType || 'เข้า'}
-                                    </span>
-
-                                    {/* Late / On-Time status badge */}
-                                    {isLate ? (
-                                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100/60">
-                                            <AlertCircle className="w-3 h-3" />
-                                            มาสาย
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100/60">
-                                            <CheckCircle2 className="w-3 h-3" />
-                                            ตรงเวลา
-                                        </span>
+                                <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 w-full md:w-auto mt-2 md:mt-0">
+                                    {checkIn && (
+                                        isLate ? (
+                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100/60">
+                                                <AlertCircle className="w-3 h-3" />
+                                                มาสาย
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100/60">
+                                                <CheckCircle2 className="w-3 h-3" />
+                                                ตรงเวลา
+                                            </span>
+                                        )
                                     )}
                                 </div>
                             </div>
