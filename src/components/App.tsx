@@ -7,6 +7,8 @@ import Login from '../pages/Auth/Login'
 import EmployeeList from '../pages/Employee/List'
 import EmployeeForm from '../pages/Employee/Form'
 import AttendanceList from '../pages/Attendance/List'
+import LeaveList from '../pages/Attendance/LeaveList'
+import OfficialDutyList from '../pages/Attendance/OfficialDutyList'
 import CheckInContainer from '../pages/CheckIn'
 import EmployeeFaceRegistration from '../pages/Employee/FaceRegistration'
 import Profile from '../pages/Profile'
@@ -21,6 +23,8 @@ function App() {
                     
                     <Route path="/attendance" element={<AttendanceList />} />
                     <Route path="/attendance/check-in" element={<CheckInContainer />} />
+                    <Route path="/leave" element={<LeaveList />} />
+                    <Route path="/official-duty" element={<OfficialDutyList />} />
 
                     <Route path="/employee" element={<EmployeeList />} />
                     <Route path="/employee/register" element={<EmployeeForm />} />
