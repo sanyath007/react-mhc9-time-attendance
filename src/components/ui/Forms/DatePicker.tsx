@@ -471,7 +471,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
                 )}
             >
                 <div className="flex items-center gap-2 overflow-hidden">
-                    <Calendar size={18} className={cn(
+                    <Calendar size={16} className={cn(
                         'shrink-0',
                         value ? 'text-indigo-600 font-bold animate-pulse' : 'text-gray-400'
                     )} />

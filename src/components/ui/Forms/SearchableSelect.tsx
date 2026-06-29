@@ -8,7 +8,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, Check, Search, X, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils/tailwindcss';
+import { cn } from '../../../lib/utils/tailwindcss';
 
 interface Option {
   value: string;
@@ -230,9 +230,9 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   // Filter options
   const filteredOptions = searchQuery
     ? normalizedOptions.filter((opt) =>
-        opt.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        opt.value.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      opt.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      opt.value.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : normalizedOptions;
 
   const currentOption = normalizedOptions.find((o) => o.value === value);
