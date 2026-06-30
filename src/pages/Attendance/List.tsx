@@ -297,17 +297,17 @@ const AttendanceList = () => {
                             >
                                 {/* Photo frame with Zoom effect */}
                                 <div className="relative overflow-hidden rounded-xl aspect-[4/3] w-full border border-gray-50 bg-gray-50 mb-4 group/photo">
-                                    {mainAtt?.CheTmPic ? (
+                                    {group.employee?.avatar_url ? (
                                         <img
-                                            src={`${imgUrl}/${mainAtt.CheTmPic}`}
+                                            src={`${import.meta.env.VITE_API_URL}/uploads/${group.employee.avatar_url}`}
                                             className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
-                                            alt="check-in-pic"
+                                            alt="employee-avatar"
                                         />
                                     ) : (
                                         <img
                                             src={`https://ui-avatars.com/api/?name=${encodeURIComponent(group.employee?.EmName || 'Unknown')}&background=${group.employee?.EmColor || '4f46e5'}&color=fff&size=256`}
                                             className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
-                                            alt="check-in-pic"
+                                            alt="default-avatar"
                                         />
                                     )}
                                 </div>
@@ -379,17 +379,17 @@ const AttendanceList = () => {
                                 <div className="flex items-center gap-4 min-w-0">
                                     {/* Photo frame with Zoom effect */}
                                     <div className="relative flex-shrink-0 group/photo overflow-hidden rounded-xl w-16 h-16 border border-gray-100 shadow-sm bg-gray-50">
-                                        {mainAtt?.CheTmPic ? (
+                                        {group.employee?.avatar_url ? (
                                             <img
-                                                src={`${imgUrl}/${mainAtt.CheTmPic}`}
+                                                src={`${import.meta.env.VITE_API_URL}/uploads/${group.employee.avatar_url}`}
                                                 className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
-                                                alt="check-in-pic"
+                                                alt="employee-avatar"
                                             />
                                         ) : (
                                             <img
                                                 src={`https://ui-avatars.com/api/?name=${encodeURIComponent(group.employee?.EmName || 'Unknown')}&background=${group.employee?.EmColor || '4f46e5'}&color=fff&size=128`}
                                                 className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
-                                                alt="check-in-pic"
+                                                alt="default-avatar"
                                             />
                                         )}
                                     </div>
