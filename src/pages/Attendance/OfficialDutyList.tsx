@@ -1,42 +1,97 @@
-import { ArrowLeft, Briefcase, Search, FileQuestion, Calendar, MapPin, FileText } from 'lucide-react';
+import { ArrowLeft, Briefcase, Search, FileQuestion, Calendar, MapPin, FileText, Grid, ListIcon, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import moment from 'moment';
-
-const mockDuties = [
-    {
-        id: 1,
-        employeeName: 'สมรักษ์ คำสิงห์',
-        destination: 'สำนักงานสาธารณสุขจังหวัดนครราชสีมา',
-        startDate: '2026-06-29',
-        endDate: '2026-06-29',
-        purpose: 'ประชุมชี้แจงนโยบายสาธารณสุข',
-        status: 'อนุมัติ',
-        avatarColor: '8b5cf6'
-    },
-    {
-        id: 2,
-        employeeName: 'ภราดร ศรีชาพันธุ์',
-        destination: 'กระทรวงสาธารณสุข นนทบุรี',
-        startDate: '2026-06-29',
-        endDate: '2026-06-30',
-        purpose: 'อบรมสัมมนาวิชาการ',
-        status: 'อนุมัติ',
-        avatarColor: '3b82f6'
-    }
-];
+import { useAuth } from '../../hooks/useAuth';
+import { useSearchParams } from 'react-router-dom';
+import FliteringInputs from './FliteringInputs';
+import type { AttendanceFilters } from '../../lib/types';
+import EmployeeAvatar from '../../components/features/EmployeeAvatar';
 
 const OfficialDutyList = () => {
+    const { oauthToken } = useAuth();
+    const [searchParams] = useSearchParams();
+    const [duties, setDuties] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [currentDate, setCurrentDate] = useState<string>(searchParams.get('currentDate') || moment().format('YYYY-MM-DD'));
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+        const saved = localStorage.getItem("attendance_view_mode");
+        return (saved === 'list' || saved === 'grid') ? saved : 'grid';
+    });
+
+    useEffect(() => {
+        getDuties(currentDate)
+    }, [currentDate]);
+
+    const getDuties = useCallback(async (date: string) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_OAUTH_API_URL}/events?sdate=${date}&edate=${date}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${oauthToken}`
+                },
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to authenticate');
+            }
+
+            const data = await response.json()
+            if (data) {
+                let _employees: any = [];
+
+                /** Deduplicating data */
+                data.forEach((event: any) => {
+                    const isDuplicate = _employees.some((emp: any) => emp.EmId === event.employee?.EmId);
+
+                    if (!isDuplicate) {
+                        _employees.push(event.employee);
+                    }
+                });
+
+                const _trips = _employees.map((employee: any) => {
+                    const _filtered = data.filter((d: any) => employee.EmId === d.employee?.EmId);
+                    /** Listing employee's events */
+                    const events = _filtered.map((e: any) => `${e.OTName} ณ ${e.OTLocation}`).join(', ');
+                    const starts = _filtered.map((e: any) => e.OTDateProject).join(', ');
+                    const ends = _filtered.map((e: any) => e.OTDateProject2).join(', ');
+
+                    return {
+                        id: employee.EmId,
+                        name: `${employee.EmPerfix}${employee.EmName}`,
+                        position: { id: parseInt(employee.EmPosition), name: employee.position?.PosName },
+                        department: { id: parseInt(employee.EmSession), name: employee.department?.SeName },
+                        avatar: employee.EmImg ? `https://mhc9dmh.com/DATA/Photo/${employee.EmImg}` : undefined,
+                        avatarColor: employee.EmColor,
+                        events,
+                        start: starts,
+                        end: ends,
+                        status: "อนุมัติ"
+                    };
+                });
+
+                setDuties(_trips)
+            }
+        } catch (error) {
+
+        }
+    }, [currentDate])
 
     const filteredDuties = useMemo(() => {
-        if (!searchTerm) return mockDuties;
-        return mockDuties.filter(duty => 
-            duty.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            duty.destination.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            duty.purpose.toLowerCase().includes(searchTerm.toLowerCase())
+        if (!searchTerm) return duties;
+        return duties.filter(duty =>
+            duty.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            duty.events.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [searchTerm]);
+    }, [searchTerm, duties]);
+
+    const toggleViewMode = (mode: 'grid' | 'list') => {
+        setViewMode(mode);
+        localStorage.setItem("attendance_view_mode", mode);
+    };
+
+    console.log(filteredDuties);
 
     return (
         <div className="max-w-5xl mx-auto space-y-6">
@@ -68,6 +123,44 @@ const OfficialDutyList = () => {
                         className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 focus:bg-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 transition-all placeholder:text-gray-400 text-gray-800"
                     />
                 </div>
+
+                {/* Filters & View toggler */}
+                <div className="flex w-full md:w-auto items-center justify-between md:justify-end gap-3">
+                    {/* Date Filter Input Component */}
+                    <FliteringInputs
+                        initialValues={{ toDay: currentDate }}
+                        onFilter={(filters: AttendanceFilters) => {
+                            setCurrentDate(filters.toDay);
+                        }}
+                    />
+
+                    {/* Divider */}
+                    <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
+
+                    {/* Grid/List Toggle */}
+                    <div className="flex bg-gray-50 p-1 border border-gray-200 rounded-xl">
+                        <button
+                            onClick={() => toggleViewMode('grid')}
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'grid'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                            title="แสดงแบบการ์ด"
+                        >
+                            <Grid className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => toggleViewMode('list')}
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'list'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                            title="แสดงแบบรายการ"
+                        >
+                            <ListIcon className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* List */}
@@ -86,36 +179,42 @@ const OfficialDutyList = () => {
                     {filteredDuties.map(duty => (
                         <div key={duty.id} className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
                             <div className="flex items-center gap-4 min-w-0">
-                                <div className="relative flex-shrink-0 overflow-hidden rounded-xl w-14 h-14 border border-gray-100 shadow-sm bg-gray-50">
-                                    <img
-                                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(duty.employeeName)}&background=${duty.avatarColor}&color=fff&size=128`}
-                                        className="w-full h-full object-cover"
-                                        alt="avatar"
-                                    />
+                                <div className="relative">
+                                    <div className={`p-0.5 rounded-full ring-2 ring-purple-300`}>
+                                        {duty.avatar ? (
+                                            <EmployeeAvatar
+                                                image={duty.avatar}
+                                                alt={duty.name}
+                                                width="52px"
+                                                height="52px"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: duty.avatarColor }}>
+                                                <User className="w-8 h-8 text-white" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border border-white bg-purple-500`} />
                                 </div>
                                 <div className="min-w-0">
                                     <h2 className="text-base font-bold text-gray-900 truncate">
-                                        {duty.employeeName}
+                                        {duty.name}
                                     </h2>
                                     <div className="flex flex-col gap-1 mt-1 text-sm text-gray-500">
-                                        <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-purple-700 font-medium">
-                                            <MapPin className="w-3.5 h-3.5" />
-                                            {duty.destination}
+                                        <span className="flex items-start gap-1.5 text-[11px] sm:text-xs text-purple-700 font-medium">
+                                            <MapPin className="w-3.5 h-3.5 mt-0.5" />
+                                            {duty.events}
                                         </span>
                                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-0.5">
                                             <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-600">
                                                 <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                                                {moment(duty.startDate).format('DD/MM/YYYY')} {duty.startDate !== duty.endDate && `- ${moment(duty.endDate).format('DD/MM/YYYY')}`}
-                                            </span>
-                                            <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-600">
-                                                <FileText className="w-3.5 h-3.5 text-gray-400" />
-                                                {duty.purpose}
+                                                {moment(duty.start).format('DD/MM/YYYY')} {duty.start !== duty.end && `- ${moment(duty.end).format('DD/MM/YYYY')}`}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center md:justify-end mt-2 md:mt-0">
                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
                                     {duty.status}

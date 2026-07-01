@@ -1,15 +1,20 @@
-import { useEffect, useState, useMemo } from 'react'
-import { CalendarClock, Search, CheckCircle2, AlertCircle, Users, FileQuestion, Grid, List as ListIcon, UserMinus, Briefcase } from 'lucide-react';
+import { useEffect, useState, useMemo, useCallback } from 'react'
+import { CalendarClock, Search, CheckCircle2, AlertCircle, Users, FileQuestion, Grid, List as ListIcon, UserMinus, Briefcase, User } from 'lucide-react';
 import moment from 'moment';
 import api from '../../api';
 import { type AttendanceFilters } from '../../lib/types';
 import { STARTING_DATE } from '../../lib/constants';
 import FliteringInputs from './FliteringInputs';
 import { SummaryCard } from '../../components/ui/Cards/SummaryCard';
+import { useAuth } from '../../hooks/useAuth';
+import EmployeeAvatar from '../../components/features/EmployeeAvatar';
 
 const AttendanceList = () => {
+    const { oauthToken } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [attendances, setAttendances] = useState<any[]>([]);
+    const [leaves, setLeaves] = useState<any[]>([]);
+    const [duties, setDuties] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [currentDate, setCurrentDate] = useState<string>(moment().format('YYYY-MM-DD'));
     const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
@@ -23,6 +28,8 @@ const AttendanceList = () => {
 
     useEffect(() => {
         getAttendances(currentDate)
+        getLeaves(currentDate)
+        getDuties(currentDate)
     }, [currentDate]);
 
     const getAttendances = async (date: string) => {
@@ -38,10 +45,73 @@ const AttendanceList = () => {
         }
     }
 
-    const toggleViewMode = (mode: 'grid' | 'list') => {
-        setViewMode(mode);
-        localStorage.setItem("attendance_view_mode", mode);
-    };
+    const getLeaves = useCallback(async (date: string) => {
+        try {
+            setIsLoading(true)
+            const response = await fetch(`${import.meta.env.VITE_OAUTH_API_URL}/leaves?sdate=${date}&edate=${date}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${oauthToken}`,
+                },
+            });
+
+            const data = await response.json();
+            console.log(data)
+            setLeaves(data || [])
+        } catch (error) {
+            console.error("Error fetching attendances:", error);
+        } finally {
+            setIsLoading(false)
+        }
+    }, [currentDate]);
+
+    const getDuties = useCallback(async (date: string) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_OAUTH_API_URL}/events?sdate=${date}&edate=${date}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${oauthToken}`
+                },
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to authenticate');
+            }
+
+            const data = await response.json()
+            if (data) {
+                let _employees: any = [];
+
+                /** Deduplicating data */
+                data.forEach((event: any) => {
+                    const isDuplicate = _employees.some((emp: any) => emp.EmId === event.employee?.EmId);
+
+                    if (!isDuplicate) {
+                        _employees.push(event.employee);
+                    }
+                });
+
+                const _trips = _employees.map((employee: any) => {
+                    const _filtered = data.filter((d: any) => employee.EmId === d.employee?.EmId);
+                    /** Listing employee's events */
+                    const events = _filtered.map((e: any) => `${e.OTName} ณ ${e.OTLocation}`).join(', ');
+
+                    return {
+                        id: employee.EmId,
+                        name: `${employee.EmPerfix}${employee.EmName}`,
+                        position: { id: parseInt(employee.EmPosition), name: employee.position?.PosName },
+                        department: { id: parseInt(employee.EmSession), name: employee.department?.SeName },
+                        events
+                    };
+                });
+
+                setDuties(_trips)
+            }
+        } catch (error) {
+            console.error("Error fetching attendances:", error);
+        }
+    }, [currentDate])
 
     // Group and combine attendances per employee
     const combinedAttendances = useMemo(() => {
@@ -105,8 +175,13 @@ const AttendanceList = () => {
             }
         });
 
-        return { total, onTime, late, leave: 0, officialDuty: 0 };
-    }, [combinedAttendances]);
+        return { total, onTime, late, leave: leaves?.length, officialDuty: duties?.length };
+    }, [combinedAttendances, leaves, duties]);
+
+    const toggleViewMode = (mode: 'grid' | 'list') => {
+        setViewMode(mode);
+        localStorage.setItem("attendance_view_mode", mode);
+    };
 
     return (
         <div className="max-w-5xl mx-auto space-y-6">
@@ -164,7 +239,7 @@ const AttendanceList = () => {
                         subtitle="จำนวนพนักงานที่ลา"
                         icon={<UserMinus className="w-6 h-6 sm:w-8 sm:h-8" />}
                         theme="amber"
-                        to="/leave"
+                        to={`/leave?currentDate=${currentDate}`}
                     />
 
                     {/* Official Duty */}
@@ -174,7 +249,7 @@ const AttendanceList = () => {
                         subtitle="พนักงานไปราชการ"
                         icon={<Briefcase className="w-6 h-6 sm:w-8 sm:h-8" />}
                         theme="purple"
-                        to="/official-duty"
+                        to={`/official-duty?currentDate=${currentDate}`}
                     />
                 </div>
             </div>
@@ -378,20 +453,24 @@ const AttendanceList = () => {
                             <div key={group.id} className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
                                 <div className="flex items-center gap-4 min-w-0">
                                     {/* Photo frame with Zoom effect */}
-                                    <div className="relative flex-shrink-0 group/photo overflow-hidden rounded-xl w-16 h-16 border border-gray-100 shadow-sm bg-gray-50">
-                                        {group.employee?.avatar_url ? (
-                                            <img
-                                                src={`${import.meta.env.VITE_API_URL}/uploads/${group.employee.avatar_url}`}
-                                                className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
-                                                alt="employee-avatar"
-                                            />
-                                        ) : (
-                                            <img
-                                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(group.employee?.EmName || 'Unknown')}&background=${group.employee?.EmColor || '4f46e5'}&color=fff&size=128`}
-                                                className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
-                                                alt="default-avatar"
-                                            />
-                                        )}
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <div className="relative">
+                                            <div className={`p-0.5 rounded-full ring-2 ${isLate ? 'ring-rose-300' : 'ring-emerald-300'}`}>
+                                                {group.employee.EmImg ? (
+                                                    <EmployeeAvatar
+                                                        image={`https://mhc9dmh.com/DATA/Photo/${group.employee.EmImg}`}
+                                                        alt={group.employee.name}
+                                                        width="52px"
+                                                        height="52px"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: group.employee.avatarColor }}>
+                                                        <User className="w-8 h-8 text-white" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border border-white ${isLate ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+                                        </div>
                                     </div>
 
                                     {/* Name and Log Info */}

@@ -1,51 +1,83 @@
-import { ArrowLeft, UserMinus, Search, FileQuestion, Calendar, FileText } from 'lucide-react';
+import { ArrowLeft, UserMinus, Search, FileQuestion, Calendar, FileText, User, Grid, ListIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import moment from 'moment';
-
-const mockLeaves = [
-    {
-        id: 1,
-        employeeName: 'สัญญา ธรรมวงษ์',
-        leaveType: 'ลาพักผ่อน',
-        startDate: '2026-06-28',
-        endDate: '2026-06-30',
-        reason: 'พักผ่อนประจำปี',
-        status: 'อนุมัติ',
-        avatarColor: '4f46e5'
-    },
-    {
-        id: 2,
-        employeeName: 'สมใจ รักดี',
-        leaveType: 'ลากิจ',
-        startDate: '2026-06-29',
-        endDate: '2026-06-29',
-        reason: 'ติดต่อหน่วยงานราชการ',
-        status: 'รออนุมัติ',
-        avatarColor: '10b981'
-    },
-    {
-        id: 3,
-        employeeName: 'วิชัย ใจมั่น',
-        leaveType: 'ลาป่วย',
-        startDate: '2026-06-29',
-        endDate: '2026-07-01',
-        reason: 'ไข้หวัดใหญ่',
-        status: 'อนุมัติ',
-        avatarColor: 'f43f5e'
-    }
-];
+import { useAuth } from '../../hooks/useAuth';
+import EmployeeAvatar from '../../components/features/EmployeeAvatar';
+import { useSearchParams } from 'react-router-dom';
+import FliteringInputs from './FliteringInputs';
+import type { AttendanceFilters } from '../../lib/types';
 
 const LeaveList = () => {
+    const { oauthToken } = useAuth();
+    const [searchParams] = useSearchParams();
     const [searchTerm, setSearchTerm] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [leaves, setLeaves] = useState<any[]>([]);
+    const [currentDate, setCurrentDate] = useState<string>(searchParams.get('currentDate') || moment().format('YYYY-MM-DD'));
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+        const saved = localStorage.getItem("attendance_view_mode");
+        return (saved === 'list' || saved === 'grid') ? saved : 'grid';
+    });
+
+    useEffect(() => {
+        getLeaves(currentDate)
+    }, [currentDate]);
+
+    const getLeaves = useCallback(async (date: string) => {
+        try {
+            setIsLoading(true)
+            const response = await fetch(`${import.meta.env.VITE_OAUTH_API_URL}/leaves?sdate=${date}&edate=${date}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${oauthToken}`,
+                },
+            });
+
+            const data = await response.json();
+            if (data) {
+                const _leaves = data.map((leave: any) => ({
+                    id: leave.LeaveId,
+                    type: leave.LeaveName,
+                    start: leave.LeaveDate1,
+                    end: leave.LeaveDate2,
+                    time: leave.LeaveTime1,
+                    days: parseFloat(leave.LeaveCountDay),
+                    hours: parseFloat(leave.LeaveCountTime),
+                    status: leave.LeaveStatus,
+                    reason: leave.LeaveMark,
+                    employee: {
+                        id: leave.employee.EmId,
+                        name: `${leave.employee.EmPerfix}${leave.employee.EmName}`,
+                        position: { id: parseInt(leave.employee.EmPosition), name: leave.employee.position?.PosName },
+                        department: { id: parseInt(leave.employee.EmSession), name: leave.employee.department?.SeName },
+                        avatar: leave.employee.EmImg ? `https://mhc9dmh.com/DATA/Photo/${leave.employee.EmImg}` : undefined,
+                        avatarColor: leave.employee.EmColor,
+                    }
+                }))
+
+                setLeaves(_leaves)
+            }
+        } catch (error) {
+            console.error("Error fetching attendances:", error);
+            setLeaves([]);
+        } finally {
+            setIsLoading(false)
+        }
+    }, [currentDate]);
 
     const filteredLeaves = useMemo(() => {
-        if (!searchTerm) return mockLeaves;
-        return mockLeaves.filter(leave => 
-            leave.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            leave.leaveType.toLowerCase().includes(searchTerm.toLowerCase())
+        if (!searchTerm) return leaves;
+        return leaves.filter(leave =>
+            leave.employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            leave.type.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [searchTerm]);
+    }, [searchTerm, leaves]);
+
+    const toggleViewMode = (mode: 'grid' | 'list') => {
+        setViewMode(mode);
+        localStorage.setItem("attendance_view_mode", mode);
+    };
 
     return (
         <div className="max-w-5xl mx-auto space-y-6">
@@ -77,6 +109,44 @@ const LeaveList = () => {
                         className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 focus:bg-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 transition-all placeholder:text-gray-400 text-gray-800"
                     />
                 </div>
+
+                {/* Filters & View toggler */}
+                <div className="flex w-full md:w-auto items-center justify-between md:justify-end gap-3">
+                    {/* Date Filter Input Component */}
+                    <FliteringInputs
+                        initialValues={{ toDay: currentDate }}
+                        onFilter={(filters: AttendanceFilters) => {
+                            setCurrentDate(filters.toDay);
+                        }}
+                    />
+
+                    {/* Divider */}
+                    <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
+
+                    {/* Grid/List Toggle */}
+                    <div className="flex bg-gray-50 p-1 border border-gray-200 rounded-xl">
+                        <button
+                            onClick={() => toggleViewMode('grid')}
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'grid'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                            title="แสดงแบบการ์ด"
+                        >
+                            <Grid className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => toggleViewMode('list')}
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'list'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                            title="แสดงแบบรายการ"
+                        >
+                            <ListIcon className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* List */}
@@ -95,35 +165,45 @@ const LeaveList = () => {
                     {filteredLeaves.map(leave => (
                         <div key={leave.id} className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
                             <div className="flex items-center gap-4 min-w-0">
-                                <div className="relative flex-shrink-0 overflow-hidden rounded-xl w-14 h-14 border border-gray-100 shadow-sm bg-gray-50">
-                                    <img
-                                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(leave.employeeName)}&background=${leave.avatarColor}&color=fff&size=128`}
-                                        className="w-full h-full object-cover"
-                                        alt="avatar"
-                                    />
+                                <div className="relative">
+                                    <div className={`p-0.5 rounded-full ring-2 ring-amber-300`}>
+                                        {leave.employee.avatar ? (
+                                            <EmployeeAvatar
+                                                image={leave.employee.avatar}
+                                                alt={leave.employee.name}
+                                                width="52px"
+                                                height="52px"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: leave.employee.avatarColor }}>
+                                                <User className="w-8 h-8 text-white" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border border-white bg-amber-500`} />
                                 </div>
                                 <div className="min-w-0">
                                     <h2 className="text-base font-bold text-gray-900 truncate">
-                                        {leave.employeeName}
+                                        {leave.employee.name}
                                     </h2>
                                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1 text-sm text-gray-500">
                                         <span className="inline-flex items-center gap-1.5 font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100 text-[11px]">
-                                            {leave.leaveType}
+                                            {leave.type}
                                         </span>
                                         <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-600">
                                             <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                                            {moment(leave.startDate).format('DD/MM/YYYY')} - {moment(leave.endDate).format('DD/MM/YYYY')}
+                                            {moment(leave.start).format('DD/MM/YYYY')} - {moment(leave.end).format('DD/MM/YYYY')}
                                         </span>
-                                        <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-600">
+                                        {leave.reason && <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-600">
                                             <FileText className="w-3.5 h-3.5 text-gray-400" />
                                             {leave.reason}
-                                        </span>
+                                        </span>}
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center md:justify-end mt-2 md:mt-0">
-                                {leave.status === 'อนุมัติ' ? (
+                                {leave.status === 'อนุญาต' ? (
                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
                                         {leave.status}
                                     </span>
