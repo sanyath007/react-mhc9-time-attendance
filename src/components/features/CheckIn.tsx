@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Camera, CheckCircle, XCircle, User, X, AlertCircle } from 'lucide-react';
+import { Camera, CameraOff, CheckCircle, XCircle, User, UserCheck, UserX, X, AlertCircle, Loader2, Image as ImageIcon, ScanFace, Eye, EyeOff } from 'lucide-react';
 import * as faceapi from 'face-api.js';
 import moment from 'moment';
 import api from '../../api';
@@ -435,29 +435,29 @@ export default function CheckIn({ distance }: { distance: number }) {
 
             {/* Info Panel */}
             <div className="mt-8 max-md:mt-3 grid grid-cols-4 gap-3">
-                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center">
-                    <p className="text-gray-600 text-sm">Models</p>
-                    <p className={`text-lg max-md:text-sm font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
-                        {modelsLoaded ? 'Loaded' : 'Loading'}
-                    </p>
+                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center flex flex-col items-center justify-center">
+                    <p className="text-gray-600 text-[11px] md:text-sm mb-1">Models</p>
+                    <div className={`${modelsLoaded ? 'text-emerald-500' : 'text-gray-400'}`}>
+                        {modelsLoaded ? <CheckCircle className="w-5 h-5 max-md:w-4 max-md:h-4" /> : <Loader2 className="w-5 h-5 max-md:w-4 max-md:h-4 animate-spin" />}
+                    </div>
                 </div>
-                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center">
-                    <p className="text-gray-600 text-sm">Status</p>
-                    <p className={`text-lg max-md:text-sm font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
-                        {capturedImage ? 'Ready' : 'Capturing'}
-                    </p>
+                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center flex flex-col items-center justify-center">
+                    <p className="text-gray-600 text-[11px] md:text-sm mb-1">Status</p>
+                    <div className={`${capturedImage ? 'text-indigo-500' : 'text-blue-500'}`}>
+                        {capturedImage ? <ImageIcon className="w-5 h-5 max-md:w-4 max-md:h-4" /> : <ScanFace className="w-5 h-5 max-md:w-4 max-md:h-4 animate-pulse" />}
+                    </div>
                 </div>
-                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center">
-                    <p className="text-gray-600 text-sm">Face <span className="max-md:hidden">Detection</span></p>
-                    <p className={`text-lg max-md:text-sm font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
-                        {faceDetected ? 'Active' : 'Inactive'}
-                    </p>
+                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center flex flex-col items-center justify-center">
+                    <p className="text-gray-600 text-[11px] md:text-sm mb-1">Face</p>
+                    <div className={`${faceDetected ? 'text-emerald-500' : 'text-gray-400'}`}>
+                        {faceDetected ? <Eye className="w-5 h-5 max-md:w-4 max-md:h-4" /> : <EyeOff className="w-5 h-5 max-md:w-4 max-md:h-4" />}
+                    </div>
                 </div>
-                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center">
-                    <p className="text-gray-600 text-sm">Camera</p>
-                    <p className={`text-lg max-md:text-sm font-bold ${modelsLoaded ? 'text-green-600' : 'text-gray-600'}`}>
-                        {isCameraActive ? 'On' : 'Off'}
-                    </p>
+                <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center flex flex-col items-center justify-center">
+                    <p className="text-gray-600 text-[11px] md:text-sm mb-1">Camera</p>
+                    <div className={`${isCameraActive ? 'text-emerald-500' : 'text-gray-400'}`}>
+                        {isCameraActive ? <Camera className="w-5 h-5 max-md:w-4 max-md:h-4" /> : <CameraOff className="w-5 h-5 max-md:w-4 max-md:h-4" />}
+                    </div>
                 </div>
             </div>
         </>
