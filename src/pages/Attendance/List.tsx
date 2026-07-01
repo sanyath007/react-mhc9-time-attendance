@@ -8,6 +8,7 @@ import FliteringInputs from './FliteringInputs';
 import { SummaryCard } from '../../components/ui/Cards/SummaryCard';
 import { useAuth } from '../../hooks/useAuth';
 import EmployeeAvatar from '../../components/features/EmployeeAvatar';
+import { Pagination } from '../../components/ui/Pagination';
 
 const AttendanceList = () => {
     const { oauthToken } = useAuth();
@@ -21,6 +22,13 @@ const AttendanceList = () => {
         const saved = localStorage.getItem("attendance_view_mode");
         return (saved === 'list' || saved === 'grid') ? saved : 'grid';
     });
+
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, currentDate]);
 
     const imgUrl = moment(STARTING_DATE).diff(moment(currentDate), "day") > 1
         ? 'https://mhc9dmh.com/DATA/PhotoCheckTime'
@@ -177,6 +185,14 @@ const AttendanceList = () => {
 
         return { total, onTime, late, leave: leaves?.length, officialDuty: duties?.length };
     }, [combinedAttendances, leaves, duties]);
+
+    const paginatedAttendances = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        return combinedAttendances.slice(start, end);
+    }, [combinedAttendances, currentPage]);
+
+    const totalPages = Math.ceil(combinedAttendances.length / itemsPerPage);
 
     const toggleViewMode = (mode: 'grid' | 'list') => {
         setViewMode(mode);
@@ -354,7 +370,7 @@ const AttendanceList = () => {
             ) : viewMode === 'grid' ? (
                 /* Grid View Layout */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {combinedAttendances.map((group: any) => {
+                    {paginatedAttendances.map((group: any) => {
                         const checkIn = group.checkIn;
                         const checkOut = group.checkOut;
 
@@ -439,7 +455,7 @@ const AttendanceList = () => {
             ) : (
                 /* List View Layout */
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
-                    {combinedAttendances.map((group: any) => {
+                    {paginatedAttendances.map((group: any) => {
                         const checkIn = group.checkIn;
                         const checkOut = group.checkOut;
 
@@ -519,6 +535,17 @@ const AttendanceList = () => {
                         );
                     })}
                 </div>
+            )}
+
+            {/* Pagination Component */}
+            {!isLoading && combinedAttendances.length > 0 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    totalItems={combinedAttendances.length}
+                    itemsPerPage={itemsPerPage}
+                />
             )}
         </div>
     );

@@ -1,15 +1,15 @@
 import { useEffect, useState, useMemo } from "react"
-import { 
-    ScanFace, 
-    SquarePen, 
-    PlusCircle, 
-    Search, 
-    Grid, 
-    List as ListIcon, 
-    Users, 
-    UserCheck, 
+import {
+    ScanFace,
+    SquarePen,
+    PlusCircle,
+    Search,
+    Grid,
+    List as ListIcon,
+    Users,
+    UserCheck,
     UserX,
-    Phone, 
+    Phone,
     Mail,
     RotateCcw
 } from "lucide-react"
@@ -18,6 +18,7 @@ import api from "../../api";
 import EmployeePosition from "../../components/features/EmployeePosition";
 import EmployeeAvatar from "../../components/features/EmployeeAvatar";
 import { type Employee } from "../../lib/types";
+import { Pagination } from "../../components/ui/Pagination";
 
 export default function EmployeeList() {
     const [employees, setEmployees] = useState<Employee[]>([]);
@@ -28,6 +29,13 @@ export default function EmployeeList() {
         const saved = localStorage.getItem("employee_view_mode");
         return (saved === 'list' || saved === 'grid') ? saved : 'grid';
     });
+
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, statusFilter]);
 
     useEffect(() => {
         const fetchEmployees = async () => {
@@ -76,11 +84,11 @@ export default function EmployeeList() {
             const level = (employee.level?.name || '').toLowerCase();
             const search = searchTerm.toLowerCase();
 
-            const matchesSearch = 
-                fullName.includes(search) || 
-                email.includes(search) || 
-                tel.includes(search) || 
-                position.includes(search) || 
+            const matchesSearch =
+                fullName.includes(search) ||
+                email.includes(search) ||
+                tel.includes(search) ||
+                position.includes(search) ||
                 level.includes(search);
 
             // Status filter match
@@ -95,13 +103,21 @@ export default function EmployeeList() {
         });
     }, [activeEmployees, searchTerm, statusFilter]);
 
+    const paginatedEmployees = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        return filteredEmployees.slice(start, end);
+    }, [filteredEmployees, currentPage]);
+
+    const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+
     const handleClearFilters = () => {
         setSearchTerm("");
         setStatusFilter("all");
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="max-w-5xl mx-auto space-y-6">
             {/* Title Header */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-2">
                 <div className="flex items-center gap-4">
@@ -117,8 +133,8 @@ export default function EmployeeList() {
                 </div>
 
                 <div>
-                    <Link 
-                        to="/employee/register" 
+                    <Link
+                        to="/employee/register"
                         className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm shadow-md shadow-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
                     >
                         <PlusCircle className="w-5 h-5" />
@@ -200,22 +216,20 @@ export default function EmployeeList() {
                     <div className="flex bg-gray-50 p-1 border border-gray-200 rounded-xl">
                         <button
                             onClick={() => toggleViewMode('grid')}
-                            className={`p-2 rounded-lg transition-all ${
-                                viewMode === 'grid' 
-                                    ? 'bg-white text-blue-600 shadow-sm' 
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'grid'
+                                    ? 'bg-white text-blue-600 shadow-sm'
                                     : 'text-gray-400 hover:text-gray-600'
-                            }`}
+                                }`}
                             title="แสดงแบบการ์ด"
                         >
                             <Grid className="w-4 h-4" />
                         </button>
                         <button
                             onClick={() => toggleViewMode('list')}
-                            className={`p-2 rounded-lg transition-all ${
-                                viewMode === 'list' 
-                                    ? 'bg-white text-blue-600 shadow-sm' 
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'list'
+                                    ? 'bg-white text-blue-600 shadow-sm'
                                     : 'text-gray-400 hover:text-gray-600'
-                            }`}
+                                }`}
                             title="แสดงแบบรายการ"
                         >
                             <ListIcon className="w-4 h-4" />
@@ -265,12 +279,12 @@ export default function EmployeeList() {
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-1">ไม่พบข้อมูลบุคลากร</h3>
                     <p className="text-sm text-gray-500 max-w-sm mb-6">
-                        {searchTerm || statusFilter !== "all" 
-                            ? "ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหาของคุณ ลองตรวจสอบคำค้นหาหรือตัวกรองที่เลือกใหม่อีกครั้ง" 
+                        {searchTerm || statusFilter !== "all"
+                            ? "ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหาของคุณ ลองตรวจสอบคำค้นหาหรือตัวกรองที่เลือกใหม่อีกครั้ง"
                             : "ระบบยังไม่มีข้อมูลบุคลากรในขณะนี้ สามารถเริ่มต้นโดยการลงทะเบียนใหม่"}
                     </p>
                     {searchTerm || statusFilter !== "all" ? (
-                        <button 
+                        <button
                             onClick={handleClearFilters}
                             className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition-colors"
                         >
@@ -278,8 +292,8 @@ export default function EmployeeList() {
                             <span>ล้างตัวกรองทั้งหมด</span>
                         </button>
                     ) : (
-                        <Link 
-                            to="/employee/register" 
+                        <Link
+                            to="/employee/register"
                             className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-blue-500/10"
                         >
                             <PlusCircle className="w-5 h-5" />
@@ -290,20 +304,19 @@ export default function EmployeeList() {
             ) : viewMode === 'grid' ? (
                 /* Grid View Layout */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredEmployees.map((employee: Employee) => {
+                    {paginatedEmployees.map((employee: Employee) => {
                         const isRegistered = !!employee.face_descriptor;
                         return (
-                            <div 
-                                key={employee.id} 
+                            <div
+                                key={employee.id}
                                 className="group bg-white rounded-2xl border border-gray-100 hover:border-blue-150 p-6 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative"
                             >
                                 {/* Avatar with Ring Highlight based on status */}
                                 <div className="relative mb-4">
-                                    <div className={`p-1.5 rounded-full transition-all duration-300 ring-2 ${
-                                        isRegistered 
-                                            ? 'ring-emerald-400 ring-offset-2' 
+                                    <div className={`p-1.5 rounded-full transition-all duration-300 ring-2 ${isRegistered
+                                            ? 'ring-emerald-400 ring-offset-2'
                                             : 'ring-amber-400 ring-offset-2 hover:ring-indigo-400'
-                                    }`}>
+                                        }`}>
                                         <EmployeeAvatar
                                             image={`${import.meta.env.VITE_API_URL}/uploads/${employee?.avatar_url}`}
                                             alt={employee.firstname}
@@ -311,9 +324,8 @@ export default function EmployeeList() {
                                             height="72px"
                                         />
                                     </div>
-                                    <span className={`absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full border-2 border-white ${
-                                        isRegistered ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
-                                    }`} />
+                                    <span className={`absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full border-2 border-white ${isRegistered ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                                        }`} />
                                 </div>
 
                                 {/* Employee Name */}
@@ -360,19 +372,18 @@ export default function EmployeeList() {
 
                                 {/* Actions */}
                                 <div className="mt-6 flex gap-2.5 w-full">
-                                    <Link 
-                                        to={`/employee/${employee.id}/face`} 
-                                        className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all duration-200 ${
-                                            isRegistered
+                                    <Link
+                                        to={`/employee/${employee.id}/face`}
+                                        className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all duration-200 ${isRegistered
                                                 ? 'bg-blue-50 hover:bg-blue-100 text-blue-600 hover:scale-[1.02]'
                                                 : 'bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white shadow-sm hover:shadow hover:scale-[1.02]'
-                                        }`}
+                                            }`}
                                     >
                                         <ScanFace className="w-4 h-4" />
                                         <span>{isRegistered ? 'อัปเดตใบหน้า' : 'ลงทะเบียนใบหน้า'}</span>
                                     </Link>
-                                    
-                                    <Link 
+
+                                    <Link
                                         to={`/employee/${employee.id}/edit`}
                                         className="inline-flex items-center justify-center p-2.5 rounded-xl border border-gray-200 hover:border-amber-300 bg-gray-50 hover:bg-amber-50 text-gray-600 hover:text-amber-600 hover:scale-[1.02] transition-all"
                                         title="แก้ไขข้อมูลพนักงาน"
@@ -387,18 +398,17 @@ export default function EmployeeList() {
             ) : (
                 /* List View Layout */
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
-                    {filteredEmployees.map((employee: Employee) => {
+                    {paginatedEmployees.map((employee: Employee) => {
                         const isRegistered = !!employee.face_descriptor;
                         return (
-                            <div 
-                                key={employee.id} 
+                            <div
+                                key={employee.id}
                                 className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 transition-colors"
                             >
                                 <div className="flex items-center gap-4 flex-1 min-w-0">
                                     <div className="relative">
-                                        <div className={`p-0.5 rounded-full ring-2 ${
-                                            isRegistered ? 'ring-emerald-300' : 'ring-amber-300'
-                                        }`}>
+                                        <div className={`p-0.5 rounded-full ring-2 ${isRegistered ? 'ring-emerald-300' : 'ring-amber-300'
+                                            }`}>
                                             <EmployeeAvatar
                                                 image={`${import.meta.env.VITE_API_URL}/uploads/${employee?.avatar_url}`}
                                                 alt={employee.firstname}
@@ -406,9 +416,8 @@ export default function EmployeeList() {
                                                 height="52px"
                                             />
                                         </div>
-                                        <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border border-white ${
-                                            isRegistered ? 'bg-emerald-500' : 'bg-amber-500'
-                                        }`} />
+                                        <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border border-white ${isRegistered ? 'bg-emerald-500' : 'bg-amber-500'
+                                            }`} />
                                     </div>
 
                                     <div className="min-w-0">
@@ -457,19 +466,18 @@ export default function EmployeeList() {
 
                                     {/* Action Buttons */}
                                     <div className="flex items-center gap-2">
-                                        <Link 
-                                            to={`/employee/${employee.id}/face`} 
-                                            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                                                isRegistered
+                                        <Link
+                                            to={`/employee/${employee.id}/face`}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${isRegistered
                                                     ? 'bg-blue-50 hover:bg-blue-100 text-blue-600'
                                                     : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                                            }`}
+                                                }`}
                                         >
                                             <ScanFace className="w-3.5 h-3.5" />
                                             <span>{isRegistered ? 'อัปเดตใบหน้า' : 'สแกนใบหน้า'}</span>
                                         </Link>
 
-                                        <Link 
+                                        <Link
                                             to={`/employee/${employee.id}/edit`}
                                             className="inline-flex items-center justify-center p-2 rounded-xl border border-gray-200 hover:border-amber-300 hover:bg-amber-50 text-gray-500 hover:text-amber-600 transition-all"
                                             title="แก้ไขข้อมูล"
@@ -482,6 +490,17 @@ export default function EmployeeList() {
                         );
                     })}
                 </div>
+            )}
+
+            {/* Pagination Component */}
+            {!loading && filteredEmployees.length > 0 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    totalItems={filteredEmployees.length}
+                    itemsPerPage={itemsPerPage}
+                />
             )}
         </div>
     )
