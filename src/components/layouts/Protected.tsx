@@ -23,7 +23,7 @@ const ProtectedLayout = () => {
     }
 
     return (
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="bg-gradient-to-br from-slate-50 to-slate-200 min-h-screen">
             {/* Header */}
             <Navbar />
 
