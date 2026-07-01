@@ -42,9 +42,9 @@ export default function CheckInContainer() {
             {path === '/check-in' ? (
                 <div className="flex items-center justify-between bg-white px-4 py-3 border border-gray-100 rounded-2xl shadow-sm">
                     <div className="flex items-center gap-2">
-                        <Link 
-                            to="/login" 
-                            reloadDocument 
+                        <Link
+                            to="/login"
+                            reloadDocument
                             className="p-2 bg-transparent border border-transparent hover:bg-gray-50 hover:border-gray-200/80 text-gray-400 hover:text-gray-700 rounded-xl transition-all flex items-center justify-center cursor-pointer"
                             title="กลับไปหน้าหลัก"
                         >
@@ -65,7 +65,7 @@ export default function CheckInContainer() {
                             {currentTime.toLocaleTimeString()}
                         </span>
                         <span className="text-[9px] text-gray-400 font-semibold block mt-1 leading-none">
-                            {currentTime.toLocaleDateString('th-TH', { 
+                            {currentTime.toLocaleDateString('th-TH', {
                                 day: 'numeric',
                                 month: 'short',
                                 year: 'numeric'
@@ -86,14 +86,14 @@ export default function CheckInContainer() {
                             <p className="text-[9px] text-gray-500">ระบบบันทึกเวลาสแกนใบหน้า</p>
                         </div>
                     </div>
-                    
+
                     {/* Compact Header Clock */}
                     <div className="text-right shrink-0">
                         <span className="text-base font-black font-mono text-indigo-600 block leading-none">
                             {currentTime.toLocaleTimeString()}
                         </span>
                         <span className="text-[9px] text-gray-400 font-semibold block mt-1 leading-none">
-                            {currentTime.toLocaleDateString('th-TH', { 
+                            {currentTime.toLocaleDateString('th-TH', {
                                 day: 'numeric',
                                 month: 'short',
                                 year: 'numeric'
@@ -104,11 +104,10 @@ export default function CheckInContainer() {
             )}
 
             {/* Map Radar Location Status Card */}
-            <div className={`rounded-2xl border p-4 shadow-sm transition-all duration-300 bg-white ${
-                distance > 500 
-                    ? 'border-amber-100/60 shadow-amber-500/5' 
-                    : 'border-indigo-100/60 shadow-indigo-500/5'
-            }`}>
+            <div className={`rounded-2xl border p-4 shadow-sm transition-all duration-300 bg-white ${distance > 500
+                ? 'border-amber-100/60 shadow-amber-500/5'
+                : 'border-indigo-100/60 shadow-indigo-500/5'
+                }`}>
                 <div className="flex items-center justify-between mb-3.5">
                     <div className="flex items-center gap-2.5 min-w-0">
                         <div className={`p-2 rounded-xl shrink-0 ${distance > 500 ? 'bg-amber-500/10 text-amber-600' : 'bg-indigo-500/10 text-indigo-600'}`}>
@@ -125,12 +124,10 @@ export default function CheckInContainer() {
                     {/* Pulsing Radar Badge */}
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border border-gray-100 bg-gray-50/50 shadow-sm shrink-0">
                         <span className="relative flex h-1.5 w-1.5">
-                            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                                distance > 500 ? 'bg-amber-400' : 'bg-indigo-400'
-                            }`}></span>
-                            <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${
-                                distance > 500 ? 'bg-amber-500' : 'bg-indigo-500'
-                            }`}></span>
+                            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${distance > 500 ? 'bg-amber-400' : 'bg-indigo-400'
+                                }`}></span>
+                            <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${distance > 500 ? 'bg-amber-500' : 'bg-indigo-500'
+                                }`}></span>
                         </span>
                         <span className={`text-[9px] font-bold ${distance > 500 ? 'text-amber-700' : 'text-indigo-700'}`}>
                             {distance > 500 ? 'นอกพื้นที่งาน' : 'อยู่ในพื้นที่'}

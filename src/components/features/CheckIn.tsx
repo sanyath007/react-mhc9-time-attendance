@@ -53,10 +53,10 @@ export default function CheckIn({ distance }: { distance: number }) {
         try {
             const isMobile = window.innerWidth < 768;
             const mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { 
-                    width: { ideal: isMobile ? 480 : 640 }, 
-                    height: { ideal: isMobile ? 640 : 480 }, 
-                    facingMode: 'user' 
+                video: {
+                    width: { ideal: isMobile ? 480 : 640 },
+                    height: { ideal: isMobile ? 640 : 480 },
+                    facingMode: 'user'
                 }
             });
 
@@ -65,7 +65,7 @@ export default function CheckIn({ distance }: { distance: number }) {
                 setStream(mediaStream);
                 setIsCameraActive(true);
 
-                 /** Start face detection after camera is ready */
+                /** Start face detection after camera is ready */
                 videoRef.current.onloadedmetadata = () => {
                     if (videoRef.current) {
                         setVideoDimensions({
@@ -110,9 +110,9 @@ export default function CheckIn({ distance }: { distance: number }) {
             const canvas = canvasRef.current;
 
             /** Draw detection box on canvas */
-            const displaySize = { 
-                width: video.videoWidth, 
-                height: video.videoHeight 
+            const displaySize = {
+                width: video.videoWidth,
+                height: video.videoHeight
             };
 
             faceapi.matchDimensions(canvas!, displaySize);
@@ -147,7 +147,7 @@ export default function CheckIn({ distance }: { distance: number }) {
     };
 
     // Capture photo
-    const capturePhoto = async() => {
+    const capturePhoto = async () => {
         if (videoRef.current && canvasRef.current && modelsLoaded) {
             setIsProcessing(true);
 
@@ -176,14 +176,14 @@ export default function CheckIn({ distance }: { distance: number }) {
 
                 /** Find the best match using Euclidean distance */
                 const matches = employees
-                                    .filter((employee: Employee) => employee.face_descriptor)
-                                    .map((employee: Employee) => ({
-                                        employee,
-                                        distance: faceapi.euclideanDistance(
-                                            Array.from(faceDescriptor),
-                                            JSON.parse(employee.face_descriptor || '') as number[]
-                                        )
-                                    }));
+                    .filter((employee: Employee) => employee.face_descriptor)
+                    .map((employee: Employee) => ({
+                        employee,
+                        distance: faceapi.euclideanDistance(
+                            Array.from(faceDescriptor),
+                            JSON.parse(employee.face_descriptor || '') as number[]
+                        )
+                    }));
                 const bestMatch = matches.reduce((min: EmployeeModel, curr: EmployeeModel) => curr.distance < min.distance ? curr : min);
                 console.log(bestMatch);
 
@@ -195,7 +195,7 @@ export default function CheckIn({ distance }: { distance: number }) {
                     setDetectedEmployee({
                         id: bestMatch?.employee?.id,
                         name: bestMatch?.employee?.fullname,
-                        confidence: 1 - bestMatch.distance 
+                        confidence: 1 - bestMatch.distance
                     });
                 } else {
                     /** If compareation is failure */
@@ -277,18 +277,18 @@ export default function CheckIn({ distance }: { distance: number }) {
             {!modelsLoaded && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-md:p-2 mb-6 max-md:mb-2">
                     <div className="flex items-center gap-2 text-yellow-800">
-                    <AlertCircle className="w-5 h-5" />
-                    <p>Loading facial recognition models...</p>
+                        <AlertCircle className="w-5 h-5" />
+                        <p>Loading facial recognition models...</p>
                     </div>
                 </div>
             )}
 
             {/* Camera/Preview Section */}
             <div className="relative mb-6 max-md:mb-3 flex justify-center">
-                <div 
+                <div
                     className="bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center shadow-lg relative"
-                    style={{ 
-                        width: '100%', 
+                    style={{
+                        width: '100%',
                         maxWidth: videoDimensions.width > 640 ? '100%' : videoDimensions.width,
                         aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`
                     }}
@@ -309,11 +309,10 @@ export default function CheckIn({ distance }: { distance: number }) {
                             {/* Face detection indicator */}
                             {isCameraActive && modelsLoaded && (
                                 <div className="absolute top-4 right-4">
-                                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                                        faceDetected 
-                                            ? 'bg-green-500 text-white' 
-                                            : 'bg-yellow-500 text-white'
-                                    }`}>
+                                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${faceDetected
+                                        ? 'bg-green-500 text-white'
+                                        : 'bg-yellow-500 text-white'
+                                        }`}>
                                         <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
                                         <span className="text-sm font-medium">
                                             {faceDetected ? 'Face Detected' : 'Detecting...'}
@@ -331,9 +330,9 @@ export default function CheckIn({ distance }: { distance: number }) {
                             )}
                         </>
                     ) : (
-                        <img 
-                            src={capturedImage} 
-                            alt="Captured" 
+                        <img
+                            src={capturedImage}
+                            alt="Captured"
                             className="w-full h-full object-cover"
                         />
                     )}
@@ -399,12 +398,15 @@ export default function CheckIn({ distance }: { distance: number }) {
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-4 justify-center">
+            <div
+                className="flex gap-4 mx-auto w-full"
+                style={{ maxWidth: videoDimensions.width > 640 ? '100%' : videoDimensions.width }}
+            >
                 {!capturedImage ? (
                     <button
                         onClick={capturePhoto}
                         disabled={!faceDetected || !isCameraActive || !modelsLoaded || isProcessing || distance > 500}
-                        className="flex items-center gap-2 px-8 max-md:px-4 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                        className="flex w-full justify-center items-center gap-2 px-8 max-md:px-4 py-4 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-sm hover:shadow-md"
                     >
                         <Camera className="w-5 h-5" />
                         {isProcessing ? 'Processing...' : 'Capture & Recognize'}
@@ -414,7 +416,7 @@ export default function CheckIn({ distance }: { distance: number }) {
                         <button
                             onClick={handleCancel}
                             disabled={checkInStatus === 'processing'}
-                            className="flex items-center gap-2 px-8 max-md:px-4 py-4 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="flex flex-1 justify-center items-center gap-2 px-8 max-md:px-4 py-4 bg-gray-500 text-white rounded-xl font-semibold hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm hover:shadow-md"
                         >
                             <XCircle className="w-5 h-5" />
                             Cancel
@@ -422,10 +424,10 @@ export default function CheckIn({ distance }: { distance: number }) {
                         <button
                             onClick={handleConfirm}
                             disabled={checkInStatus === 'processing' || !detectedEmployee}
-                            className="flex items-center gap-2 px-8 max-md:px-4 py-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="flex flex-1 justify-center items-center gap-2 px-8 max-md:px-4 py-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm hover:shadow-md"
                         >
                             <CheckCircle className="w-5 h-5" />
-                            {checkInStatus === 'processing' ? 'Processing...' : 'Confirm Check-In'}
+                            {checkInStatus === 'processing' ? 'Processing...' : 'Check In'}
                         </button>
                     </>
                 )}
