@@ -59,8 +59,12 @@ const OfficialDutyList = () => {
                     const _filtered = data.filter((d: any) => employee.EmId === d.employee?.EmId);
                     /** Listing employee's events */
                     const events = _filtered.map((e: any) => `${e.OTName} ณ ${e.OTLocation}`).join(', ');
-                    const starts = _filtered.map((e: any) => e.OTDateProject).join(', ');
-                    const ends = _filtered.map((e: any) => e.OTDateProject2).join(', ');
+                    const start = moment(Math.min(..._filtered
+                        .sort((a: any, b: any) => moment(a.OTDateGo).diff(moment(b.OTDateGo)))
+                        .map((e: any) => moment(e.OTDateGo).toDate().getTime()))).format('DD/MM/YYYY');
+                    const end = moment(Math.max(..._filtered
+                        .sort((a: any, b: any) => moment(a.OTDateBack).diff(moment(b.OTDateBack)))
+                        .map((e: any) => moment(e.OTDateBack).toDate().getTime()))).format('DD/MM/YYYY');
 
                     return {
                         id: employee.EmId,
@@ -70,8 +74,8 @@ const OfficialDutyList = () => {
                         avatar: employee.EmImg ? `https://mhc9dmh.com/DATA/Photo/${employee.EmImg}` : undefined,
                         avatarColor: employee.EmColor,
                         events,
-                        start: starts,
-                        end: ends,
+                        start,
+                        end,
                         status: "อนุมัติ"
                     };
                 });
@@ -219,7 +223,7 @@ const OfficialDutyList = () => {
                                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-0.5">
                                             <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-600">
                                                 <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                                                {moment(duty.start).format('DD/MM/YYYY')} {duty.start !== duty.end && `- ${moment(duty.end).format('DD/MM/YYYY')}`}
+                                                {duty.start} {duty.start !== duty.end && `- ${duty.end}`}
                                             </span>
                                         </div>
                                     </div>
