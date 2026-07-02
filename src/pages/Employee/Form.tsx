@@ -1,11 +1,11 @@
 import { useRef, useEffect, useState, type ChangeEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-    Camera, 
-    UserPlus, 
-    XCircle, 
-    Trash2, 
-    Eye, 
+import {
+    Camera,
+    UserPlus,
+    XCircle,
+    Trash2,
+    Eye,
     ArrowLeft,
     User,
     Mail,
@@ -26,6 +26,7 @@ import ImageViewer from '../../components/ui/ImageViewer';
 import DatePicker from '../../components/ui/Forms/DatePicker';
 import SearchableSelect from '../../components/ui/Forms/SearchableSelect';
 import ButtonGroupSelect from '../../components/ui/Forms/ButtonGroupSelect';
+import ErrorMessage from '../../components/ui/Forms/ErrorMessage';
 import { type CapturedImage } from '../../lib/types';
 import { loadModels } from '../../utils/face-recognition';
 import { startCamera, stopCamera } from '../../utils/camera';
@@ -146,7 +147,7 @@ export default function EmployeeForm() {
     const navigate = useNavigate();
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    
+
     const [stream, setStream] = useState<MediaStream | null>(null);
     const [capturedImages, setCapturedImages] = useState<CapturedImage[]>([]);
     const [isCameraActive, setIsCameraActive] = useState(false);
@@ -155,14 +156,14 @@ export default function EmployeeForm() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [registrationStatus, setRegistrationStatus] = useState<string | null>(null);
     const [flashActive, setFlashActive] = useState(false);
-    
+
     const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'work'>('general');
-    
+
     const [formData, setFormData] = useState<EmployeeData>(initialEmployeeData);
     const [errors, setErrors] = useState<Partial<EmployeeData> | null>(null);
     const [showPreview, setShowPreview] = useState(false);
     const [preview, setPreview] = useState('');
-    
+
     const intervalRef = useRef<any>(null);
 
     // Compute active districts/subdistricts/divisions based on selections
@@ -172,7 +173,7 @@ export default function EmployeeForm() {
 
     useEffect(() => {
         loadModels(() => setModelsLoaded(true));
-        
+
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
             if (stream) {
@@ -201,7 +202,7 @@ export default function EmployeeForm() {
                 setIsCameraActive(false);
                 setFaceDetected(false);
                 if (intervalRef.current) clearInterval(intervalRef.current);
-                
+
                 // Clear face detection box canvas
                 const canvas = canvasRef.current;
                 if (canvas) {
@@ -219,9 +220,9 @@ export default function EmployeeForm() {
             const video = videoRef.current;
             const canvas = canvasRef.current;
 
-            const displaySize = { 
-                width: video.videoWidth || 640, 
-                height: video.videoHeight || 480 
+            const displaySize = {
+                width: video.videoWidth || 640,
+                height: video.videoHeight || 480
             };
 
             if (canvas) {
@@ -285,12 +286,12 @@ export default function EmployeeForm() {
                 const faceDescriptor = detections.descriptor;
 
                 setCapturedImages(prev => {
-                    const updated = [...prev, { 
-                        image: imageData, 
+                    const updated = [...prev, {
+                        image: imageData,
                         descriptor: Array.from(faceDescriptor),
                         timestamp: new Date().toISOString()
                     }];
-                    
+
                     if (updated.length >= 5) {
                         setTimeout(() => handleStopCamera(), 100);
                     }
@@ -310,7 +311,7 @@ export default function EmployeeForm() {
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        
+
         // Reset cascading address selects
         if (name === 'changwat_id') {
             setFormData(prev => ({ ...prev, changwat_id: value, amphur_id: '', tambon_id: '' }));
@@ -352,7 +353,7 @@ export default function EmployeeForm() {
 
     const validateForm = () => {
         const newErrors: Partial<EmployeeData> = {};
-        
+
         // Tab 1 validation
         if (!formData.employee_no.trim()) newErrors.employee_no = 'กรุณากรอกรหัสพนักงาน';
         if (!formData.prefix_id) newErrors.prefix_id = 'กรุณาเลือกคำนำหน้า';
@@ -378,7 +379,7 @@ export default function EmployeeForm() {
         if (!formData.address_no.trim()) newErrors.address_no = 'กรุณากรอกบ้านเลขที่';
         if (!formData.changwat_id) newErrors.changwat_id = 'กรุณาเลือกจังหวัด';
         if (!formData.amphur_id) newErrors.amphur_id = 'กรุณาเลือกอำเภอ';
-        if (!formData.tambon_id) newErrors.tambon_id = 'กรุณาเลือกตำบล';
+        // if (!formData.tambon_id) newErrors.tambon_id = 'กรุณาเลือกตำบล';
         if (!formData.zipcode.trim()) newErrors.zipcode = 'กรุณากรอกรหัสไปรษณีย์';
 
         // Tab 3 validation
@@ -488,8 +489,8 @@ export default function EmployeeForm() {
             {/* Back Navigation & Header */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-2">
                 <div className="flex items-center gap-4">
-                    <Link 
-                        to="/employee" 
+                    <Link
+                        to="/employee"
                         className="p-3 bg-white border border-gray-100 rounded-xl hover:bg-gray-50 text-gray-600 hover:text-gray-900 shadow-sm active:scale-95 transition-all duration-200"
                     >
                         <ArrowLeft className="w-5 h-5" />
@@ -512,10 +513,10 @@ export default function EmployeeForm() {
 
             {/* Form and Camera columns */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
+
                 {/* Left Column: Form Info */}
                 <div className="lg:col-span-7 bg-white/90 backdrop-blur-md rounded-3xl border border-gray-100 shadow-[0_20px_50px_rgba(8,112,184,0.04)] p-6 md:p-8 relative overflow-hidden min-h-[580px]">
-                    
+
                     {/* Processing State Overlay */}
                     {registrationStatus === 'processing' && (
                         <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
@@ -568,8 +569,8 @@ export default function EmployeeForm() {
                             type="button"
                             onClick={() => setActiveTab('general')}
                             className={`flex-1 pb-3 text-[11px] font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'general'
-                                    ? 'border-blue-600 text-blue-600'
-                                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-400 hover:text-gray-600'
                                 }`}
                         >
                             <User className="w-3.5 h-3.5" />
@@ -584,8 +585,8 @@ export default function EmployeeForm() {
                             type="button"
                             onClick={() => setActiveTab('contact')}
                             className={`flex-1 pb-3 text-[11px] font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'contact'
-                                    ? 'border-blue-600 text-blue-600'
-                                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-400 hover:text-gray-600'
                                 }`}
                         >
                             <MapPin className="w-3.5 h-3.5" />
@@ -600,8 +601,8 @@ export default function EmployeeForm() {
                             type="button"
                             onClick={() => setActiveTab('work')}
                             className={`flex-1 pb-3 text-[11px] font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'work'
-                                    ? 'border-blue-600 text-blue-600'
-                                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-400 hover:text-gray-600'
                                 }`}
                         >
                             <Briefcase className="w-3.5 h-3.5" />
@@ -638,10 +639,7 @@ export default function EmployeeForm() {
                                             />
                                         </div>
                                         {errors?.employee_no && (
-                                            <div className="flex items-center gap-1 text-xs text-red-500 mt-1.5 font-medium">
-                                                <AlertCircle className="w-3.5 h-3.5" />
-                                                <span>{errors.employee_no}</span>
-                                            </div>
+                                            <ErrorMessage message={errors.employee_no} className="mt-1.5 px-1" />
                                         )}
                                     </div>
 
@@ -663,10 +661,7 @@ export default function EmployeeForm() {
                                             />
                                         </div>
                                         {errors?.cid && (
-                                            <div className="flex items-center gap-1 text-xs text-red-500 mt-1.5 font-medium">
-                                                <AlertCircle className="w-3.5 h-3.5" />
-                                                <span>{errors.cid}</span>
-                                            </div>
+                                            <ErrorMessage message={errors.cid} className="mt-1.5 px-1" />
                                         )}
                                     </div>
                                 </div>
@@ -693,7 +688,7 @@ export default function EmployeeForm() {
                                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                         </div>
                                         {errors?.prefix_id && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.prefix_id}</p>
+                                            <ErrorMessage message={errors.prefix_id} className="mt-1.5 px-1" />
                                         )}
                                     </div>
 
@@ -714,7 +709,7 @@ export default function EmployeeForm() {
                                             />
                                         </div>
                                         {errors?.firstname && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.firstname}</p>
+                                            <ErrorMessage message={errors.firstname} className="mt-1.5 px-1" />
                                         )}
                                     </div>
 
@@ -735,7 +730,7 @@ export default function EmployeeForm() {
                                             />
                                         </div>
                                         {errors?.lastname && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.lastname}</p>
+                                            <ErrorMessage message={errors.lastname} className="mt-1.5 px-1" />
                                         )}
                                     </div>
                                 </div>
@@ -826,7 +821,7 @@ export default function EmployeeForm() {
                                             />
                                         </div>
                                         {errors?.tel && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.tel}</p>
+                                            <ErrorMessage message={errors.tel} className="mt-1.5 px-1" />
                                         )}
                                     </div>
 
@@ -847,7 +842,7 @@ export default function EmployeeForm() {
                                             />
                                         </div>
                                         {errors?.email && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.email}</p>
+                                            <ErrorMessage message={errors.email} className="mt-1.5 px-1" />
                                         )}
                                     </div>
 
@@ -888,7 +883,7 @@ export default function EmployeeForm() {
                                             />
                                         </div>
                                         {errors?.address_no && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.address_no}</p>
+                                            <ErrorMessage message={errors.address_no} className="mt-1.5 px-1" />
                                         )}
                                     </div>
 
@@ -1010,7 +1005,7 @@ export default function EmployeeForm() {
                                             />
                                         </div>
                                         {errors?.zipcode && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.zipcode}</p>
+                                            <ErrorMessage message={errors.zipcode} className="mt-1.5 px-1" />
                                         )}
                                     </div>
                                 </div>
@@ -1043,7 +1038,7 @@ export default function EmployeeForm() {
                                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                         </div>
                                         {errors?.position_id && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.position_id}</p>
+                                            <ErrorMessage message={errors.position_id} className="mt-1.5 px-1" />
                                         )}
                                     </div>
 
@@ -1068,7 +1063,7 @@ export default function EmployeeForm() {
                                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                         </div>
                                         {errors?.level_id && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.level_id}</p>
+                                            <ErrorMessage message={errors.level_id} className="mt-1.5 px-1" />
                                         )}
                                     </div>
                                 </div>
@@ -1145,7 +1140,7 @@ export default function EmployeeForm() {
                                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                         </div>
                                         {errors?.department_id && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.department_id}</p>
+                                            <ErrorMessage message={errors.department_id} className="mt-1.5 px-1" />
                                         )}
                                     </div>
 
@@ -1171,7 +1166,7 @@ export default function EmployeeForm() {
                                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                         </div>
                                         {errors?.division_id && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.division_id}</p>
+                                            <ErrorMessage message={errors.division_id} className="mt-1.5 px-1" />
                                         )}
                                     </div>
 
@@ -1196,7 +1191,7 @@ export default function EmployeeForm() {
                                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                         </div>
                                         {errors?.duty_id && (
-                                            <p className="text-red-500 text-[10px] mt-1 font-medium">{errors.duty_id}</p>
+                                            <ErrorMessage message={errors.duty_id} className="mt-1.5 px-1" />
                                         )}
                                     </div>
                                 </div>
@@ -1246,10 +1241,10 @@ export default function EmployeeForm() {
 
                 {/* Right Column: Camera Scan ID */}
                 <div className="lg:col-span-5 space-y-6">
-                    
+
                     {/* Camera Panel */}
                     <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_20px_50px_rgba(8,112,184,0.04)] p-6 relative overflow-hidden">
-                        
+
                         {/* Title Section */}
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
@@ -1274,7 +1269,7 @@ export default function EmployeeForm() {
                         {/* Viewfinder Frame Container */}
                         <div className="relative mb-4 group/cam rounded-2xl overflow-hidden shadow-inner bg-slate-950 border border-slate-800">
                             <div className="aspect-video w-full flex items-center justify-center relative overflow-hidden">
-                                
+
                                 {/* Video element */}
                                 <video
                                     ref={videoRef}
@@ -1297,7 +1292,7 @@ export default function EmployeeForm() {
                                         <div className="absolute top-4 right-4 w-5 h-5 border-t-2 border-r-2 border-blue-400 rounded-tr z-10 pointer-events-none opacity-80" />
                                         <div className="absolute bottom-4 left-4 w-5 h-5 border-b-2 border-l-2 border-blue-400 rounded-bl z-10 pointer-events-none opacity-80" />
                                         <div className="absolute bottom-4 right-4 w-5 h-5 border-b-2 border-r-2 border-blue-400 rounded-br z-10 pointer-events-none opacity-80" />
-                                        
+
                                         {/* Scanning laser line */}
                                         <div className="absolute left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-60 animate-scan z-10 pointer-events-none" />
                                     </>
@@ -1392,16 +1387,16 @@ export default function EmployeeForm() {
                     {capturedImages.length > 0 && (
                         <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_20px_50px_rgba(8,112,184,0.04)] p-6 animate-in slide-in-from-bottom-4 duration-300">
                             <h3 className="text-sm font-bold text-gray-900 mb-4">รูปภาพสแกนสะสม</h3>
-                            
+
                             <div className="grid grid-cols-5 gap-3">
                                 {capturedImages.map((img, index) => (
                                     <div key={index} className="relative group/thumb aspect-square rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
-                                        <img 
-                                            src={img.image} 
+                                        <img
+                                            src={img.image}
                                             alt={`Capture ${index + 1}`}
                                             className="w-full h-full object-cover"
                                         />
-                                        
+
                                         {/* Action Hover Controls */}
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-1.5 duration-200">
                                             <button
