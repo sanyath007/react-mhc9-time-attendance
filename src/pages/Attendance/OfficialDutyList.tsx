@@ -7,6 +7,9 @@ import { useSearchParams } from 'react-router-dom';
 import FliteringInputs from './FliteringInputs';
 import type { AttendanceFilters } from '../../lib/types';
 import EmployeeAvatar from '../../components/features/EmployeeAvatar';
+import { Pagination } from '../../components/ui/Pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 const OfficialDutyList = () => {
     const { oauthToken } = useAuth();
@@ -18,9 +21,11 @@ const OfficialDutyList = () => {
         const saved = localStorage.getItem("attendance_view_mode");
         return (saved === 'list' || saved === 'grid') ? saved : 'grid';
     });
+    const [currentPage, setCurrentPage] = useState<number>(1);
 
     useEffect(() => {
-        getDuties(currentDate)
+        getDuties(currentDate);
+        setCurrentPage(1); // Reset page on date change
     }, [currentDate]);
 
     const getDuties = useCallback(async (date: string) => {
@@ -79,12 +84,20 @@ const OfficialDutyList = () => {
     }, [currentDate])
 
     const filteredDuties = useMemo(() => {
+        setCurrentPage(1); // Reset page on search
         if (!searchTerm) return duties;
         return duties.filter(duty =>
             duty.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             duty.events.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [searchTerm, duties]);
+
+    const paginatedDuties = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredDuties.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredDuties, currentPage]);
+
+    const totalPages = Math.ceil(filteredDuties.length / ITEMS_PER_PAGE);
 
     const toggleViewMode = (mode: 'grid' | 'list') => {
         setViewMode(mode);
@@ -172,9 +185,9 @@ const OfficialDutyList = () => {
                         ไม่พบข้อมูลพนักงานที่ไปราชการที่ตรงกับคำค้นหาของคุณ
                     </p>
                 </div>
-            ) : (
+            ) : viewMode === 'list' ? (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
-                    {filteredDuties.map(duty => (
+                    {paginatedDuties.map(duty => (
                         <div key={duty.id} className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
                             <div className="flex items-center gap-4 min-w-0">
                                 <div className="relative">
@@ -187,7 +200,7 @@ const OfficialDutyList = () => {
                                                 height="52px"
                                             />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: duty.avatarColor }}>
+                                            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: duty.avatarColor || '#e5e7eb' }}>
                                                 <User className="w-8 h-8 text-white" />
                                             </div>
                                         )}
@@ -221,6 +234,66 @@ const OfficialDutyList = () => {
                         </div>
                     ))}
                 </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {paginatedDuties.map(duty => (
+                        <div key={duty.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow relative overflow-hidden group flex flex-col">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center gap-3 w-full">
+                                    <div className="relative shrink-0">
+                                        <div className={`p-0.5 rounded-full ring-2 ring-purple-300`}>
+                                            {duty.avatar ? (
+                                                <EmployeeAvatar
+                                                    image={duty.avatar}
+                                                    alt={duty.name}
+                                                    width="48px"
+                                                    height="48px"
+                                                />
+                                            ) : (
+                                                <div className="w-[48px] h-[48px] rounded-full flex items-center justify-center" style={{ backgroundColor: duty.avatarColor || '#e5e7eb' }}>
+                                                    <User className="w-6 h-6 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border border-white bg-purple-500`} />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <h2 className="text-sm font-bold text-gray-900 truncate">
+                                            {duty.name}
+                                        </h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-3 mt-2 flex-1 text-sm text-gray-600">
+                                <div className="flex items-start gap-2 text-[11px] sm:text-xs text-purple-700 bg-purple-50 p-2 rounded-lg border border-purple-100">
+                                    <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                                    <span className="line-clamp-2 leading-relaxed font-medium">{duty.events}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[11px] sm:text-xs pl-1">
+                                    <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                    <span>{moment(duty.start).format('DD/MM/YYYY')} {duty.start !== duty.end && `- ${moment(duty.end).format('DD/MM/YYYY')}`}</span>
+                                </div>
+                            </div>
+                            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-end shrink-0">
+                                <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                    {duty.status}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Pagination */}
+            {filteredDuties.length > 0 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    totalItems={filteredDuties.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                />
             )}
         </div>
     );

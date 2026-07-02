@@ -7,6 +7,9 @@ import EmployeeAvatar from '../../components/features/EmployeeAvatar';
 import { useSearchParams } from 'react-router-dom';
 import FliteringInputs from './FliteringInputs';
 import type { AttendanceFilters } from '../../lib/types';
+import { Pagination } from '../../components/ui/Pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 const LeaveList = () => {
     const { oauthToken } = useAuth();
@@ -19,9 +22,11 @@ const LeaveList = () => {
         const saved = localStorage.getItem("attendance_view_mode");
         return (saved === 'list' || saved === 'grid') ? saved : 'grid';
     });
+    const [currentPage, setCurrentPage] = useState<number>(1);
 
     useEffect(() => {
-        getLeaves(currentDate)
+        getLeaves(currentDate);
+        setCurrentPage(1); // Reset page on date change
     }, [currentDate]);
 
     const getLeaves = useCallback(async (date: string) => {
@@ -67,12 +72,20 @@ const LeaveList = () => {
     }, [currentDate]);
 
     const filteredLeaves = useMemo(() => {
+        setCurrentPage(1); // Reset page on search
         if (!searchTerm) return leaves;
         return leaves.filter(leave =>
             leave.employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             leave.type.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [searchTerm, leaves]);
+
+    const paginatedLeaves = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredLeaves.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredLeaves, currentPage]);
+
+    const totalPages = Math.ceil(filteredLeaves.length / ITEMS_PER_PAGE);
 
     const toggleViewMode = (mode: 'grid' | 'list') => {
         setViewMode(mode);
@@ -160,9 +173,9 @@ const LeaveList = () => {
                         ไม่พบข้อมูลการลางานที่ตรงกับคำค้นหาของคุณ
                     </p>
                 </div>
-            ) : (
+            ) : viewMode === 'list' ? (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
-                    {filteredLeaves.map(leave => (
+                    {paginatedLeaves.map(leave => (
                         <div key={leave.id} className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
                             <div className="flex items-center gap-4 min-w-0">
                                 <div className="relative">
@@ -175,7 +188,7 @@ const LeaveList = () => {
                                                 height="52px"
                                             />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: leave.employee.avatarColor }}>
+                                            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: leave.employee.avatarColor || '#e5e7eb' }}>
                                                 <User className="w-8 h-8 text-white" />
                                             </div>
                                         )}
@@ -216,6 +229,77 @@ const LeaveList = () => {
                         </div>
                     ))}
                 </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {paginatedLeaves.map(leave => (
+                        <div key={leave.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow relative overflow-hidden group flex flex-col">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center gap-3 w-full">
+                                    <div className="relative shrink-0">
+                                        <div className={`p-0.5 rounded-full ring-2 ring-amber-300`}>
+                                            {leave.employee.avatar ? (
+                                                <EmployeeAvatar
+                                                    image={leave.employee.avatar}
+                                                    alt={leave.employee.name}
+                                                    width="48px"
+                                                    height="48px"
+                                                />
+                                            ) : (
+                                                <div className="w-[48px] h-[48px] rounded-full flex items-center justify-center" style={{ backgroundColor: leave.employee.avatarColor || '#e5e7eb' }}>
+                                                    <User className="w-6 h-6 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border border-white bg-amber-500`} />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <h2 className="text-sm font-bold text-gray-900 truncate">
+                                            {leave.employee.name}
+                                        </h2>
+                                        <span className="inline-flex items-center gap-1 font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100 text-[10px] mt-1">
+                                            {leave.type}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-2 mt-2 flex-1 text-sm text-gray-600">
+                                <div className="flex items-center gap-2 text-[11px] sm:text-xs">
+                                    <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                    <span>{moment(leave.start).format('DD/MM/YYYY')} - {moment(leave.end).format('DD/MM/YYYY')}</span>
+                                </div>
+                                {leave.reason && (
+                                    <div className="flex items-start gap-2 text-[11px] sm:text-xs">
+                                        <FileText className="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" />
+                                        <span className="line-clamp-2 leading-relaxed">{leave.reason}</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-end shrink-0">
+                                {leave.status === 'อนุญาต' ? (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                        {leave.status}
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-100">
+                                        {leave.status}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Pagination */}
+            {filteredLeaves.length > 0 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    totalItems={filteredLeaves.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                />
             )}
         </div>
     );
