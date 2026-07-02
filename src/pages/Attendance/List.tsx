@@ -64,7 +64,6 @@ const AttendanceList = () => {
             });
 
             const data = await response.json();
-            console.log(data)
             setLeaves(data || [])
         } catch (error) {
             console.error("Error fetching attendances:", error);

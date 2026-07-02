@@ -91,8 +91,6 @@ const OfficialDutyList = () => {
         localStorage.setItem("attendance_view_mode", mode);
     };
 
-    console.log(filteredDuties);
-
     return (
         <div className="max-w-5xl mx-auto space-y-6">
             {/* Header */}
