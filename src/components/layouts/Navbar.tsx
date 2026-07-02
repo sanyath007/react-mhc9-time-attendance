@@ -1,15 +1,28 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, History, CalendarClock } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import EmployeeAvatar from '../features/EmployeeAvatar';
 
 export default function Navbar() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeMobileDropdown, setActiveMobileDropdown] = useState<number | null>(null);
+
+    const isPathActive = (href?: string) => {
+        if (!href) return false;
+        if (href === '/') return location.pathname === '/';
+        return location.pathname === href || location.pathname.startsWith(`${href}/`);
+    };
+
+    const isMenuOrDropdownActive = (menu: any) => {
+        if (menu.href) return isPathActive(menu.href);
+        if (menu.dropdown) return menu.dropdown.some((item: any) => isPathActive(item.href));
+        return false;
+    };
     const { user, logout } = useAuth();
     const userMenuRef = useRef<HTMLDivElement | null>(null); // User menu
     const navMenuRef = useRef<HTMLDivElement | null>(null);
@@ -51,7 +64,8 @@ export default function Navbar() {
                 logout();
                 navigate('/login');
             },
-            danger: true }
+            danger: true
+        }
     ];
 
     // Navigation menu items with dropdowns
@@ -111,7 +125,10 @@ export default function Navbar() {
                                             // Menu with dropdown
                                             <button
                                                 onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-                                                className="flex items-center space-x-1 px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 text-sm font-medium group"
+                                                className={`flex items-center space-x-1 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium group ${isMenuOrDropdownActive(menu)
+                                                        ? 'text-blue-600 bg-blue-50'
+                                                        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                                                    }`}
                                             >
                                                 {menu.icon && <menu.icon className="w-4 h-4" />}
                                                 <span>{menu.label}</span>
@@ -121,7 +138,10 @@ export default function Navbar() {
                                             // Simple link
                                             <Link
                                                 to={menu.href}
-                                                className="flex items-center space-x-1 px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 text-sm font-medium"
+                                                className={`flex items-center space-x-1 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${isPathActive(menu.href)
+                                                        ? 'text-blue-600 bg-blue-50'
+                                                        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                                                    }`}
                                             >
                                                 {menu.icon && <menu.icon className="w-4 h-4" />}
                                                 <span>{menu.label}</span>
@@ -139,11 +159,12 @@ export default function Navbar() {
                                                             key={idx}
                                                             to={item.href || ''}
                                                             onClick={() => setActiveDropdown(null)}
-                                                            className={`flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
-                                                                item.highlight
-                                                                    ? 'text-blue-600 hover:bg-blue-50 font-medium'
-                                                                    : 'text-gray-700 hover:bg-gray-50'
-                                                            }`}
+                                                            className={`flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${isPathActive(item.href)
+                                                                    ? 'text-blue-600 bg-blue-50 font-medium'
+                                                                    : item.highlight
+                                                                        ? 'text-blue-600 hover:bg-blue-50 font-medium'
+                                                                        : 'text-gray-700 hover:bg-gray-50'
+                                                                }`}
                                                         >
                                                             {item.icon && <item.icon className="w-4 h-4" />}
                                                             <span>{item.label}</span>
@@ -205,11 +226,10 @@ export default function Navbar() {
                                                         item.action();
                                                         setIsDropdownOpen(false);
                                                     }}
-                                                    className={`w-full flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
-                                                        item.danger
-                                                        ? 'text-red-600 hover:bg-red-50'
-                                                        : 'text-gray-700 hover:bg-gray-50'
-                                                    }`}
+                                                    className={`w-full flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${item.danger
+                                                            ? 'text-red-600 hover:bg-red-50'
+                                                            : 'text-gray-700 hover:bg-gray-50'
+                                                        }`}
                                                 >
                                                     <Icon className="w-4 h-4" />
                                                     <span className="font-medium">{item.label}</span>
@@ -256,8 +276,11 @@ export default function Navbar() {
                                     <>
                                         <button
                                             onClick={() => setActiveMobileDropdown(activeMobileDropdown === index ? null : index)}
-                                            className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                                            >
+                                            className={`w-full flex items-center justify-between px-3 py-2 text-base font-medium rounded-lg transition-colors ${isMenuOrDropdownActive(menu)
+                                                    ? 'text-blue-600 bg-blue-50'
+                                                    : 'text-gray-700 hover:bg-gray-50'
+                                                }`}
+                                        >
                                             <div className="flex items-center space-x-2">
                                                 {menu.icon && <menu.icon className="w-5 h-5" />}
                                                 <span>{menu.label}</span>
@@ -279,11 +302,12 @@ export default function Navbar() {
                                                                 setIsMobileMenuOpen(false);
                                                                 setActiveMobileDropdown(null);
                                                             }}
-                                                            className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-lg transition-colors ${
-                                                                item.highlight
-                                                                ? 'text-blue-600 hover:bg-blue-50 font-medium'
-                                                                : 'text-gray-600 hover:bg-gray-50'
-                                                            }`}
+                                                            className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-lg transition-colors ${isPathActive(item.href)
+                                                                    ? 'text-blue-600 bg-blue-50 font-medium'
+                                                                    : item.highlight
+                                                                        ? 'text-blue-600 hover:bg-blue-50 font-medium'
+                                                                        : 'text-gray-600 hover:bg-gray-50'
+                                                                }`}
                                                         >
                                                             {item.icon && <item.icon className="w-4 h-4" />}
                                                             <span>{item.label}</span>
@@ -300,7 +324,10 @@ export default function Navbar() {
                                             setIsMobileMenuOpen(false);
                                             setActiveMobileDropdown(null);
                                         }}
-                                        className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                        className={`flex items-center space-x-2 px-3 py-2 text-base font-medium rounded-lg transition-colors ${isPathActive(menu.href)
+                                                ? 'text-blue-600 bg-blue-50'
+                                                : 'text-gray-700 hover:bg-gray-50'
+                                            }`}
                                     >
                                         {menu.icon && <menu.icon className="w-5 h-5" />}
                                         <span>{menu.label}</span>
@@ -314,21 +341,20 @@ export default function Navbar() {
                             {userMenus.map((item, index) => {
                                 const Icon = item.icon;
                                 return (
-                                <button
-                                    key={index}
-                                    onClick={() => {
-                                        item.action();
-                                        setIsMobileMenuOpen(false);
-                                    }}
-                                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    item.danger
-                                        ? 'text-red-600 hover:bg-red-50'
-                                        : 'text-gray-700 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <Icon className="w-4 h-4" />
-                                    <span>{item.label}</span>
-                                </button>
+                                    <button
+                                        key={index}
+                                        onClick={() => {
+                                            item.action();
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                        className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${item.danger
+                                                ? 'text-red-600 hover:bg-red-50'
+                                                : 'text-gray-700 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <Icon className="w-4 h-4" />
+                                        <span>{item.label}</span>
+                                    </button>
                                 );
                             })}
                         </div>
