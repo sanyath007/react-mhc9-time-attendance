@@ -62,7 +62,7 @@ export default function CheckInContainer() {
                     {/* Compact Header Clock */}
                     <div className="text-right shrink-0">
                         <span className="text-base font-black font-mono text-indigo-600 block leading-none">
-                            {currentTime.toLocaleTimeString()}
+                            {currentTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
                         </span>
                         <span className="text-[9px] text-gray-400 font-semibold block mt-1 leading-none">
                             {currentTime.toLocaleDateString('th-TH', {
@@ -90,7 +90,7 @@ export default function CheckInContainer() {
                     {/* Compact Header Clock */}
                     <div className="text-right shrink-0">
                         <span className="text-base font-black font-mono text-indigo-600 block leading-none">
-                            {currentTime.toLocaleTimeString()}
+                            {currentTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
                         </span>
                         <span className="text-[9px] text-gray-400 font-semibold block mt-1 leading-none">
                             {currentTime.toLocaleDateString('th-TH', {
