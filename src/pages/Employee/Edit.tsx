@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
     XCircle,
@@ -80,59 +80,24 @@ const initialEmployeeData: EmployeeData = {
     avatar_url: '',
 };
 
-// Dropdown Mock Data matching the database structure and Thailand address system
-const prefixes = [
-    { id: 1, name: 'นาย' },
-    { id: 2, name: 'นาง' },
-    { id: 3, name: 'นางสาว' }
-];
-
-const provinces = [
-    { id: 30, name: 'นครราชสีมา' },
-    { id: 10, name: 'กรุงเทพมหานคร' }
-];
-
-const districts = [
-    { id: 3001, name: 'เมืองนครราชสีมา', changwat_id: 30 },
-    { id: 1001, name: 'พระนคร', changwat_id: 10 }
-];
-
-const subdistricts = [
-    { id: 300119, name: 'หนองบัวศาลา', amphur_id: 3001 },
-    { id: 100101, name: 'พระบรมมหาราชวัง', amphur_id: 1001 }
-];
-
-const positions = [
-    { id: 5, name: 'นักวิชาการคอมพิวเตอร์' },
-    { id: 1, name: 'นักจัดการงานทั่วไป' },
-    { id: 2, name: 'นักทรัพยากรบุคคล' },
-    { id: 3, name: 'นักบัญชี' }
-];
-
-const levels = [
-    { id: 6, name: 'ชำนาญการ' },
-    { id: 1, name: 'ปฏิบัติการ' },
-    { id: 2, name: 'ชำนาญงาน' },
-    { id: 3, name: 'ระดับต้น' }
-];
-
 const duties = [
     { id: 4, name: 'ผู้ปฏิบัติงาน' },
     { id: 1, name: 'หัวหน้างาน' },
     { id: 2, name: 'ผู้บริหาร' }
 ];
 
-const departments = [
-    { id: 2, name: 'กลุ่มงานอำนวยการ' },
-    { id: 1, name: 'กลุ่มงานการพยาบาล' },
-    { id: 3, name: 'กลุ่มงานเวชศาสตร์ปฏิบัติการ' }
-];
+type OptionItem = { id: number | string; name: string;[key: string]: any };
 
-const divisions = [
-    { id: 6, name: 'งานเทคโนโลยีสารสนเทศ', department_id: 2 },
-    { id: 1, name: 'งานธุรการ', department_id: 2 },
-    { id: 2, name: 'งานบุคคล', department_id: 2 }
-];
+type FormOptions = {
+    prefixes: OptionItem[];
+    provinces: OptionItem[];
+    districts: OptionItem[];
+    subdistricts: OptionItem[];
+    positions: OptionItem[];
+    levels: OptionItem[];
+    departments: OptionItem[];
+    divisions: OptionItem[];
+};
 
 export default function EmployeeEdit() {
     const navigate = useNavigate();
@@ -145,6 +110,41 @@ export default function EmployeeEdit() {
 
     const [formData, setFormData] = useState<EmployeeData>(initialEmployeeData);
     const [errors, setErrors] = useState<Partial<EmployeeData> | null>(null);
+
+    const [options, setOptions] = useState<FormOptions>({
+        prefixes: [],
+        provinces: [],
+        districts: [],
+        subdistricts: [],
+        positions: [],
+        levels: [],
+        departments: [],
+        divisions: []
+    });
+
+    useEffect(() => {
+        const fetchInitData = async () => {
+            try {
+                const response = await api.get('/api/employees/init/form');
+                const data = response.data;
+                setOptions({
+                    prefixes: data.prefixes || [],
+                    provinces: data.changewats || [],
+                    districts: data.amphurs || [],
+                    subdistricts: data.tambons || [],
+                    positions: data.positions || [],
+                    levels: data.levels || [],
+                    departments: data.departments || [],
+                    divisions: data.divisions || []
+                });
+            } catch (error) {
+                console.error("Error fetching form options:", error);
+            }
+        };
+        fetchInitData();
+    }, []);
+
+    const { prefixes, provinces, districts, subdistricts, positions, levels, departments, divisions } = options;
 
     useEffect(() => {
         const fetchEmployee = async () => {
@@ -170,9 +170,9 @@ export default function EmployeeEdit() {
         fetchEmployee();
     }, [id]);
 
-    const filteredDistricts = districts.filter(d => d.changwat_id === Number(formData.changwat_id));
-    const filteredSubdistricts = subdistricts.filter(s => s.amphur_id === Number(formData.amphur_id));
-    const filteredDivisions = divisions.filter(div => div.department_id === Number(formData.department_id));
+    const filteredDistricts = useMemo(() => districts.filter(d => d.chw_id === formData.changwat_id), [formData.changwat_id]);
+    const filteredSubdistricts = useMemo(() => subdistricts.filter(s => s.amp_id === formData.amphur_id), [formData.amphur_id]);
+    const filteredDivisions = useMemo(() => divisions.filter(div => div.department_id === formData.department_id), [formData.department_id]);
 
     const handleSelectChange = (name: keyof EmployeeData, value: string) => {
         setFormData(prev => ({ ...prev, [name]: value }));
