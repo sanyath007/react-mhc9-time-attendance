@@ -344,7 +344,7 @@ export default function CheckIn({ distance }: { distance: number }) {
                 <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-blue-600 font-medium">Detected Employee</p>
+                            <p className="text-sm text-blue-600 font-medium">ผลการตรวจสอบ</p>
                             <p className="text-2xl max-md:text-xl font-bold text-blue-900">{detectedEmployee?.name}</p>
                         </div>
                         <div className="bg-blue-600 p-3 rounded-full">
@@ -359,7 +359,7 @@ export default function CheckIn({ distance }: { distance: number }) {
                 <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-md text-red-600 font-semibold">Employee not found!</p>
+                            <p className="text-md text-red-600 font-semibold">ไม่พบบุคลากร!</p>
                         </div>
                         <div className="bg-red-600 p-2 rounded-full">
                             <X className="w-6 h-6 text-white" />
@@ -372,7 +372,7 @@ export default function CheckIn({ distance }: { distance: number }) {
             {!capturedImage && isCameraActive && modelsLoaded && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-md:p-3 max-md:mb-3">
                     <p className="text-blue-800 text-center max-md:text-sm">
-                        Please position your face in the center of the frame and ensure good lighting
+                        กรุณาจัดตำแหน่งใบหน้าให้อยู่กึ่งกลางกล้อง และอยู่ในที่ที่มีแสงสว่างเพียงพอ
                     </p>
                 </div>
             )}

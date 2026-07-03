@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import CheckIn from '../../components/features/CheckIn';
 import { useGeolocation } from '../../hooks/useLocation';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
+import HeaderIcon from '../../components/ui/HeaderIcon';
 
 const OFFICE_LATITUDE = import.meta.env.VITE_OFFICE_LATITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LATITUDE) : 14.98326727612899;
 const OFFICE_LONGITUDE = import.meta.env.VITE_OFFICE_LONGITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LONGITUDE) : 102.10488443930059;
@@ -76,14 +77,14 @@ export default function CheckInContainer() {
             ) : (
                 <div className="flex items-center justify-between py-2 border-b border-gray-100 pb-3 mb-2">
                     <div className="flex items-center gap-3">
-                        <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2 rounded-xl shadow-md shadow-blue-500/20 text-white shrink-0">
-                            <User className="w-4.5 h-4.5" />
+                        <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-3 rounded-xl shadow-md shadow-blue-500/20 text-white shrink-0">
+                            <HeaderIcon Icon={User} />
                         </div>
                         <div>
-                            <h1 className="text-sm font-bold text-gray-800">
+                            <h1 className="text-2xl font-bold text-gray-800">
                                 ลงเวลาปฏิบัติงาน
                             </h1>
-                            <p className="text-[9px] text-gray-500">ระบบบันทึกเวลาสแกนใบหน้า</p>
+                            <p className="text-xs text-gray-500">ระบบบันทึกเวลาสแกนใบหน้า</p>
                         </div>
                     </div>
 
@@ -92,7 +93,7 @@ export default function CheckInContainer() {
                         <span className="text-base font-black font-mono text-indigo-600 block leading-none">
                             {currentTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
                         </span>
-                        <span className="text-[9px] text-gray-400 font-semibold block mt-1 leading-none">
+                        <span className="text-[10px] text-gray-400 font-semibold block mt-1 leading-none">
                             {currentTime.toLocaleDateString('th-TH', {
                                 day: 'numeric',
                                 month: 'short',
@@ -115,7 +116,7 @@ export default function CheckInContainer() {
                         </div>
                         <div className="min-w-0">
                             <h3 className="text-xs font-bold text-gray-800">ตำแหน่งพนักงาน</h3>
-                            <p className="text-[10px] text-gray-400 font-mono mt-0.5 truncate">
+                            <p className="text-[11px] text-gray-400 font-mono mt-0.5 truncate">
                                 {location ? `${location.latitude.toFixed(5)}, ${location.longitude.toFixed(5)}` : 'กำลังเชื่อมโยง GPS...'}
                             </p>
                         </div>
@@ -129,23 +130,29 @@ export default function CheckInContainer() {
                             <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${distance > 500 ? 'bg-amber-500' : 'bg-indigo-500'
                                 }`}></span>
                         </span>
-                        <span className={`text-[9px] font-bold ${distance > 500 ? 'text-amber-700' : 'text-indigo-700'}`}>
+                        <span className={`text-[10px] font-bold ${distance > 500 ? 'text-amber-500' : 'text-indigo-700'}`}>
                             {distance > 500 ? 'นอกพื้นที่งาน' : 'อยู่ในพื้นที่'}
                         </span>
                     </div>
                 </div>
 
                 {/* Accuracy / Distance Details */}
-                <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100 text-[11px]">
+                <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100 text-xs">
                     <div>
                         <p className="text-gray-400 font-medium">ระยะห่างจากที่ทำงาน</p>
-                        <p className={`text-sm font-black mt-0.5 ${distance > 500 ? 'text-amber-600' : 'text-indigo-600'}`}>
+                        <p className={`text-sm font-black mt-0.5 ${distance > 500 ? 'text-amber-500' : 'text-indigo-600'}`}>
                             {distance.toFixed(1)} เมตร
                         </p>
                     </div>
-                    <div>
+                    <div className="text-right">
                         <p className="text-gray-400 font-medium">ความแม่นยำ GPS</p>
-                        <p className="text-sm font-black text-gray-700 mt-0.5">
+                        <p className={`text-sm font-black mt-0.5
+                            ${location?.accuracy! > 50
+                                ? location?.accuracy! > 100
+                                    ? 'text-red-500'
+                                    : 'text-amber-500'
+                                : 'text-green-600'}
+                        `}>
                             {location ? `${location.accuracy.toFixed(1)} เมตร` : 'กำลังค้นหา...'}
                         </p>
                     </div>

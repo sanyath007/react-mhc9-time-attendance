@@ -228,11 +228,10 @@ export default function EmployeeList() {
                     {/* Active Only Toggle */}
                     <button
                         onClick={toggleActiveOnly}
-                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all text-sm font-medium ${
-                            showActiveOnly
-                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
-                        }`}
+                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all text-sm font-medium ${showActiveOnly
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                            : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+                            }`}
                         title={showActiveOnly ? "แสดงเฉพาะพนักงานที่ Active (สถานะ = 1)" : "แสดงพนักงานทั้งหมด (รวม Inactive)"}
                     >
                         {showActiveOnly ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
@@ -248,8 +247,8 @@ export default function EmployeeList() {
                         <button
                             onClick={() => toggleViewMode('grid')}
                             className={`p-2 rounded-lg transition-all ${viewMode === 'grid'
-                                    ? 'bg-white text-blue-600 shadow-sm'
-                                    : 'text-gray-400 hover:text-gray-600'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-600'
                                 }`}
                             title="แสดงแบบการ์ด"
                         >
@@ -258,8 +257,8 @@ export default function EmployeeList() {
                         <button
                             onClick={() => toggleViewMode('list')}
                             className={`p-2 rounded-lg transition-all ${viewMode === 'list'
-                                    ? 'bg-white text-blue-600 shadow-sm'
-                                    : 'text-gray-400 hover:text-gray-600'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-600'
                                 }`}
                             title="แสดงแบบรายการ"
                         >
@@ -345,8 +344,8 @@ export default function EmployeeList() {
                                 {/* Avatar with Ring Highlight based on status */}
                                 <div className="relative mb-4">
                                     <div className={`p-1.5 rounded-full transition-all duration-300 ring-2 ${isRegistered
-                                            ? 'ring-emerald-400 ring-offset-2'
-                                            : 'ring-amber-400 ring-offset-2 hover:ring-indigo-400'
+                                        ? 'ring-emerald-400 ring-offset-2'
+                                        : 'ring-amber-400 ring-offset-2 hover:ring-indigo-400'
                                         }`}>
                                         <EmployeeAvatar
                                             image={`${import.meta.env.VITE_API_URL}/uploads/${employee?.avatar_url}`}
@@ -406,8 +405,8 @@ export default function EmployeeList() {
                                     <Link
                                         to={`/employee/${employee.id}/face`}
                                         className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all duration-200 ${isRegistered
-                                                ? 'bg-blue-50 hover:bg-blue-100 text-blue-600 hover:scale-[1.02]'
-                                                : 'bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white shadow-sm hover:shadow hover:scale-[1.02]'
+                                            ? 'bg-blue-50 hover:bg-blue-100 text-blue-600 hover:scale-[1.02]'
+                                            : 'bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white shadow-sm hover:shadow hover:scale-[1.02]'
                                             }`}
                                     >
                                         <ScanFace className="w-4 h-4" />
@@ -500,8 +499,8 @@ export default function EmployeeList() {
                                         <Link
                                             to={`/employee/${employee.id}/face`}
                                             className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${isRegistered
-                                                    ? 'bg-blue-50 hover:bg-blue-100 text-blue-600'
-                                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                                                ? 'bg-blue-50 hover:bg-blue-100 text-blue-600'
+                                                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
                                                 }`}
                                         >
                                             <ScanFace className="w-3.5 h-3.5" />
