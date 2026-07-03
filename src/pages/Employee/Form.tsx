@@ -465,7 +465,7 @@ export default function EmployeeForm() {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, avatarImage: reader.result as string }));
+                setFormData(prev => ({ ...prev, avatar_url: reader.result as string }));
             };
             reader.readAsDataURL(file);
         }
