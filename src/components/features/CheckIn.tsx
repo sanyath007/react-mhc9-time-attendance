@@ -189,7 +189,6 @@ export default function CheckIn({ distance, location }: { distance: number, loca
                         )
                     }));
                 const bestMatch = matches.reduce((min: EmployeeModel, curr: EmployeeModel) => curr.distance < min.distance ? curr : min);
-                console.log(bestMatch);
 
                 /** Recognition threshold that can adjust based on your needs */
                 const threshold = 0.6;
@@ -235,7 +234,7 @@ export default function CheckIn({ distance, location }: { distance: number, loca
                 formData.append('longitude', location.longitude.toString());
             }
 
-            // const response = await api.post('/api/time-attendance/check-out', formData);
+            // const response = await api.post('/api/time-attendance/check-in', formData);
             // if (response.statusText === 'OK') {
             //     setCheckInStatus('success');
             // } else {
