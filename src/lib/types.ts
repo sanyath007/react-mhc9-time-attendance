@@ -65,6 +65,7 @@ export type Location = {
 export type DetectedEmployee = {
     id: string;
     name?: string;
+    position?: string;
     confidence?: number;
 };
 

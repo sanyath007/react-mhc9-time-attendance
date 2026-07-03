@@ -161,7 +161,7 @@ export default function CheckInContainer() {
 
             {/* CheckIn Form Component */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-4">
-                <CheckIn distance={distance} />
+                <CheckIn distance={distance} location={location} />
             </div>
         </div>
     );
