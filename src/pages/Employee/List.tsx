@@ -11,7 +11,10 @@ import {
     UserX,
     Phone,
     Mail,
-    RotateCcw
+    RotateCcw,
+    ToggleLeft,
+    ToggleRight,
+    UserRound
 } from "lucide-react"
 import { Link } from "react-router-dom";
 import api from "../../api";
@@ -25,6 +28,10 @@ export default function EmployeeList() {
     const [loading, setLoading] = useState<boolean>(true);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [statusFilter, setStatusFilter] = useState<string>("all");
+    const [showActiveOnly, setShowActiveOnly] = useState<boolean>(() => {
+        const saved = localStorage.getItem("employee_active_only");
+        return saved !== null ? saved === 'true' : true;
+    });
     const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
         const saved = localStorage.getItem("employee_view_mode");
         return (saved === 'list' || saved === 'grid') ? saved : 'grid';
@@ -35,7 +42,13 @@ export default function EmployeeList() {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, statusFilter]);
+    }, [searchTerm, statusFilter, showActiveOnly]);
+
+    const toggleActiveOnly = () => {
+        const newValue = !showActiveOnly;
+        setShowActiveOnly(newValue);
+        localStorage.setItem("employee_active_only", String(newValue));
+    };
 
     useEffect(() => {
         const fetchEmployees = async () => {
@@ -62,8 +75,8 @@ export default function EmployeeList() {
 
     // Filter active employees (status === 1)
     const activeEmployees = useMemo(() => {
-        return employees.filter((e) => e.status === 1);
-    }, [employees]);
+        return showActiveOnly ? employees.filter((e) => e.status === 1) : employees;
+    }, [employees, showActiveOnly]);
 
     // Calculate Summary Stats
     const stats = useMemo(() => {
@@ -208,6 +221,24 @@ export default function EmployeeList() {
                         <option value="registered">ลงทะเบียนแล้ว ({stats.registered})</option>
                         <option value="pending">รอดำเนินการ ({stats.pending})</option>
                     </select>
+
+                    {/* Divider */}
+                    <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
+
+                    {/* Active Only Toggle */}
+                    <button
+                        onClick={toggleActiveOnly}
+                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all text-sm font-medium ${
+                            showActiveOnly
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+                        }`}
+                        title={showActiveOnly ? "แสดงเฉพาะพนักงานที่ Active (สถานะ = 1)" : "แสดงพนักงานทั้งหมด (รวม Inactive)"}
+                    >
+                        {showActiveOnly ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                        <span className="hidden sm:inline">{showActiveOnly ? "Active" : "ทั้งหมด"}</span>
+                        <UserRound className="w-4 h-4" />
+                    </button>
 
                     {/* Divider */}
                     <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>

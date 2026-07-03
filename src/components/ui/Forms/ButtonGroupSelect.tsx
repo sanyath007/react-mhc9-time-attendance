@@ -49,9 +49,9 @@ const ButtonGroupSelect: React.FC<ButtonGroupSelectProps> = ({
                 error ? 'border-rose-300 bg-rose-50/10' : '',
                 containerCss
             )}
-            style={{
-                gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))`
-            }}
+                style={{
+                    gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))`
+                }}
             >
                 {options.map((opt) => {
                     const isActive = opt.value === value;
@@ -64,15 +64,15 @@ const ButtonGroupSelect: React.FC<ButtonGroupSelectProps> = ({
                             className={cn(
                                 'flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-bold rounded-xl transition-all duration-250 cursor-pointer select-none active:scale-[0.98]',
                                 buttonCss,
-                                isActive 
+                                isActive
                                     ? cn(
                                         'bg-white text-blue-600 shadow-[0_4px_12px_rgba(37,99,235,0.08)] border border-gray-100',
                                         activeCss
-                                      )
+                                    )
                                     : cn(
                                         'text-gray-400 hover:text-gray-600 hover:bg-gray-100/50',
                                         inactiveCss
-                                      ),
+                                    ),
                                 disabled && 'cursor-not-allowed hover:bg-transparent hover:text-gray-400 active:scale-100'
                             )}
                         >

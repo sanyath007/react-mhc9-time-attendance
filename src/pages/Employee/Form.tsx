@@ -19,7 +19,8 @@ import {
     Phone,
     MapPin,
     FileText,
-    AlertCircle
+    AlertCircle,
+    Upload
 } from 'lucide-react';
 import * as faceapi from 'face-api.js';
 import ImageViewer from '../../components/ui/ImageViewer';
@@ -57,7 +58,7 @@ type EmployeeData = {
     duty_id: string;
     department_id: string;
     division_id: string;
-    avatarImage: string;
+    avatar_url: string;
 }
 
 const initialEmployeeData: EmployeeData = {
@@ -86,7 +87,7 @@ const initialEmployeeData: EmployeeData = {
     duty_id: '',
     department_id: '',
     division_id: '',
-    avatarImage: '',
+    avatar_url: '',
 };
 
 // Dropdown Mock Data matching the database structure and Thailand address system
@@ -393,7 +394,7 @@ export default function EmployeeForm() {
 
         // Camera validation
         if (capturedImages.length < 3) {
-            newErrors.avatarImage = 'กรุณาถ่ายภาพสแกนอย่างน้อย 3 รูปเพื่อใช้จัดทำระบบจดจำใบหน้า';
+            newErrors.avatar_url = 'กรุณาถ่ายภาพสแกนอย่างน้อย 3 รูปเพื่อใช้จัดทำระบบจดจำใบหน้า';
         }
 
         setErrors(newErrors);
@@ -455,6 +456,17 @@ export default function EmployeeForm() {
         } catch (err) {
             console.error('Registration error:', err);
             setRegistrationStatus('error');
+        }
+    };
+
+    const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, avatarImage: reader.result as string }));
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -620,6 +632,38 @@ export default function EmployeeForm() {
                         {/* TAB 1: GENERAL INFORMATION */}
                         {activeTab === 'general' && (
                             <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                {/* Avatar Upload */}
+                                <div className="flex flex-col items-center justify-center p-6 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-200 hover:border-blue-400 transition-colors group cursor-pointer relative overflow-hidden">
+                                    {formData.avatar_url ? (
+                                        <div className="relative flex items-start justify-center w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                                            <img
+                                                src={formData.avatar_url?.startsWith('data:') ? formData.avatar_url : `${import.meta.env.VITE_API_URL}/uploads/${formData?.avatar_url}`}
+                                                alt="avatar-preview"
+                                                className="w-full object-contain"
+                                            />
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Upload className="w-6 h-6 text-white" />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="w-32 h-32 rounded-full bg-white border-4 border-white shadow-sm flex items-center justify-center text-gray-400 group-hover:text-blue-500 transition-colors">
+                                            <User className="w-12 h-12" />
+                                        </div>
+                                    )}
+                                    <div className="mt-4 text-center">
+                                        <span className="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">
+                                            {formData.avatar_url ? 'เปลี่ยนรูปประจำตัว' : 'อัพโหลดรูปประจำตัว'}
+                                        </span>
+                                        <p className="text-xs text-gray-400 mt-1">ไฟล์ JPG, PNG หรือ GIF (ขนาดไม่เกิน 5MB)</p>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                </div>
+
                                 {/* Employee Number & Citizen ID */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <div className="relative group">
@@ -1341,10 +1385,10 @@ export default function EmployeeForm() {
                         )}
 
                         {/* Validation Error for images */}
-                        {errors?.avatarImage && (
+                        {errors?.avatar_url && (
                             <div className="bg-red-50 border border-red-100 rounded-2xl p-3 mb-4 flex items-center gap-2 text-red-800 animate-pulse">
                                 <AlertCircle className="w-4.5 h-4.5 text-red-500 shrink-0" />
-                                <p className="text-xs font-semibold text-center w-full">{errors.avatarImage}</p>
+                                <p className="text-xs font-semibold text-center w-full">{errors.avatar_url}</p>
                             </div>
                         )}
 
