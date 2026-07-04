@@ -15,7 +15,12 @@ type EmployeeModel = {
     distance: number;
 }
 
-export default function CheckIn({ distance, location }: { distance: number, location?: { latitude: number, longitude: number } | null }) {
+type CheckInProps = {
+    distance?: number;
+    location?: { latitude: number, longitude: number } | null;
+}
+
+export default function CheckIn({ location }: CheckInProps) {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [stream, setStream] = useState<MediaStream | null>(null);
@@ -38,10 +43,10 @@ export default function CheckIn({ distance, location }: { distance: number, loca
 
         const handleResize = () => {
             const isMobile = window.innerWidth < 768;
-            setVideoDimensions(prev => ({
+            setVideoDimensions({
                 width: isMobile ? window.innerWidth - 32 : 640,
                 height: isMobile ? (window.innerWidth - 32) * 4 / 3 : 480
-            }));
+            });
         };
 
         handleResize();
