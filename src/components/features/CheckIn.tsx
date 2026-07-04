@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Camera, CameraOff, CheckCircle, XCircle, User, UserCheck, UserX, X, AlertCircle, Loader2, Image as ImageIcon, ScanFace, Eye, EyeOff, LogIn, LogOut } from 'lucide-react';
+import { Camera, CameraOff, CheckCircle, XCircle, User, X, AlertCircle, Loader2, Image as ImageIcon, ScanFace, Eye, EyeOff, LogIn, LogOut } from 'lucide-react';
 import ButtonGroupSelect from '../ui/Forms/ButtonGroupSelect';
 import * as faceapi from 'face-api.js';
 import moment from 'moment';
@@ -243,15 +243,15 @@ export default function CheckIn({ distance, location }: { distance: number, loca
 
             setCheckInStatus('success');
 
-            // setTimeout(() => {
-            //     setCapturedImage(null);
-            //     setDetectedEmployee(null);
-            //     setCheckInStatus(null);
-            //     setIsProcessing(false);
-            //     setCompared(ComparationStatus.IDLE);
+            setTimeout(() => {
+                setCapturedImage(null);
+                setDetectedEmployee(null);
+                setCheckInStatus(null);
+                setIsProcessing(false);
+                setCompared(ComparationStatus.IDLE);
 
-            //     startCamera();
-            // }, 3000);
+                startCamera();
+            }, 2000);
         } catch (err) {
             console.error('Error confirming check-in:', err);
             setCheckInStatus('error');
@@ -410,7 +410,7 @@ export default function CheckIn({ distance, location }: { distance: number, loca
             )}
 
             {/* Check-in Form */}
-            {detectedEmployee && (
+            {(detectedEmployee && checkInStatus !== 'success') && (
                 <div className="bg-gray-50 p-4 rounded-xl mb-3 border border-gray-100 mx-auto w-full" style={{ maxWidth: videoDimensions.width > 640 ? '100%' : videoDimensions.width }}>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -453,16 +453,7 @@ export default function CheckIn({ distance, location }: { distance: number, loca
                 className="flex gap-4 mx-auto w-full"
                 style={{ maxWidth: videoDimensions.width > 640 ? '100%' : videoDimensions.width }}
             >
-                {!capturedImage ? (
-                    <button
-                        onClick={capturePhoto}
-                        disabled={!faceDetected || !isCameraActive || !modelsLoaded || isProcessing || distance > 500}
-                        className="flex w-full justify-center items-center gap-2 px-8 max-md:px-4 py-4 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-sm hover:shadow-md"
-                    >
-                        <Camera className="w-5 h-5" />
-                        {isProcessing ? 'Processing...' : 'Capture & Recognize'}
-                    </button>
-                ) : (
+                {(capturedImage && checkInStatus !== 'success') ? (
                     <>
                         <button
                             onClick={handleCancel}
@@ -482,11 +473,21 @@ export default function CheckIn({ distance, location }: { distance: number, loca
                             {checkInStatus === 'processing' ? 'Processing...' : 'ลงชื่อเข้างาน'}
                         </button>
                     </>
+                ) : (
+                    <button
+                        onClick={capturePhoto}
+                        disabled={!faceDetected || !isCameraActive || !modelsLoaded || isProcessing}
+                        className="flex w-full justify-center items-center gap-2 px-8 max-md:px-4 py-4 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-sm hover:shadow-md"
+                    >
+                        {/* || distance > 500 */}
+                        <Camera className="w-5 h-5" />
+                        {isProcessing ? 'Processing...' : 'Capture & Recognize'}
+                    </button>
                 )}
-            </div>
+            </div >
 
             {/* Info Panel */}
-            <div className="mt-8 max-md:mt-3 grid grid-cols-4 gap-3">
+            < div className="mt-8 max-md:mt-3 grid grid-cols-4 gap-3" >
                 <div className="bg-gray-50 p-4 max-md:p-2 rounded-lg text-center flex flex-col items-center justify-center">
                     <p className="text-gray-600 text-[11px] md:text-sm mb-1">Models</p>
                     <div className={`${modelsLoaded ? 'text-emerald-500' : 'text-gray-400'}`}>
@@ -511,7 +512,7 @@ export default function CheckIn({ distance, location }: { distance: number, loca
                         {isCameraActive ? <Camera className="w-5 h-5 max-md:w-4 max-md:h-4" /> : <CameraOff className="w-5 h-5 max-md:w-4 max-md:h-4" />}
                     </div>
                 </div>
-            </div>
+            </div >
         </>
     );
 }
