@@ -13,6 +13,7 @@ import OfficialDutyList from '../pages/Attendance/OfficialDutyList'
 import CheckInContainer from '../pages/CheckIn'
 import EmployeeFaceRegistration from '../pages/Employee/FaceRegistration'
 import Profile from '../pages/Profile'
+import Contact from '../pages/Contact'
 import DefaultLayout from './layouts/Default'
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
                     <Route path="/employee/:id/edit" element={<EmployeeEdit />} />
                     <Route path="/employee/:id/face" element={<EmployeeFaceRegistration />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/contact" element={<Contact />} />
                 </Route>
 
                 {/* Auth routes */}

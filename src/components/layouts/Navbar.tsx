@@ -100,7 +100,7 @@ export default function Navbar() {
         }] : []),
         {
             label: 'ติดต่อเรา',
-            href: '#',
+            href: '/contact',
             icon: Mail
         }
     ];
