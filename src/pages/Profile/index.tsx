@@ -17,6 +17,7 @@ export default function Profile() {
     const { user } = useAuth();
     const employee = user?.employee;
     const hasFace = !!employee?.face_descriptor;
+    const isAdmin = user?.permission?.[0]?.role_id === 1;
 
     // Format employee ID
     const empIdStr = employee?.id
@@ -96,14 +97,24 @@ export default function Profile() {
 
                     {/* Direct Action Link */}
                     {employee ? (
-                        <Link
-                            to={`/employee/${employee.id}/face`}
-                            className="mt-6 w-full inline-flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-indigo-500/10 hover:shadow-lg cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
-                        >
-                            <ScanFace className="w-4 h-4 animate-pulse" />
-                            <span>ลงทะเบียนสแกนใบหน้า</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
+                        hasFace && !isAdmin ? (
+                            <button
+                                disabled
+                                className="mt-6 w-full inline-flex items-center justify-center gap-2 py-3 bg-gray-100 text-gray-400 font-bold text-xs rounded-xl cursor-not-allowed border border-gray-200"
+                            >
+                                <ScanFace className="w-4 h-4" />
+                                <span>อัปเดตใบหน้า</span>
+                            </button>
+                        ) : (
+                            <Link
+                                to={`/employee/${employee.id}/face`}
+                                className="mt-6 w-full inline-flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-indigo-500/10 hover:shadow-lg cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
+                            >
+                                <ScanFace className="w-4 h-4 animate-pulse" />
+                                <span>{hasFace ? 'อัปเดตใบหน้า' : 'ลงทะเบียนสแกนใบหน้า'}</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                            </Link>
+                        )
                     ) : (
                         <div className="mt-6 w-full p-4 bg-amber-50/50 border border-amber-100 rounded-2xl text-left flex items-start gap-2.5">
                             <ShieldAlert className="w-4.5 h-4.5 text-amber-500 shrink-0 mt-0.5" />
