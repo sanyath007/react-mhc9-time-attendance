@@ -21,7 +21,7 @@ function App() {
             <Routes>
                 <Route path='/' element={<ProtectedLayout />}>
                     <Route index element={<Home />} />
-                    
+
                     <Route path="/attendance" element={<AttendanceList />} />
                     <Route path="/attendance/check-in" element={<CheckInContainer />} />
                     <Route path="/leave" element={<LeaveList />} />

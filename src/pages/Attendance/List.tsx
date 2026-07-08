@@ -383,32 +383,37 @@ const AttendanceList = () => {
                         return (
                             <div
                                 key={group.id}
-                                className="group bg-white rounded-2xl border border-gray-100 hover:border-blue-150 p-4 flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative"
+                                className="group bg-white rounded-2xl border border-gray-100 hover:border-blue-150 p-6 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative"
                             >
                                 {/* Photo frame with Zoom effect */}
-                                <div className="relative overflow-hidden rounded-xl aspect-[4/3] w-full border border-gray-50 bg-gray-50 mb-4 group/photo">
-                                    {group.employee?.avatar_url ? (
-                                        <img
-                                            src={`${import.meta.env.VITE_API_URL}/uploads/${group.employee.avatar_url}`}
-                                            className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
-                                            alt="employee-avatar"
+                                <div className="relative mb-4">
+                                    <div className={`p-1.5 rounded-full transition-all duration-300 ring-2 ${!isLate
+                                        ? 'ring-emerald-400 ring-offset-2'
+                                        : 'ring-amber-400 ring-offset-2 hover:ring-indigo-400'
+                                        }`}>
+                                        <EmployeeAvatar
+                                            image={`https://mhc9dmh.com/DATA/Photo/${group.employee.EmImg}`}
+                                            alt={group.employee.EmName}
+                                            width="72px"
+                                            height="72px"
                                         />
-                                    ) : (
-                                        <img
-                                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(group.employee?.EmName || 'Unknown')}&background=${group.employee?.EmColor || '4f46e5'}&color=fff&size=256`}
-                                            className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-110"
-                                            alt="default-avatar"
-                                        />
-                                    )}
+                                    </div>
+                                    <span className={`absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full border-2 border-white ${!isLate ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                                        }`} />
                                 </div>
 
                                 {/* Employee Name */}
-                                <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
                                     {group.employee ? group.employee?.EmName : 'Unknown Employee'}
                                 </h3>
 
+                                {/* Position Details */}
+                                <div className="mt-1 text-sm text-indigo-600 font-medium bg-indigo-50/50 px-2.5 py-0.5 rounded-lg">
+                                    {/* <span>{group.employee.EmPosition}{group.employee.EmDegree}</span> */}
+                                </div>
+
                                 {/* DateTime details */}
-                                <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-2 text-sm">
+                                <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-2 text-sm w-full">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
@@ -433,7 +438,7 @@ const AttendanceList = () => {
 
                                 {/* Late/On-Time capsule Badge */}
                                 {checkIn && (
-                                    <div className="mt-4">
+                                    <div className="mt-4 w-full">
                                         {isLate ? (
                                             <span className="inline-flex w-full items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100/60">
                                                 <AlertCircle className="w-3.5 h-3.5" />
