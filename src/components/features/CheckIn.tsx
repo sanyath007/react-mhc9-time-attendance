@@ -5,8 +5,8 @@ import * as faceapi from 'face-api.js';
 import moment from 'moment';
 import api from '../../api';
 import TimePicker from '../ui/Forms/TimePicker';
-import { loadModels } from '../../utils/face-recognition';
-import { dataURLtoBlob } from '../../utils/image';
+import { loadModels } from '../../lib/utils/face-recognition';
+import { dataURLtoBlob } from '../../lib/utils/image';
 import { type DetectedEmployee, type Employee } from '../../lib/types';
 import { ComparationStatus } from '../../lib/constants';
 

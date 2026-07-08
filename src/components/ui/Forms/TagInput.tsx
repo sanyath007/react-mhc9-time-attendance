@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, Check, ChevronDown, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils/tailwindcss';
+import { cn } from '../../../lib/utils/tailwindcss';
 
 interface Option {
     value: string;
@@ -43,11 +43,11 @@ const TagInput: React.FC<TagInputProps> = ({
 
     const toggleOption = (optionValue: string) => {
         if (disabled) return;
-        
+
         const newValue = value.includes(optionValue)
-        ? value.filter((v) => v !== optionValue)
-        : [...value, optionValue];
-        
+            ? value.filter((v) => v !== optionValue)
+            : [...value, optionValue];
+
         onChange(newValue);
     };
 
@@ -67,8 +67,8 @@ const TagInput: React.FC<TagInputProps> = ({
         }
     };
 
-    const filteredOptions = options.filter(opt => 
-        !value.includes(opt.value) && 
+    const filteredOptions = options.filter(opt =>
+        !value.includes(opt.value) &&
         opt.label.toLowerCase().includes(inputValue.toLowerCase())
     );
 
@@ -139,7 +139,7 @@ const TagInput: React.FC<TagInputProps> = ({
                                 {value.includes(option.value) && <Check size={16} className="text-primary" />}
                             </button>
                         ))}
-                        
+
                         {inputValue.trim() && !options.some(opt => opt.label.toLowerCase() === inputValue.toLowerCase()) && !value.includes(inputValue.trim()) && (
                             <button
                                 type="button"
@@ -156,7 +156,7 @@ const TagInput: React.FC<TagInputProps> = ({
                     </div>
                 </div>
             )}
-            
+
             {error && <p className="mt-1 text-xs text-rose-500 font-medium pl-1">{error}</p>}
         </div>
     );

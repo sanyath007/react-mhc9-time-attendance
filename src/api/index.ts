@@ -1,5 +1,5 @@
 import axios from "axios";
-import { verifyToken } from "../utils/token";
+import { verifyToken } from "../lib/utils/token";
 
 console.log(import.meta.env.VITE_API_URL);
 

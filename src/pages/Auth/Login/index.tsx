@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../../../hooks/useAuth';
 import FormField from '../../../components/ui/Forms/FormField';
-import { cn } from '../../../utils/tailwindcss';
+import { cn } from '../../../lib/utils/tailwindcss';
 import { AtSign, Lock, LogIn, ScanFace } from 'lucide-react';
 
 const loginSchema = z.object({
@@ -58,7 +58,7 @@ const Login = () => {
                     {/* Email Input */}
                     <FormField label="อีเมล" error={errors.email?.message}>
                         <div className={cn(
-                            "border border-gray-200 rounded-xl py-3 px-3.5 flex flex-row items-center gap-2.5 bg-gray-50/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all duration-200", 
+                            "border border-gray-200 rounded-xl py-3 px-3.5 flex flex-row items-center gap-2.5 bg-gray-50/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all duration-200",
                             errors.email && "border-red-300 focus-within:ring-red-500/10 focus-within:border-red-500"
                         )}>
                             <AtSign className="text-gray-400 w-4.5 h-4.5" />
@@ -74,7 +74,7 @@ const Login = () => {
                     {/* Password Input */}
                     <FormField label="รหัสผ่าน" error={errors.password?.message}>
                         <div className={cn(
-                            "border border-gray-200 rounded-xl py-3 px-3.5 flex flex-row items-center gap-2.5 bg-gray-50/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all duration-200", 
+                            "border border-gray-200 rounded-xl py-3 px-3.5 flex flex-row items-center gap-2.5 bg-gray-50/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all duration-200",
                             errors.password && "border-red-300 focus-within:ring-red-500/10 focus-within:border-red-500"
                         )}>
                             <Lock className="text-gray-400 w-4.5 h-4.5" />
@@ -110,8 +110,8 @@ const Login = () => {
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2.5">
                             สำหรับพนักงานลงเวลาทำงาน
                         </p>
-                        <Link 
-                            to="/check-in" 
+                        <Link
+                            to="/check-in"
                             className="inline-flex items-center justify-center gap-2 py-3 w-full rounded-xl bg-gray-50 border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/20 text-gray-700 hover:text-indigo-600 font-bold text-sm transition-all duration-200 hover:scale-[1.01] shadow-sm cursor-pointer"
                         >
                             <ScanFace className="w-4.5 h-4.5 text-indigo-500 animate-pulse" />

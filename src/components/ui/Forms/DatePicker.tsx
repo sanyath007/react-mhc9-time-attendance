@@ -63,7 +63,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
     const [selectedYear, setSelectedYear] = useState(moment().year());
     const [position, setPosition] = useState({ top: 0, left: 0, direction: 'bottom' as 'top' | 'bottom' });
     const [mounted, setMounted] = useState(false);
-    
+
     const triggerRef = useRef<HTMLButtonElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -75,13 +75,13 @@ const DatePicker: React.FC<DatePickerProps> = ({
     // Initialize time from value
     useEffect(() => {
         if (enableTime && value && value.includes('T')) {
-        const date = new Date(value);
-        if (!isNaN(date.getTime())) {
-            setSelectedTime({
-            hours: date.getHours().toString().padStart(2, '0'),
-            minutes: date.getMinutes().toString().padStart(2, '0')
-            });
-        }
+            const date = new Date(value);
+            if (!isNaN(date.getTime())) {
+                setSelectedTime({
+                    hours: date.getHours().toString().padStart(2, '0'),
+                    minutes: date.getMinutes().toString().padStart(2, '0')
+                });
+            }
         }
     }, [value, enableTime]);
 
@@ -95,19 +95,19 @@ const DatePicker: React.FC<DatePickerProps> = ({
     // Calculate position
     const updatePosition = useCallback(() => {
         if (!triggerRef.current) return;
-        
+
         const rect = triggerRef.current.getBoundingClientRect();
         const dropdownHeight = enableTime ? 520 : 420;
         const dropdownWidth = 320;
         const gap = 4; // Narrowed gap
         const edgePadding = 8;
-        
+
         const spaceBelow = window.innerHeight - rect.bottom;
         const spaceAbove = rect.top;
-        
+
         let top: number;
         let direction: 'top' | 'bottom';
-        
+
         if (spaceBelow >= dropdownHeight + gap || spaceBelow >= spaceAbove) {
             top = rect.bottom + gap;
             direction = 'bottom';
@@ -115,42 +115,42 @@ const DatePicker: React.FC<DatePickerProps> = ({
             top = rect.top - dropdownHeight - gap;
             direction = 'top';
         }
-        
+
         // Align to bottom-left (rect.left) first.
         // If container is next to the right edge (overflows on the right), align dropdown right edge with trigger right edge.
         let left = rect.left;
         if (rect.left + dropdownWidth > window.innerWidth - edgePadding) {
             left = rect.right - dropdownWidth;
         }
-        
+
         // Fallback constraint to prevent overflowing left edge
         if (left < edgePadding) {
             left = edgePadding;
         }
-        
+
         setPosition({ top, left, direction });
     }, [enableTime]);
 
     // Update position on open and scroll/resize
     useEffect(() => {
         if (!isOpen) return;
-        
+
         updatePosition();
-        
+
         const handleUpdate = () => updatePosition();
         window.addEventListener('scroll', handleUpdate, true);
         window.addEventListener('resize', handleUpdate);
-        
+
         return () => {
-        window.removeEventListener('scroll', handleUpdate, true);
-        window.removeEventListener('resize', handleUpdate);
+            window.removeEventListener('scroll', handleUpdate, true);
+            window.removeEventListener('resize', handleUpdate);
         };
     }, [isOpen, updatePosition]);
 
     // Close on click outside
     useEffect(() => {
         if (!isOpen) return;
-        
+
         const handleClickOutside = (e: MouseEvent) => {
             if (
                 dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
@@ -159,14 +159,14 @@ const DatePicker: React.FC<DatePickerProps> = ({
                 setIsOpen(false);
             }
         };
-        
+
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === 'Escape') setIsOpen(false);
         };
-        
+
         document.addEventListener('mousedown', handleClickOutside);
         document.addEventListener('keydown', handleEscape);
-        
+
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleEscape);
@@ -176,12 +176,12 @@ const DatePicker: React.FC<DatePickerProps> = ({
     // Check if date is disabled
     const isDateDisabled = (dateStr: string): boolean => {
         const today = new Date().toISOString().split('T')[0];
-        
+
         if (disablePastDates && dateStr < today) return true;
         if (disableFutureDates && isFutureDate(dateStr)) return true;
         if (minDate && dateStr < minDate) return true;
         if (maxDate && dateStr > maxDate) return true;
-        
+
         return false;
     };
 
@@ -190,16 +190,17 @@ const DatePicker: React.FC<DatePickerProps> = ({
         const [year, month] = calendarViewDate.split('-').map(Number);
         const firstDay = new Date(selectedYear, month - 1, 1);
         const lastDay = new Date(selectedYear, month, 0);
+        console.log(year);
 
         const startDate = new Date(firstDay);
         startDate.setDate(startDate.getDate() - firstDay.getDay());
-        
+
         const endDate = new Date(lastDay);
         endDate.setDate(endDate.getDate() + (6 - lastDay.getDay()));
-        
+
         const weeks = [];
         const current = new Date(startDate);
-        
+
         while (current <= endDate) {
             const week = [];
             for (let i = 0; i < 7; i++) {
@@ -208,7 +209,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
             }
             weeks.push(week);
         }
-        
+
         return { weeks, currentMonth: month - 1, currentYear: selectedYear };
     };
 
@@ -245,7 +246,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
     // Handle time selection
     const handleTimeSelect = (hours: string, minutes: string) => {
         setSelectedTime({ hours, minutes });
-        
+
         if (value) {
             const baseDate = value.split('T')[0];
             const dateTimeStr = `${baseDate}T${hours}:${minutes}:00.000Z`;
@@ -455,7 +456,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
                     {label}
                 </label>
             )}
-            
+
             {/* Trigger Button */}
             <button
                 ref={triggerRef}
@@ -482,7 +483,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
                         {value ? formatThaiDateShort(value) : placeholder}
                     </span>
                 </div>
-                
+
                 <div className="flex items-center gap-2 shrink-0">
                     {showAge && value && (
                         <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-md border border-indigo-100 shadow-sm">
@@ -495,7 +496,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
                     )} />
                 </div>
             </button>
-            
+
             {error && <ErrorMessage message={error} className='mt-1.5 px-1' />}
 
             {/* Portal Dropdown */}

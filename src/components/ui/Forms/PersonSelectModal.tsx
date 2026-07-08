@@ -1,12 +1,10 @@
-"use client";
-
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { 
-    Search, X, User, CreditCard, Building2, 
+import {
+    Search, X, CreditCard, Building2,
     Calendar, ChevronRight, ChevronLeft, Loader2, Users
 } from "lucide-react";
-import { calculateAge } from "@/lib/utils/calculation";
+import { calculateAge } from "../../../lib/utils/calculation";
 
 interface Person {
     pid: number;
@@ -76,7 +74,7 @@ export function PersonSelectModal({ isOpen, onClose, onSelect }: PersonSelectMod
 
     return createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div 
+            <div
                 ref={modalRef}
                 className="bg-card border border-border w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200"
             >
@@ -93,7 +91,7 @@ export function PersonSelectModal({ isOpen, onClose, onSelect }: PersonSelectMod
                             </p>
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={onClose}
                         className="p-2 hover:bg-muted rounded-xl transition-colors cursor-pointer text-muted-foreground"
                     >

@@ -3,8 +3,8 @@ import { Camera, UserPlus, XCircle, CheckCircle, AlertCircle, Trash2, Eye, Shiel
 import { useParams } from 'react-router-dom';
 import * as faceapi from 'face-api.js';
 import api from '../../api';
-import { loadModels } from '../../utils/face-recognition';
-import { startCamera, stopCamera } from '../../utils/camera';
+import { loadModels } from '../../lib/utils/face-recognition';
+import { startCamera, stopCamera } from '../../lib/utils/camera';
 import ImageViewer from '../../components/ui/ImageViewer';
 import EmployeePosition from '../../components/features/EmployeePosition';
 import EmployeeAvatar from '../../components/features/EmployeeAvatar';
@@ -20,7 +20,7 @@ export default function EmployeeFaceRegistration() {
     const [faceDetected, setFaceDetected] = useState<boolean>(false);
     const [modelsLoaded, setModelsLoaded] = useState<boolean>(false);
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
-    const [registrationStatus, setRegistrationStatus] = useState<string | null>(null);    
+    const [registrationStatus, setRegistrationStatus] = useState<string | null>(null);
     const [formData, setFormData] = useState<FaceRecognitionData>({ id: '', face_descriptor: '' });
     const [errors, setErrors] = useState<{ id: string, amountOfImage: string } | null>(null);
     const [showPreview, setShowPreview] = useState<boolean>(false);
@@ -74,9 +74,9 @@ export default function EmployeeFaceRegistration() {
             const canvas = canvasRef.current;
 
             /** Draw detection box on canvas */
-            const displaySize = { 
-                width: video.videoWidth, 
-                height: video.videoHeight 
+            const displaySize = {
+                width: video.videoWidth,
+                height: video.videoHeight
             };
 
             faceapi.matchDimensions(canvas!, displaySize);
@@ -133,8 +133,8 @@ export default function EmployeeFaceRegistration() {
             if (detections) {
                 const faceDescriptor = detections.descriptor;
 
-                setCapturedImages(prev => [...prev, { 
-                    image: imageData, 
+                setCapturedImages(prev => [...prev, {
+                    image: imageData,
                     descriptor: Array.from(faceDescriptor),
                     timestamp: new Date().toISOString()
                 }]);
@@ -143,10 +143,10 @@ export default function EmployeeFaceRegistration() {
             setIsProcessing(false);
 
             if (capturedImages.length >= 4) {
-                stopCamera(stream!, () => { 
-                    setStream(null); 
-                    setIsCameraActive(false); 
-                    setFaceDetected(false); 
+                stopCamera(stream!, () => {
+                    setStream(null);
+                    setIsCameraActive(false);
+                    setFaceDetected(false);
                 });
             }
         }
@@ -205,10 +205,10 @@ export default function EmployeeFaceRegistration() {
         setErrors(null);
         setRegistrationStatus(null);
         if (stream) {
-            stopCamera(stream, () => { 
-                setStream(null); 
-                setIsCameraActive(false); 
-                setFaceDetected(false); 
+            stopCamera(stream, () => {
+                setStream(null);
+                setIsCameraActive(false);
+                setFaceDetected(false);
             });
         }
     };
@@ -350,7 +350,7 @@ export default function EmployeeFaceRegistration() {
                                 <span>{Math.round((capturedImages.length / 5) * 100)}%</span>
                             </div>
                             <div className="h-2 bg-gray-50 border border-gray-100 rounded-full overflow-hidden">
-                                <div 
+                                <div
                                     className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-500"
                                     style={{ width: `${(capturedImages.length / 5) * 100}%` }}
                                 ></div>
@@ -359,10 +359,10 @@ export default function EmployeeFaceRegistration() {
 
                         {/* Scanner Video Viewport */}
                         <div className="relative mb-5 flex justify-center">
-                            <div 
+                            <div
                                 className="bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center relative shadow-inner border border-slate-900"
-                                style={{ 
-                                    width: '100%', 
+                                style={{
+                                    width: '100%',
                                     maxWidth: videoDimensions.width > 640 ? '100%' : videoDimensions.width,
                                     aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`
                                 }}
@@ -390,9 +390,8 @@ export default function EmployeeFaceRegistration() {
                                 {/* Floating camera active indicator */}
                                 {(isCameraActive && modelsLoaded) && (
                                     <div className="absolute top-4 right-4 z-10">
-                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${
-                                            faceDetected ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'
-                                        } shadow-md`}>
+                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${faceDetected ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'
+                                            } shadow-md`}>
                                             <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                                             <span className="text-[10px] font-bold">
                                                 {faceDetected ? 'ตรวจพบใบหน้า' : 'กรุณาขยับหน้าเข้าใกล้'}
@@ -470,12 +469,12 @@ export default function EmployeeFaceRegistration() {
                             <div className="grid grid-cols-3 sm:grid-cols-5 gap-3.5">
                                 {capturedImages.map((img, index) => (
                                     <div key={index} className="relative group rounded-xl overflow-hidden border border-gray-150 shadow-sm aspect-square bg-gray-50 flex items-center justify-center transition-all hover:shadow-md">
-                                        <img 
-                                            src={img.image} 
+                                        <img
+                                            src={img.image}
                                             alt={`Capture ${index + 1}`}
                                             className="w-full h-full object-cover"
                                         />
-                                        
+
                                         {/* Hover Overlay Action icons */}
                                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                             <button

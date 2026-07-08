@@ -1,4 +1,4 @@
-import { ArrowLeft, Briefcase, Search, FileQuestion, Calendar, MapPin, FileText, Grid, ListIcon, User } from 'lucide-react';
+import { ArrowLeft, Briefcase, Search, FileQuestion, Calendar, MapPin, Grid, ListIcon, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import moment from 'moment';

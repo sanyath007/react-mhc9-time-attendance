@@ -1,8 +1,6 @@
-"use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { MoreVertical } from "lucide-react";
 
 export interface MenuItem {
@@ -39,7 +37,7 @@ export function ActionMenu({ items }: ActionMenuProps) {
             const target = event.target as HTMLElement;
             // Don't close if clicking inside the portal menu
             if (target.closest(".portal-menu")) return;
-            
+
             if (triggerRef.current && !triggerRef.current.contains(target)) {
                 handleClose();
             }
@@ -59,7 +57,7 @@ export function ActionMenu({ items }: ActionMenuProps) {
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if (isOpen) {
             setIsOpen(false);
             setMenuPosition(null);
@@ -93,9 +91,8 @@ export function ActionMenu({ items }: ActionMenuProps) {
             <button
                 ref={triggerRef}
                 onClick={handleToggle}
-                className={`p-2 rounded-xl transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95 ${
-                    isOpen ? "bg-brand-600 text-white" : "bg-slate-100 hover:bg-brand-600 text-slate-600 hover:text-white"
-                }`}
+                className={`p-2 rounded-xl transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95 ${isOpen ? "bg-brand-600 text-white" : "bg-slate-100 hover:bg-brand-600 text-slate-600 hover:text-white"
+                    }`}
             >
                 <MoreVertical size={18} />
             </button>
@@ -125,7 +122,7 @@ export function ActionMenu({ items }: ActionMenuProps) {
                             return (
                                 <Link
                                     key={index}
-                                    href={item.href}
+                                    to={item.href}
                                     className={`${baseClasses} ${borderClass} ${variantClass}`}
                                     onClick={() => setIsOpen(false)}
                                 >

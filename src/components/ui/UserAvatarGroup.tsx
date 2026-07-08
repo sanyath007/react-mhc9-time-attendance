@@ -1,7 +1,3 @@
-"use client"
-
-import React from "react";
-
 interface UserAvatarGroupProps {
     users: { id: number; name: string; avatarUrl: string }[];
 }

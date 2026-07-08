@@ -1,4 +1,4 @@
-import { rateColor } from '@/lib/utils/dashboard-helpers'
+import { rateColor } from '../../../lib/utils/dashboard-helpers'
 
 export function ProgressBar({ value, max }: { value: number; max: number }) {
     const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0

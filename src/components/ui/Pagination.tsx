@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '../../utils/tailwindcss';
+import { cn } from '../../lib/utils/tailwindcss';
 
 export interface PaginationProps {
     currentPage: number;
@@ -39,8 +39,8 @@ export const Pagination: React.FC<PaginationProps> = ({
         return pages;
     };
 
-    const startItem = itemsPerPage ? (currentPage - 1) * itemsPerPage + 1 : undefined;
-    const endItem = itemsPerPage && totalItems ? Math.min(currentPage * itemsPerPage, totalItems) : undefined;
+    // const startItem = itemsPerPage ? (currentPage - 1) * itemsPerPage + 1 : undefined;
+    // const endItem = itemsPerPage && totalItems ? Math.min(currentPage * itemsPerPage, totalItems) : undefined;
 
     return (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full mt-6 py-4">

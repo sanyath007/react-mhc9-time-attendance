@@ -29,8 +29,8 @@ import SearchableSelect from '../../components/ui/Forms/SearchableSelect';
 import ButtonGroupSelect from '../../components/ui/Forms/ButtonGroupSelect';
 import ErrorMessage from '../../components/ui/Forms/ErrorMessage';
 import { type CapturedImage } from '../../lib/types';
-import { loadModels } from '../../utils/face-recognition';
-import { startCamera, stopCamera } from '../../utils/camera';
+import { loadModels } from '../../lib/utils/face-recognition';
+import { startCamera, stopCamera } from '../../lib/utils/camera';
 import api from '../../api';
 
 type EmployeeData = {
@@ -445,6 +445,8 @@ export default function EmployeeForm() {
                     return sum / capturedImages.length;
                 });
             }
+
+            console.log('avgDescriptor', avgDescriptor)
 
             // Simulate server network latency for clean UX response
             await new Promise(resolve => setTimeout(resolve, 2000));

@@ -28,7 +28,7 @@ export default function Home() {
     const [leaves, setLeaves] = useState<any[]>([]);
     const [duties, setDuties] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [currentDate, setCurrentDate] = useState<string>(moment().format('YYYY-MM-DD'));
+    const [currentDate] = useState<string>(moment().format('YYYY-MM-DD'));
 
     useEffect(() => {
         const fetchDashboardData = async () => {

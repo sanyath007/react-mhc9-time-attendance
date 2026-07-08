@@ -3,7 +3,7 @@ import { CalendarClock, Search, CheckCircle2, AlertCircle, Users, FileQuestion, 
 import moment from 'moment';
 import api from '../../api';
 import { type AttendanceFilters } from '../../lib/types';
-import { STARTING_DATE } from '../../lib/constants';
+// import { STARTING_DATE } from '../../lib/constants';
 import FliteringInputs from './FliteringInputs';
 import { SummaryCard } from '../../components/ui/Cards/SummaryCard';
 import { useAuth } from '../../hooks/useAuth';
@@ -30,9 +30,9 @@ const AttendanceList = () => {
         setCurrentPage(1);
     }, [searchTerm, currentDate]);
 
-    const imgUrl = moment(STARTING_DATE).diff(moment(currentDate), "day") > 1
-        ? 'https://mhc9dmh.com/DATA/PhotoCheckTime'
-        : `${import.meta.env.VITE_API_URL}/uploads`;
+    // const imgUrl = moment(STARTING_DATE).diff(moment(currentDate), "day") > 1
+    //     ? 'https://mhc9dmh.com/DATA/PhotoCheckTime'
+    //     : `${import.meta.env.VITE_API_URL}/uploads`;
 
     useEffect(() => {
         getAttendances(currentDate)
@@ -378,7 +378,7 @@ const AttendanceList = () => {
                         const isLate = checkIn && moment(checkIn.CheTmDate).format('HH:mm:ss') > '08:30:00';
 
                         // Use checkOut photo if available, otherwise checkIn photo
-                        const mainAtt = checkOut || checkIn;
+                        // const mainAtt = checkOut || checkIn;
 
                         return (
                             <div
@@ -462,7 +462,7 @@ const AttendanceList = () => {
                         const checkOutTime = checkOut ? moment(checkOut.CheTmDate).format('HH:mm:ss') : '-';
                         const isLate = checkIn && moment(checkIn.CheTmDate).format('HH:mm:ss') > '08:30:00';
 
-                        const mainAtt = checkOut || checkIn;
+                        // const mainAtt = checkOut || checkIn;
 
                         return (
                             <div key={group.id} className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">

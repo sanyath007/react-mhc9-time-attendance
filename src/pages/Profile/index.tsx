@@ -1,15 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import EmployeeAvatar from '../../components/features/EmployeeAvatar';
-import { 
-    User, 
-    Mail, 
-    Phone, 
-    MapPin, 
-    Briefcase, 
-    ShieldAlert, 
-    ScanFace, 
-    Calendar, 
+import {
+    User,
+    Mail,
+    Phone,
+    MapPin,
+    Briefcase,
+    ShieldAlert,
+    ScanFace,
     ArrowRight,
     Map
 } from 'lucide-react';
@@ -20,7 +19,7 @@ export default function Profile() {
     const hasFace = !!employee?.face_descriptor;
 
     // Format employee ID
-    const empIdStr = employee?.id 
+    const empIdStr = employee?.id
         ? `EMP-${String(employee.id).padStart(4, '0')}`
         : 'N/A';
 
@@ -47,9 +46,8 @@ export default function Profile() {
                 <div className="bg-white rounded-3xl border border-gray-100 shadow-xl p-6 flex flex-col items-center text-center">
                     {/* Avatar with Status Ring */}
                     <div className="relative group">
-                        <div className={`p-1.5 rounded-full border-2 ${
-                            hasFace ? 'border-emerald-500/80' : 'border-amber-500/80'
-                        } transition-all duration-300`}>
+                        <div className={`p-1.5 rounded-full border-2 ${hasFace ? 'border-emerald-500/80' : 'border-amber-500/80'
+                            } transition-all duration-300`}>
                             {employee?.avatar_url ? (
                                 <EmployeeAvatar
                                     image={`${import.meta.env.VITE_API_URL}/uploads/${employee.avatar_url}`}
@@ -67,12 +65,10 @@ export default function Profile() {
                         {/* Status Badge Pulse */}
                         <div className="absolute bottom-1 right-2">
                             <span className="relative flex h-3.5 w-3.5">
-                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                                    hasFace ? 'bg-emerald-400' : 'bg-amber-400'
-                                }`}></span>
-                                <span className={`relative inline-flex rounded-full h-3.5 w-3.5 border-2 border-white ${
-                                    hasFace ? 'bg-emerald-500' : 'bg-amber-500'
-                                }`}></span>
+                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${hasFace ? 'bg-emerald-400' : 'bg-amber-400'
+                                    }`}></span>
+                                <span className={`relative inline-flex rounded-full h-3.5 w-3.5 border-2 border-white ${hasFace ? 'bg-emerald-500' : 'bg-amber-500'
+                                    }`}></span>
                             </span>
                         </div>
                     </div>
@@ -90,11 +86,10 @@ export default function Profile() {
                         <span className="px-3 py-1 bg-gray-50 border border-gray-150 text-[10px] font-bold text-gray-500 rounded-lg">
                             {empIdStr}
                         </span>
-                        <span className={`px-3 py-1 border text-[10px] font-bold rounded-lg ${
-                            hasFace 
+                        <span className={`px-3 py-1 border text-[10px] font-bold rounded-lg ${hasFace
                                 ? 'bg-emerald-50 border-emerald-100 text-emerald-600'
                                 : 'bg-amber-50 border-amber-100 text-amber-600'
-                        }`}>
+                            }`}>
                             {hasFace ? 'ลงทะเบียนสแกนหน้าแล้ว' : 'ยังไม่สแกนใบหน้า'}
                         </span>
                     </div>

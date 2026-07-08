@@ -1,6 +1,6 @@
-import React, { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { cn } from '../../../utils/tailwindcss';
+import { cn } from '../../../lib/utils/tailwindcss';
 
 export type ThemeKey = 'indigo' | 'emerald' | 'rose' | 'amber' | 'purple';
 

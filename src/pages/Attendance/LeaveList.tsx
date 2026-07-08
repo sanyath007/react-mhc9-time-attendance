@@ -1,4 +1,4 @@
-import { ArrowLeft, UserMinus, Search, FileQuestion, Calendar, FileText, User, Grid, ListIcon } from 'lucide-react';
+import { ArrowLeft, UserMinus, Search, FileQuestion, Calendar, FileText, User, Grid, ListIcon, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import moment from 'moment';
@@ -91,6 +91,8 @@ const LeaveList = () => {
         setViewMode(mode);
         localStorage.setItem("attendance_view_mode", mode);
     };
+
+    if (isLoading) return <Loader2 />
 
     return (
         <div className="max-w-5xl mx-auto space-y-6">

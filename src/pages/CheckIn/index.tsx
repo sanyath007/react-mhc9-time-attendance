@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CircleChevronLeft, MapPin, Navigation, NavigationOff, User } from 'lucide-react';
+import { CircleChevronLeft, Navigation, NavigationOff, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import CheckIn from '../../components/features/CheckIn';
 import { useGeolocation } from '../../hooks/useLocation';

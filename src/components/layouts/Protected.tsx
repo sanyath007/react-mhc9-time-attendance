@@ -18,10 +18,6 @@ const ProtectedLayout = () => {
         return <Navigate replace to={"/login"} />;
     }
 
-    const testMethod = (): string => {
-        return '';
-    }
-
     return (
         <div className="bg-gradient-to-br from-slate-50 to-slate-200 min-h-screen">
             {/* Header */}

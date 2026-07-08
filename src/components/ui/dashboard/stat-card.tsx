@@ -1,5 +1,5 @@
 import React from 'react'
-import { STAT_CARD_COLORS } from '@/lib/constants/dashboard'
+import { STAT_CARD_COLORS } from '../../../lib/constants/dashboard'
 
 export function StatCard({
     icon: Icon,
@@ -7,8 +7,7 @@ export function StatCard({
     value,
     sub,
     color = 'brand',
-    delay = 0,
-    trend,
+    delay = 0
 }: {
     icon: React.ElementType
     label: string
@@ -21,6 +20,7 @@ export function StatCard({
     color?: string
     delay?: number
 }) {
+    ``
     return (
         <div className="stat-card animate-fadeInUp" style={{ animationDelay: `${delay}ms` }}>
             <div
