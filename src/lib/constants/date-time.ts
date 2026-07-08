@@ -6,3 +6,5 @@ export const MONTH_TH_NAMES = [
 export const MONTH_TH_SHNAMES = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
 export const DAY_NAMES = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+
+export const LATE_TIME_AFTER = '09:45:00'

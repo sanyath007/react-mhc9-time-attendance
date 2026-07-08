@@ -4,6 +4,7 @@ import moment from 'moment';
 import api from '../../api';
 import { type AttendanceFilters } from '../../lib/types';
 // import { STARTING_DATE } from '../../lib/constants';
+import { LATE_TIME_AFTER } from '../../lib/constants/date-time';
 import FliteringInputs from './FliteringInputs';
 import { SummaryCard } from '../../components/ui/Cards/SummaryCard';
 import { useAuth } from '../../hooks/useAuth';
@@ -230,7 +231,7 @@ const AttendanceList = () => {
                     <SummaryCard
                         title="ตรงเวลา"
                         value={isLoading ? '...' : stats.onTime}
-                        subtitle="ก่อน 08:30 น."
+                        subtitle={`ก่อน ${LATE_TIME_AFTER.slice(0, 5)} น.`}
                         icon={<CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8" />}
                         theme="emerald"
                     />
@@ -239,7 +240,7 @@ const AttendanceList = () => {
                     <SummaryCard
                         title="มาสาย"
                         value={isLoading ? '...' : stats.late}
-                        subtitle="หลัง 08:30 น."
+                        subtitle={`หลัง ${LATE_TIME_AFTER.slice(0, 5)} น.`}
                         icon={<AlertCircle className="w-6 h-6 sm:w-8 sm:h-8" />}
                         theme="rose"
                     />
@@ -375,7 +376,7 @@ const AttendanceList = () => {
 
                         const checkInTime = checkIn ? moment(checkIn.CheTmDate).format('HH:mm:ss') : '-';
                         const checkOutTime = checkOut ? moment(checkOut.CheTmDate).format('HH:mm:ss') : '-';
-                        const isLate = checkIn && moment(checkIn.CheTmDate).format('HH:mm:ss') > '08:30:00';
+                        const isLate = checkIn && moment(checkIn.CheTmDate).format('HH:mm:ss') > LATE_TIME_AFTER;
 
                         // Use checkOut photo if available, otherwise checkIn photo
                         // const mainAtt = checkOut || checkIn;
@@ -465,7 +466,7 @@ const AttendanceList = () => {
 
                         const checkInTime = checkIn ? moment(checkIn.CheTmDate).format('HH:mm:ss') : '-';
                         const checkOutTime = checkOut ? moment(checkOut.CheTmDate).format('HH:mm:ss') : '-';
-                        const isLate = checkIn && moment(checkIn.CheTmDate).format('HH:mm:ss') > '08:30:00';
+                        const isLate = checkIn && moment(checkIn.CheTmDate).format('HH:mm:ss') > LATE_TIME_AFTER;
 
                         // const mainAtt = checkOut || checkIn;
 
