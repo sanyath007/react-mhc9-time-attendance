@@ -25,6 +25,7 @@ export default function Navbar() {
     };
     const { user, logout } = useAuth();
     const userMenuRef = useRef<HTMLDivElement | null>(null); // User menu
+    const canAccessEmployee = user?.permissions?.[0]?.role_id === 1 || user?.permissions?.[0]?.role_id === 7;
     const navMenuRef = useRef<HTMLDivElement | null>(null);
 
     // ปิด dropdown เมื่อคลิกข้างนอก
@@ -86,7 +87,7 @@ export default function Navbar() {
                 // { label: 'สร้างโปรเจกต์ใหม่', href: '#', icon: FileText, highlight: true }
             ]
         },
-        {
+        ...(canAccessEmployee ? [{
             label: 'บุคลากร',
             icon: User,
             dropdown: [
@@ -96,7 +97,7 @@ export default function Navbar() {
                 // { divider: true },
                 // { label: 'หมวดหมู่สินค้า', href: '#', icon: Users  }
             ]
-        },
+        }] : []),
         {
             label: 'ติดต่อเรา',
             href: '#',
