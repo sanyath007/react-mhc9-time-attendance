@@ -17,7 +17,7 @@ export default function Profile() {
     const { user } = useAuth();
     const employee = user?.employee;
     const hasFace = !!employee?.face_descriptor;
-    const isAdmin = user?.permission?.[0]?.role_id === 1;
+    const isAdmin = user?.permissions?.[0]?.role_id === 1;
 
     // Format employee ID
     const empIdStr = employee?.id
@@ -88,8 +88,8 @@ export default function Profile() {
                             {empIdStr}
                         </span>
                         <span className={`px-3 py-1 border text-[10px] font-bold rounded-lg ${hasFace
-                                ? 'bg-emerald-50 border-emerald-100 text-emerald-600'
-                                : 'bg-amber-50 border-amber-100 text-amber-600'
+                            ? 'bg-emerald-50 border-emerald-100 text-emerald-600'
+                            : 'bg-amber-50 border-amber-100 text-amber-600'
                             }`}>
                             {hasFace ? 'ลงทะเบียนสแกนหน้าแล้ว' : 'ยังไม่สแกนใบหน้า'}
                         </span>
