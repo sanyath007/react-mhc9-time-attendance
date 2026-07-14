@@ -218,6 +218,25 @@ export default function CheckIn({ location }: CheckInProps) {
         }
     };
 
+    const getCheckTimeScore = (time: string) => {
+        const checkTime = moment(time);
+        let timeScore = 5;
+        if (checkTime.toDate() < moment(moment().format('YYYY-MM-DD') + ' 08:00:00').toDate()) {
+            timeScore = 5;
+        } else if (checkTime.toDate() < moment(moment().format('YYYY-MM-DD') + ' 08:15:00').toDate()) {
+            timeScore = 4;
+        } else if (checkTime.toDate() < moment(moment().format('YYYY-MM-DD') + ' 08:30:00').toDate()) {
+            timeScore = 3;
+        } else if (checkTime.toDate() < moment(moment().format('YYYY-MM-DD') + ' 08:45:00').toDate()) {
+            timeScore = 2;
+        } else if (checkTime.toDate() < moment(moment().format('YYYY-MM-DD') + ' 09:00:00').toDate()) {
+            timeScore = 1;
+        } else {
+            timeScore = 0;
+        }
+        return timeScore;
+    }
+
     // Handle confirm check-in
     const handleConfirm = async () => {
         if (!capturedImage || !detectedEmployee) {
@@ -230,21 +249,21 @@ export default function CheckIn({ location }: CheckInProps) {
         try {
             const formData = new FormData();
             formData.append('employee_id', detectedEmployee?.id);
-            formData.append('check_in_time', moment().format('YYYY-MM-DD') + ' ' + checkInTime + ':00');
-            formData.append('check_in_type', checkInType);
-            formData.append('check_in_image', dataURLtoBlob(capturedImage), "captured_image.png");
-            formData.append('check_in_score', '5');
+            formData.append('check_time', moment().format('YYYY-MM-DD') + ' ' + checkInTime + ':00');
+            formData.append('check_type', checkInType === 'in' ? '1' : '2');
+            formData.append('check_image', dataURLtoBlob(capturedImage), "captured_image.png");
+            formData.append('check_score', String(getCheckTimeScore(moment().format('YYYY-MM-DD') + ' ' + checkInTime + ':00')));
             if (location) {
                 formData.append('latitude', location.latitude.toString());
                 formData.append('longitude', location.longitude.toString());
             }
 
-            // const response = await api.post('/api/time-attendance/check-in', formData);
-            // if (response.statusText === 'OK') {
-            //     setCheckInStatus('success');
-            // } else {
-            //     setCheckInStatus('error');
-            // }
+            const response = await api.post('/api/time-attendance/check-in', formData);
+            if (response.statusText === 'OK') {
+                setCheckInStatus('success');
+            } else {
+                setCheckInStatus('error');
+            }
 
             setCheckInStatus('success');
 
@@ -475,7 +494,7 @@ export default function CheckIn({ location }: CheckInProps) {
                             className="flex-[2] inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-bold shadow-md shadow-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] disabled:bg-gray-200 disabled:from-gray-200 disabled:to-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200"
                         >
                             <CheckCircle className="w-4.5 h-4.5" />
-                            {checkInStatus === 'processing' ? 'Processing...' : 'ลงชื่อเข้างาน'}
+                            {checkInStatus === 'processing' ? 'Processing...' : `ลงเวลา${checkInType === 'in' ? 'เข้า' : 'ออก'}งาน`}
                         </button>
                     </>
                 ) : (
