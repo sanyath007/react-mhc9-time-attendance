@@ -51,6 +51,10 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             console.log('User unauthenticated, redirecting...');
 
+            if (window.location.pathname === "/login") {
+                return Promise.reject(error);
+            }
+
             /** TODO: should use this code line as utils function */
             localStorage.removeItem('access_token');
             localStorage.removeItem('auth_user');

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as z from 'zod';
 import { useForm } from 'react-hook-form';
@@ -5,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../../../hooks/useAuth';
 import FormField from '../../../components/ui/Forms/FormField';
 import { cn } from '../../../lib/utils/tailwindcss';
-import { AtSign, Lock, LogIn, ScanFace } from 'lucide-react';
+import { AtSign, Lock, LogIn, ScanFace, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 
 const loginSchema = z.object({
     email: z.string().nonempty('Email is required').email('Invalid email address'),
@@ -17,19 +18,25 @@ type LoginType = z.infer<typeof loginSchema>;
 const Login = () => {
     const navigate = useNavigate();
     const { login, isAuthenticated } = useAuth();
-    const { register, handleSubmit, formState: { errors } } = useForm<LoginType>({
+    const [showPassword, setShowPassword] = useState(false);
+    const [apiError, setApiError] = useState<string | null>(null);
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginType>({
         resolver: zodResolver(loginSchema),
         mode: "onBlur"
     });
 
     const onSubmit = async (data: LoginType) => {
+        setApiError(null);
         try {
             const result = await login(data);
             if (result.success) {
                 navigate('/');
+            } else {
+                setApiError(result.message || 'Login failed. Please check your credentials.');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Login failed:", error);
+            setApiError(error?.response?.data?.message || error?.message || 'An unexpected error occurred during login.');
         }
     };
 
@@ -52,6 +59,13 @@ const Login = () => {
                         <p className="text-xs text-gray-400 font-semibold mt-1">ระบบลงทะเบียนและบันทึกเวลาทำงาน</p>
                     </div>
                 </div>
+
+                {apiError && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 animate-in fade-in zoom-in-95 duration-200">
+                        <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm text-red-700">{apiError}</p>
+                    </div>
+                )}
 
                 {/* Login Form */}
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -79,21 +93,33 @@ const Login = () => {
                         )}>
                             <Lock className="text-gray-400 w-4.5 h-4.5" />
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 {...register("password")}
                                 className="w-full outline-none text-gray-700 placeholder:text-gray-400 text-sm"
                                 placeholder="รหัสผ่านของคุณ"
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
+                            >
+                                {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                            </button>
                         </div>
                     </FormField>
 
                     {/* Submit Button */}
                     <button
                         type="submit"
-                        className="w-full inline-flex items-center justify-center gap-2 py-3 mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm rounded-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 shadow-md shadow-indigo-500/10 hover:shadow-lg cursor-pointer"
+                        disabled={isSubmitting}
+                        className="w-full inline-flex items-center justify-center gap-2 py-3 mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl hover:scale-[1.01] active:scale-[0.99] disabled:hover:scale-100 disabled:active:scale-100 transition-all duration-200 shadow-md shadow-indigo-500/10 hover:shadow-lg cursor-pointer"
                     >
-                        <LogIn className="w-4.5 h-4.5" />
-                        <span>เข้าสู่ระบบ</span>
+                        {isSubmitting ? (
+                            <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                        ) : (
+                            <LogIn className="w-4.5 h-4.5" />
+                        )}
+                        <span>{isSubmitting ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}</span>
                     </button>
                 </form>
 
