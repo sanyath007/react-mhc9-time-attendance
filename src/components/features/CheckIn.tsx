@@ -284,7 +284,7 @@ export default function CheckIn({ location }: CheckInProps) {
                 formData.append('longitude', location.longitude.toString());
             }
 
-            const endpoint = updateAttendanceId ? `/api/time-attendance/update/${updateAttendanceId}` : '/api/time-attendance/check-in';
+            const endpoint = updateAttendanceId ? `/api/time-attendance/update/${updateAttendanceId}` : '/api/time-attendance/create';
             const response = await api.post(endpoint, formData);
             if (response.statusText === 'OK') {
                 setCheckInStatus('success');
@@ -566,6 +566,7 @@ export default function CheckIn({ location }: CheckInProps) {
                     </div>
                 </div>
             </div >
+
             {showUpdateConfirm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 transform transition-all animate-in zoom-in-95 duration-200">
