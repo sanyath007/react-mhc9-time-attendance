@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useContext } from 'react';
 import { Camera, CameraOff, CheckCircle, XCircle, User, X, AlertCircle, Loader2, Image as ImageIcon, ScanFace, Eye, EyeOff, LogIn, LogOut } from 'lucide-react';
 import ButtonGroupSelect from '../ui/Forms/ButtonGroupSelect';
 import * as faceapi from 'face-api.js';
@@ -9,6 +9,7 @@ import { loadModels } from '../../lib/utils/face-recognition';
 import { dataURLtoBlob } from '../../lib/utils/image';
 import { type DetectedEmployee, type Employee } from '../../lib/types';
 import { ComparationStatus } from '../../lib/constants';
+import { AuthContext } from '../../contexts/AuthContext';
 
 type EmployeeModel = {
     employee: Employee;
@@ -21,6 +22,8 @@ type CheckInProps = {
 }
 
 export default function CheckIn({ location }: CheckInProps) {
+    const authContext = useContext(AuthContext);
+    const user = authContext?.user;
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [stream, setStream] = useState<MediaStream | null>(null);
@@ -35,6 +38,8 @@ export default function CheckIn({ location }: CheckInProps) {
     const [isProcessing, setIsProcessing] = useState(false);
     const [compared, setCompared] = useState<string>(ComparationStatus.IDLE); // "idle" | "success" | "error"
     const [videoDimensions, setVideoDimensions] = useState({ width: 640, height: 480 });
+    const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
+    const [pendingUpdateAttendanceId, setPendingUpdateAttendanceId] = useState<string | null>(null);
     const intervalRef = useRef<any>(null);
 
     // Call LoadModels on mounted
@@ -247,18 +252,40 @@ export default function CheckIn({ location }: CheckInProps) {
         setCheckInStatus('processing');
 
         try {
+            const employeeId = user?.id || detectedEmployee?.id;
+            const date = moment().format('YYYY-MM-DD');
+            const url = `/api/${user ? 'attendances' : 'time-attendance'}/${date}/${checkInType === 'in' ? '1' : '2'}/employee/${employeeId}`
+            const checkRes = await api.get(url);
+
+            if (checkRes.data && (Array.isArray(checkRes.data) ? checkRes.data.length > 0 : Object.keys(checkRes.data).length > 0)) {
+                const existingId = Array.isArray(checkRes.data) ? checkRes.data[0].id : checkRes.data.id;
+                setPendingUpdateAttendanceId(existingId);
+                setShowUpdateConfirm(true);
+                setCheckInStatus(null);
+                return;
+            }
+        } catch (err) {
+            console.error('Error fetching existing attendance data:', err);
+        }
+
+        processCheckIn(null);
+    };
+
+    const processCheckIn = async (updateAttendanceId: string | null = null) => {
+        try {
             const formData = new FormData();
-            formData.append('employee_id', detectedEmployee?.id);
+            formData.append('employee_id', detectedEmployee?.id!);
             formData.append('check_time', moment().format('YYYY-MM-DD') + ' ' + checkInTime + ':00');
             formData.append('check_type', checkInType === 'in' ? '1' : '2');
-            formData.append('check_image', dataURLtoBlob(capturedImage), "captured_image.png");
+            formData.append('check_image', dataURLtoBlob(capturedImage!), "captured_image.png");
             formData.append('check_score', String(getCheckTimeScore(moment().format('YYYY-MM-DD') + ' ' + checkInTime + ':00')));
             if (location) {
                 formData.append('latitude', location.latitude.toString());
                 formData.append('longitude', location.longitude.toString());
             }
 
-            const response = await api.post('/api/time-attendance/check-in', formData);
+            const endpoint = updateAttendanceId ? `/api/time-attendance/update/${updateAttendanceId}` : '/api/time-attendance/check-in';
+            const response = await api.post(endpoint, formData);
             if (response.statusText === 'OK') {
                 setCheckInStatus('success');
             } else {
@@ -273,6 +300,8 @@ export default function CheckIn({ location }: CheckInProps) {
                 setCheckInStatus(null);
                 setIsProcessing(false);
                 setCompared(ComparationStatus.IDLE);
+                setShowUpdateConfirm(false);
+                setPendingUpdateAttendanceId(null);
 
                 startCamera();
             }, 2000);
@@ -537,6 +566,42 @@ export default function CheckIn({ location }: CheckInProps) {
                     </div>
                 </div>
             </div >
+            {showUpdateConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 transform transition-all animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-center w-12 h-12 mx-auto bg-amber-50 text-amber-500 rounded-full mb-4">
+                            <AlertCircle className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-lg font-bold text-center text-gray-900 mb-2">
+                            คุณมีการลงเวลาในวันนี้แล้ว
+                        </h3>
+                        <p className="text-sm text-center text-gray-500 mb-6 leading-relaxed">
+                            ระบบพบข้อมูลการลงเวลาสำหรับวันนี้แล้ว คุณต้องการอัปเดตข้อมูลการลงเวลาใหม่แทนข้อมูลเดิมหรือไม่?
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowUpdateConfirm(false);
+                                    setPendingUpdateAttendanceId(null);
+                                }}
+                                className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200"
+                            >
+                                ยกเลิก
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setCheckInStatus('processing');
+                                    setShowUpdateConfirm(false);
+                                    processCheckIn(pendingUpdateAttendanceId);
+                                }}
+                                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-amber-500/20 transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                            >
+                                อัปเดตข้อมูล
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
