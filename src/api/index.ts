@@ -49,9 +49,7 @@ api.interceptors.response.use(
     },
     (error) => {
         if (error.response && error.response.status === 401) {
-            console.log('User unauthenticated, redirecting...');
-
-            if (window.location.pathname === "/login") {
+            if (['/login', '/check-in/login'].includes(window.location.pathname)) {
                 return Promise.reject(error);
             }
 
