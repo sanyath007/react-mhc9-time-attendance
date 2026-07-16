@@ -59,12 +59,17 @@ const OfficialDutyList = () => {
                     const _filtered = data.filter((d: any) => employee.EmId === d.employee?.EmId);
                     /** Listing employee's events */
                     const events = _filtered.map((e: any) => `${e.OTName} ณ ${e.OTLocation}`).join(', ');
-                    const start = moment(Math.min(..._filtered
-                        .sort((a: any, b: any) => moment(a.OTDateGo).diff(moment(b.OTDateGo)))
-                        .map((e: any) => moment(e.OTDateGo).toDate().getTime()))).format('DD/MM/YYYY');
-                    const end = moment(Math.max(..._filtered
-                        .sort((a: any, b: any) => moment(a.OTDateBack).diff(moment(b.OTDateBack)))
-                        .map((e: any) => moment(e.OTDateBack).toDate().getTime()))).format('DD/MM/YYYY');
+                    const start = moment(Math.min(
+                        ..._filtered
+                            .sort((a: any, b: any) => moment(a.OTDateGo).diff(moment(b.OTDateGo)))
+                            .map((e: any) => moment(e.OTDateGo).toDate().getTime())
+                    )).format('DD/MM/YYYY');
+                    const end = moment(Math.max(
+                        ..._filtered
+                            .sort((a: any, b: any) => moment(a.OTDateBack).diff(moment(b.OTDateBack)))
+                            .map((e: any) => moment(e.OTDateBack).toDate().getTime())
+                    )).format('DD/MM/YYYY');
+                    console.log('start', start, 'end', end);
 
                     return {
                         id: employee.EmId,
@@ -276,7 +281,7 @@ const OfficialDutyList = () => {
                                 </div>
                                 <div className="flex items-center gap-2 text-[11px] sm:text-xs pl-1">
                                     <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                    <span>{moment(duty.start).format('DD/MM/YYYY')} {duty.start !== duty.end && `- ${moment(duty.end).format('DD/MM/YYYY')}`}</span>
+                                    <span>{duty.start} {duty.start !== duty.end && `- ${duty.end}`}</span>
                                 </div>
                             </div>
                             <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-end shrink-0">

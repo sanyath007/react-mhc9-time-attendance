@@ -268,7 +268,7 @@ const LeaveList = () => {
                             <div className="space-y-2 mt-2 flex-1 text-sm text-gray-600">
                                 <div className="flex items-center gap-2 text-[11px] sm:text-xs">
                                     <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                    <span>{moment(leave.start).format('DD/MM/YYYY')} - {moment(leave.end).format('DD/MM/YYYY')}</span>
+                                    <span>{moment(leave.start).format('DD/MM/YYYY')} {leave.end && `- ${moment(leave.end).format('DD/MM/YYYY')}`}</span>
                                 </div>
                                 {leave.reason && (
                                     <div className="flex items-start gap-2 text-[11px] sm:text-xs">
