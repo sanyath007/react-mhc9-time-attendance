@@ -8,12 +8,14 @@ import CheckIn from '../../components/features/CheckIn';
 import ManualCheckIn from '../../components/features/ManualCheckIn';
 import { useGeolocation } from '../../hooks/useLocation';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
+import { useAuth } from '../../hooks/useAuth';
 import HeaderIcon from '../../components/ui/HeaderIcon';
 
 const OFFICE_LATITUDE = import.meta.env.VITE_OFFICE_LATITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LATITUDE) : 14.98326727612899;
 const OFFICE_LONGITUDE = import.meta.env.VITE_OFFICE_LONGITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LONGITUDE) : 102.10488443930059;
 
 export default function CheckInContainer() {
+    const { isAuthenticated } = useAuth();
     const path = useLocation().pathname;
     const [currentTime, setCurrentTime] = useState(new Date());
     const { calculateDistance } = useGeolocation();
@@ -156,44 +158,53 @@ export default function CheckInContainer() {
                 </div>
             </div>
 
-            {/* Tab Container Navigation */}
-            <div className="flex bg-gray-100/80 p-1.5 rounded-2xl border border-gray-200/60 shadow-inner">
-                <button
-                    type="button"
-                    onClick={() => setActiveTab('face')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-bold transition-all duration-200 ${
-                        activeTab === 'face'
-                            ? 'bg-white text-indigo-600 shadow-sm shadow-black/5'
-                            : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'
-                    }`}
-                >
-                    <ScanFace className="w-4 h-4 shrink-0" />
-                    <span className="truncate">สแกนใบหน้าลงเวลา</span>
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setActiveTab('manual')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-bold transition-all duration-200 ${
-                        activeTab === 'manual'
-                            ? 'bg-white text-indigo-600 shadow-sm shadow-black/5'
-                            : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'
-                    }`}
-                >
-                    <UserCheck className="w-4 h-4 shrink-0" />
-                    <span className="truncate">ลงเวลาแบบไม่สแกนใบหน้า</span>
-                </button>
-            </div>
+            {/* Tab Container & Content */}
+            {isAuthenticated ? (
+                <>
+                    {/* Tab Container Navigation */}
+                    <div className="flex bg-gray-100/80 p-1.5 rounded-2xl border border-gray-200/60 shadow-inner">
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('face')}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-bold transition-all duration-200 ${
+                                activeTab === 'face'
+                                    ? 'bg-white text-indigo-600 shadow-sm shadow-black/5'
+                                    : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'
+                            }`}
+                        >
+                            <ScanFace className="w-4 h-4 shrink-0" />
+                            <span className="truncate">สแกนใบหน้าลงเวลา</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('manual')}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-bold transition-all duration-200 ${
+                                activeTab === 'manual'
+                                    ? 'bg-white text-indigo-600 shadow-sm shadow-black/5'
+                                    : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'
+                            }`}
+                        >
+                            <UserCheck className="w-4 h-4 shrink-0" />
+                            <span className="truncate">ลงเวลาแบบไม่สแกนใบหน้า</span>
+                        </button>
+                    </div>
 
-            {/* Tab Content 1: สแกนใบหน้าลงเวลา */}
-            {activeTab === 'face' && (
+                    {/* Tab Content 1: สแกนใบหน้าลงเวลา */}
+                    {activeTab === 'face' && (
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-4 animate-in fade-in duration-200">
+                            <CheckIn distance={distance} location={location} />
+                        </div>
+                    )}
+
+                    {/* Tab Content 2: ลงเวลาแบบไม่สแกนใบหน้า */}
+                    {activeTab === 'manual' && (
+                        <ManualCheckIn distance={distance} location={location} />
+                    )}
+                </>
+            ) : (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-4 animate-in fade-in duration-200">
                     <CheckIn distance={distance} location={location} />
                 </div>
-            )}
-
-            {/* Tab Content 2: ลงเวลาแบบไม่สแกนใบหน้า */}
-            {activeTab === 'manual' && (
-                <ManualCheckIn distance={distance} location={location} />
             )}
         </div>
     );
