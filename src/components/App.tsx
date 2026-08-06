@@ -23,7 +23,7 @@ function App() {
                 <Route path='/' element={<ProtectedLayout />}>
                     <Route index element={<Home />} />
 
-                    <Route path="/attendance" element={<AttendanceList />} />
+                    <Route path="/attendance/daily" element={<AttendanceList />} />
                     <Route path="/attendance/check-in" element={<CheckInContainer />} />
                     <Route path="/leave" element={<LeaveList />} />
                     <Route path="/official-duty" element={<OfficialDutyList />} />

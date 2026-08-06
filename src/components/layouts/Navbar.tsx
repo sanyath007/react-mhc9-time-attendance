@@ -82,7 +82,7 @@ export default function Navbar() {
             dropdown: [
                 { label: 'ลงเวลาทำงาน', href: '/attendance/check-in', icon: History },
                 { divider: true },
-                { label: 'รายการลงเวลา', href: '/attendance', icon: CalendarClock, highlight: false },
+                { label: 'รายการลงเวลา', href: '/attendance/daily', icon: CalendarClock, highlight: false },
                 // { label: 'โปรเจกต์ที่แชร์', href: '#', icon: Users },
                 // { label: 'สร้างโปรเจกต์ใหม่', href: '#', icon: FileText, highlight: true }
             ]
@@ -127,8 +127,8 @@ export default function Navbar() {
                                             <button
                                                 onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
                                                 className={`flex items-center space-x-1 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium group ${isMenuOrDropdownActive(menu)
-                                                        ? 'text-blue-600 bg-blue-50'
-                                                        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                                                    ? 'text-blue-600 bg-blue-50'
+                                                    : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
                                                     }`}
                                             >
                                                 {menu.icon && <menu.icon className="w-4 h-4" />}
@@ -140,8 +140,8 @@ export default function Navbar() {
                                             <Link
                                                 to={menu.href}
                                                 className={`flex items-center space-x-1 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${isPathActive(menu.href)
-                                                        ? 'text-blue-600 bg-blue-50'
-                                                        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                                                    ? 'text-blue-600 bg-blue-50'
+                                                    : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
                                                     }`}
                                             >
                                                 {menu.icon && <menu.icon className="w-4 h-4" />}
@@ -161,10 +161,10 @@ export default function Navbar() {
                                                             to={item.href || ''}
                                                             onClick={() => setActiveDropdown(null)}
                                                             className={`flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${isPathActive(item.href)
-                                                                    ? 'text-blue-600 bg-blue-50 font-medium'
-                                                                    : item.highlight
-                                                                        ? 'text-blue-600 hover:bg-blue-50 font-medium'
-                                                                        : 'text-gray-700 hover:bg-gray-50'
+                                                                ? 'text-blue-600 bg-blue-50 font-medium'
+                                                                : item.highlight
+                                                                    ? 'text-blue-600 hover:bg-blue-50 font-medium'
+                                                                    : 'text-gray-700 hover:bg-gray-50'
                                                                 }`}
                                                         >
                                                             {item.icon && <item.icon className="w-4 h-4" />}
@@ -228,8 +228,8 @@ export default function Navbar() {
                                                         setIsDropdownOpen(false);
                                                     }}
                                                     className={`w-full flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${item.danger
-                                                            ? 'text-red-600 hover:bg-red-50'
-                                                            : 'text-gray-700 hover:bg-gray-50'
+                                                        ? 'text-red-600 hover:bg-red-50'
+                                                        : 'text-gray-700 hover:bg-gray-50'
                                                         }`}
                                                 >
                                                     <Icon className="w-4 h-4" />
@@ -278,8 +278,8 @@ export default function Navbar() {
                                         <button
                                             onClick={() => setActiveMobileDropdown(activeMobileDropdown === index ? null : index)}
                                             className={`w-full flex items-center justify-between px-3 py-2 text-base font-medium rounded-lg transition-colors ${isMenuOrDropdownActive(menu)
-                                                    ? 'text-blue-600 bg-blue-50'
-                                                    : 'text-gray-700 hover:bg-gray-50'
+                                                ? 'text-blue-600 bg-blue-50'
+                                                : 'text-gray-700 hover:bg-gray-50'
                                                 }`}
                                         >
                                             <div className="flex items-center space-x-2">
@@ -304,10 +304,10 @@ export default function Navbar() {
                                                                 setActiveMobileDropdown(null);
                                                             }}
                                                             className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-lg transition-colors ${isPathActive(item.href)
-                                                                    ? 'text-blue-600 bg-blue-50 font-medium'
-                                                                    : item.highlight
-                                                                        ? 'text-blue-600 hover:bg-blue-50 font-medium'
-                                                                        : 'text-gray-600 hover:bg-gray-50'
+                                                                ? 'text-blue-600 bg-blue-50 font-medium'
+                                                                : item.highlight
+                                                                    ? 'text-blue-600 hover:bg-blue-50 font-medium'
+                                                                    : 'text-gray-600 hover:bg-gray-50'
                                                                 }`}
                                                         >
                                                             {item.icon && <item.icon className="w-4 h-4" />}
@@ -326,8 +326,8 @@ export default function Navbar() {
                                             setActiveMobileDropdown(null);
                                         }}
                                         className={`flex items-center space-x-2 px-3 py-2 text-base font-medium rounded-lg transition-colors ${isPathActive(menu.href)
-                                                ? 'text-blue-600 bg-blue-50'
-                                                : 'text-gray-700 hover:bg-gray-50'
+                                            ? 'text-blue-600 bg-blue-50'
+                                            : 'text-gray-700 hover:bg-gray-50'
                                             }`}
                                     >
                                         {menu.icon && <menu.icon className="w-5 h-5" />}
@@ -349,8 +349,8 @@ export default function Navbar() {
                                             setIsMobileMenuOpen(false);
                                         }}
                                         className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${item.danger
-                                                ? 'text-red-600 hover:bg-red-50'
-                                                : 'text-gray-700 hover:bg-gray-50'
+                                            ? 'text-red-600 hover:bg-red-50'
+                                            : 'text-gray-700 hover:bg-gray-50'
                                             }`}
                                     >
                                         <Icon className="w-4 h-4" />

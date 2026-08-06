@@ -62,6 +62,32 @@ export default function CheckIn({ location }: CheckInProps) {
         };
     }, []);
 
+    // Stop camera when unmounting (e.g., navigating to another page or switching menu/tab)
+    useEffect(() => {
+        const currentVideo = videoRef.current;
+        return () => {
+            // 1. ตรวจสอบและหยุดการทำงานของฮาร์ดแวร์กล้อง (MediaStream Tracks) จาก React State
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            // 2. ตรวจสอบและปลดการเชื่อมต่อสตรีมออกจากแท็ก <video> (DOM Node) โดยตรง เพื่อป้องกัน Memory Leak และเป็นระบบสำรอง (Fallback)
+            if (stream && (currentVideo && currentVideo.srcObject)) {
+                const srcStream = currentVideo.srcObject as MediaStream;
+                if (srcStream?.getTracks) {
+                    srcStream.getTracks().forEach(track => track.stop());
+                }
+                currentVideo.srcObject = null;
+            }
+
+            // 3. ตรวจสอบและหยุดการทำงานของตัวจับเวลา (Interval Timer) ที่ใช้วนรอบตรวจจับใบหน้าในพื้นหลัง
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        };
+    }, [stream]);
+
     // Start camera
     const startCamera = async () => {
         try {
@@ -103,6 +129,9 @@ export default function CheckIn({ location }: CheckInProps) {
     const stopCamera = () => {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
+            if (videoRef.current && videoRef.current.srcObject) {
+                videoRef.current.srcObject = null;
+            }
 
             setStream(null);
             setIsCameraActive(false);
