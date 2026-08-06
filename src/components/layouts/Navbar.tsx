@@ -51,12 +51,17 @@ export default function Navbar() {
         {
             label: 'โปรไฟล์',
             icon: User,
+            href: '/profile',
             action: () => navigate('/profile')
         },
         {
             label: 'ตั้งค่า',
             icon: Settings,
-            action: () => console.log('Navigate to Settings')
+            href: '/settings',
+            action: () => {
+                navigate('/settings');
+                console.log('Navigate to Settings');
+            }
         },
         {
             label: 'ออกจากระบบ',
@@ -229,7 +234,9 @@ export default function Navbar() {
                                                     }}
                                                     className={`w-full flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors duration-150 ${item.danger
                                                         ? 'text-red-600 hover:bg-red-50'
-                                                        : 'text-gray-700 hover:bg-gray-50'
+                                                        : isPathActive(item.href)
+                                                            ? 'text-blue-600 bg-blue-50 font-medium'
+                                                            : 'text-gray-700 hover:bg-gray-50'
                                                         }`}
                                                 >
                                                     <Icon className="w-4 h-4" />
@@ -350,7 +357,9 @@ export default function Navbar() {
                                         }}
                                         className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${item.danger
                                             ? 'text-red-600 hover:bg-red-50'
-                                            : 'text-gray-700 hover:bg-gray-50'
+                                            : isPathActive(item.href)
+                                                ? 'text-blue-600 bg-blue-50'
+                                                : 'text-gray-700 hover:bg-gray-50'
                                             }`}
                                     >
                                         <Icon className="w-4 h-4" />
