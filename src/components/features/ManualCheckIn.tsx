@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-import { UserCheck, LogIn, LogOut, CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { UserCheck, User, LogIn, LogOut, CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
 import moment from 'moment';
 import api from '../../api';
 import ButtonGroupSelect from '../ui/Forms/ButtonGroupSelect';
 import TimePicker from '../ui/Forms/TimePicker';
-import SearchableSelect from '../ui/Forms/SearchableSelect';
-import { type Employee } from '../../lib/types';
+import { useAuth } from '../../hooks/useAuth';
 
 type ManualCheckInProps = {
     distance?: number;
@@ -13,36 +12,20 @@ type ManualCheckInProps = {
 };
 
 export default function ManualCheckIn({ location }: ManualCheckInProps) {
-    const [employees, setEmployees] = useState<Employee[]>([]);
-    const [selectedEmployee, setSelectedEmployee] = useState<string>('');
+    const { user } = useAuth();
+    const employee = user?.employee;
+    const selectedEmployee = employee?.id ? String(employee.id) : '';
+    const employeeName = employee ? `${employee.prefix?.name || ''}${employee.firstname} ${employee.lastname}` : (user?.name || '-');
+    const employeePosition = employee?.position?.name
+        ? `${employee.position.name}${employee.level?.name ? ` ${employee.level.name}` : ''}`
+        : '';
+
     const [checkInType, setCheckInType] = useState<'in' | 'out'>('in');
     const [checkInTime, setCheckInTime] = useState<string>(moment().format('HH:mm'));
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error' | null; text: string }>({ type: null, text: '' });
     const [showUpdateConfirm, setShowUpdateConfirm] = useState<boolean>(false);
     const [pendingUpdateId, setPendingUpdateId] = useState<string | null>(null);
-
-    /** Fetch Employees for manual check-in */
-    useEffect(() => {
-        const fetchEmployees = async () => {
-            try {
-                const res = await api.get('/api/employees');
-                if (res.data) {
-                    const activeEmployees = (res.data || []).filter((e: Employee) => e.status === 1);
-                    setEmployees(activeEmployees);
-                }
-            } catch (err) {
-                console.error('Error fetching employees:', err);
-            }
-        };
-        fetchEmployees();
-    }, []);
-
-    const employeeOptions = employees.map(emp => ({
-        value: String(emp.id),
-        label: `${emp.prefix ? emp.prefix.name : ''}${emp.firstname} ${emp.lastname}`,
-        description: emp.position?.name || ''
-    }));
 
     const getCheckTimeScore = (time: string) => {
         const checkTime = moment(time);
@@ -65,7 +48,7 @@ export default function ManualCheckIn({ location }: ManualCheckInProps) {
 
     const handleManualSubmit = async () => {
         if (!selectedEmployee) {
-            setStatusMessage({ type: 'error', text: 'กรุณาเลือกพนักงานก่อนบันทึก' });
+            setStatusMessage({ type: 'error', text: 'ไม่พบข้อมูลพนักงานของผู้ใช้งานนี้' });
             return;
         }
 
@@ -110,7 +93,6 @@ export default function ManualCheckIn({ location }: ManualCheckInProps) {
                 setStatusMessage({ type: 'success', text: 'ลงเวลาสำเร็จ! บันทึกข้อมูลเรียบร้อยแล้ว' });
                 setTimeout(() => {
                     setStatusMessage({ type: null, text: '' });
-                    setSelectedEmployee('');
                     setShowUpdateConfirm(false);
                     setPendingUpdateId(null);
                 }, 3000);
@@ -158,20 +140,19 @@ export default function ManualCheckIn({ location }: ManualCheckInProps) {
                 <div className="space-y-4">
                     <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                            พนักงาน <span className="text-rose-500">*</span>
+                            ข้อมูลพนักงาน
                         </label>
-                        <SearchableSelect
-                            options={employeeOptions}
-                            value={selectedEmployee}
-                            onChange={(val) => {
-                                setSelectedEmployee(val);
-                                if (statusMessage.type === 'error') setStatusMessage({ type: null, text: '' });
-                            }}
-                            placeholder="ค้นหาและเลือกชื่อพนักงาน..."
-                            searchable={true}
-                            typeToSearch={true}
-                            className="w-full"
-                        />
+                        <div className="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3.5 flex items-center justify-between shadow-sm">
+                            <div>
+                                <p className="text-sm font-bold text-gray-800">{employeeName}</p>
+                                {employeePosition && (
+                                    <p className="text-xs text-indigo-600 font-semibold mt-0.5">{employeePosition}</p>
+                                )}
+                            </div>
+                            <div className="bg-indigo-600 p-2.5 rounded-full text-white shrink-0 shadow-sm shadow-indigo-500/20">
+                                <User className="w-5 h-5" />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Check-in Form similar to CheckIn.tsx */}
