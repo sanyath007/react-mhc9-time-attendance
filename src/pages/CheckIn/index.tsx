@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
-import { CircleChevronLeft, Navigation, NavigationOff, User } from 'lucide-react';
+import { 
+    CircleChevronLeft, Navigation, NavigationOff, User, 
+    ScanFace, UserCheck 
+} from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import CheckIn from '../../components/features/CheckIn';
+import ManualCheckIn from '../../components/features/ManualCheckIn';
 import { useGeolocation } from '../../hooks/useLocation';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
 import HeaderIcon from '../../components/ui/HeaderIcon';
@@ -13,20 +17,13 @@ export default function CheckInContainer() {
     const path = useLocation().pathname;
     const [currentTime, setCurrentTime] = useState(new Date());
     const { calculateDistance } = useGeolocation();
-    const [distance, setDistance] = useState<number>(0);
     const location = useLiveLocation();
+    const distance = location
+        ? calculateDistance(location.latitude, location.longitude, OFFICE_LATITUDE, OFFICE_LONGITUDE)
+        : 0;
 
-    /** Update distance when location changes */
-    useEffect(() => {
-        if (location) {
-            setDistance(calculateDistance(
-                location.latitude,
-                location.longitude,
-                OFFICE_LATITUDE,
-                OFFICE_LONGITUDE
-            ));
-        }
-    }, [location]);
+    /** Tab State */
+    const [activeTab, setActiveTab] = useState<'face' | 'manual'>('face');
 
     /** Update time every second */
     useEffect(() => {
@@ -147,8 +144,8 @@ export default function CheckInContainer() {
                     <div className="text-right">
                         <p className="text-gray-400 font-medium">ความแม่นยำ GPS</p>
                         <p className={`text-sm font-black mt-0.5
-                            ${location?.accuracy! > 50
-                                ? location?.accuracy! > 100
+                            ${(location?.accuracy ?? 0) > 50
+                                ? (location?.accuracy ?? 0) > 100
                                     ? 'text-red-500'
                                     : 'text-amber-500'
                                 : 'text-green-600'}
@@ -159,10 +156,45 @@ export default function CheckInContainer() {
                 </div>
             </div>
 
-            {/* CheckIn Form Component */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-4">
-                <CheckIn distance={distance} location={location} />
+            {/* Tab Container Navigation */}
+            <div className="flex bg-gray-100/80 p-1.5 rounded-2xl border border-gray-200/60 shadow-inner">
+                <button
+                    type="button"
+                    onClick={() => setActiveTab('face')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-bold transition-all duration-200 ${
+                        activeTab === 'face'
+                            ? 'bg-white text-indigo-600 shadow-sm shadow-black/5'
+                            : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'
+                    }`}
+                >
+                    <ScanFace className="w-4 h-4 shrink-0" />
+                    <span className="truncate">สแกนใบหน้าลงเวลา</span>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setActiveTab('manual')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-bold transition-all duration-200 ${
+                        activeTab === 'manual'
+                            ? 'bg-white text-indigo-600 shadow-sm shadow-black/5'
+                            : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'
+                    }`}
+                >
+                    <UserCheck className="w-4 h-4 shrink-0" />
+                    <span className="truncate">ลงเวลาแบบไม่สแกนใบหน้า</span>
+                </button>
             </div>
+
+            {/* Tab Content 1: สแกนใบหน้าลงเวลา */}
+            {activeTab === 'face' && (
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-4 animate-in fade-in duration-200">
+                    <CheckIn distance={distance} location={location} />
+                </div>
+            )}
+
+            {/* Tab Content 2: ลงเวลาแบบไม่สแกนใบหน้า */}
+            {activeTab === 'manual' && (
+                <ManualCheckIn distance={distance} location={location} />
+            )}
         </div>
     );
 }
