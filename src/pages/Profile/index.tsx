@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import EmployeeAvatar from '../../components/features/EmployeeAvatar';
@@ -14,10 +15,36 @@ import {
 } from 'lucide-react';
 
 export default function Profile() {
-    const { user } = useAuth();
+    const { user, oauthToken } = useAuth();
     const employee = user?.employee;
     const hasFace = !!employee?.face_descriptor;
     const isAdmin = user?.permissions?.[0]?.role_id === 1;
+
+    const [locationData, setLocationData] = useState<{ tambon: any; amphur: any; changwat: any } | null>(null);
+
+    useEffect(() => {
+        const fetchLocation = async () => {
+            // Check if tambon_id exists (ignoring typescript error if it's missing in types)
+            const tambonId = (employee as any)?.tambon_id;
+            if (!tambonId) return;
+
+            try {
+                const response = await fetch(`${import.meta.env.VITE_OAUTH_API_URL}/locations/${tambonId}`, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${oauthToken}`,
+                    },
+                });
+                const data = await response.json();
+
+                setLocationData(data);
+            } catch (error) {
+                console.error('Failed to fetch location data:', error);
+            }
+        };
+
+        fetchLocation();
+    }, [employee]);
 
     // Format employee ID
     const empIdStr = employee?.id
@@ -195,17 +222,17 @@ export default function Profile() {
                             </div>
                             <div className="space-y-1 bg-gray-50/40 p-3 rounded-2xl border border-gray-100">
                                 <span className="text-gray-400 font-semibold block">ตำบล / แขวง</span>
-                                <span className="font-bold text-gray-800">{employee?.tambon || 'ไม่ได้ระบุ'}</span>
+                                <span className="font-bold text-gray-800">{locationData?.tambon && locationData?.tambon.name || 'ไม่ได้ระบุ'}</span>
                             </div>
                             <div className="space-y-1 bg-gray-50/40 p-3 rounded-2xl border border-gray-100">
                                 <span className="text-gray-400 font-semibold block">อำเภอ / เขต</span>
-                                <span className="font-bold text-gray-800">{employee?.amphur || 'ไม่ได้ระบุ'}</span>
+                                <span className="font-bold text-gray-800">{locationData?.amphur && locationData?.amphur.name || 'ไม่ได้ระบุ'}</span>
                             </div>
                             <div className="space-y-1 bg-gray-50/40 p-3 rounded-2xl border border-gray-100">
                                 <span className="text-gray-400 font-semibold block">จังหวัด</span>
                                 <span className="font-bold text-gray-800 flex items-center gap-1">
                                     <Map className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                    {employee?.changwat || 'ไม่ได้ระบุ'}
+                                    {locationData?.changwat && locationData?.changwat.name || 'ไม่ได้ระบุ'}
                                 </span>
                             </div>
                             <div className="space-y-1 bg-gray-50/40 p-3 rounded-2xl border border-gray-100 md:col-span-2">
