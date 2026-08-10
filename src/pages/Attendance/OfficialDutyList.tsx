@@ -69,7 +69,6 @@ const OfficialDutyList = () => {
                             .sort((a: any, b: any) => moment(a.OTDateBack).diff(moment(b.OTDateBack)))
                             .map((e: any) => moment(e.OTDateBack).toDate().getTime())
                     )).format('DD/MM/YYYY');
-                    console.log('start', start, 'end', end);
 
                     return {
                         id: employee.EmId,
@@ -118,7 +117,7 @@ const OfficialDutyList = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 mb-6">
                 <div className="flex items-center gap-4">
-                    <Link to="/attendance" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <Link to="/attendance/daily" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                         <ArrowLeft className="w-6 h-6 text-gray-500" />
                     </Link>
                     <div className="bg-gradient-to-tr from-purple-600 to-fuchsia-500 p-3 rounded-xl shadow-md shadow-purple-500/20">

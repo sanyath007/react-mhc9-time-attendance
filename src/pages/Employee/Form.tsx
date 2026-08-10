@@ -386,11 +386,11 @@ export default function EmployeeForm() {
 
         // Tab 3 validation
         if (!formData.position_id) newErrors.position_id = 'กรุณาเลือกตำแหน่งงาน';
-        if (!formData.level_id) newErrors.level_id = 'กรุณาเลือกระดับ';
+        // if (!formData.level_id) newErrors.level_id = 'กรุณาเลือกระดับ';
         if (!formData.started_at) newErrors.started_at = 'กรุณาเลือกวันที่เริ่มงาน';
         if (!formData.assigned_at) newErrors.assigned_at = 'กรุณาเลือกวันที่บรรจุ/มอบหมาย';
         if (!formData.department_id) newErrors.department_id = 'กรุณาเลือกฝ่าย/กลุ่มงาน';
-        if (!formData.division_id) newErrors.division_id = 'กรุณาเลือกงาน/สาขา';
+        // if (!formData.division_id) newErrors.division_id = 'กรุณาเลือกงาน/สาขา';
         if (!formData.duty_id) newErrors.duty_id = 'กรุณาเลือกบทบาทหน้าที่';
 
         // Camera validation
@@ -583,7 +583,7 @@ export default function EmployeeForm() {
                         <button
                             type="button"
                             onClick={() => setActiveTab('general')}
-                            className={`flex-1 pb-3 text-[11px] font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'general'
+                            className={`flex-1 pb-3 text-sm font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'general'
                                 ? 'border-blue-600 text-blue-600'
                                 : 'border-transparent text-gray-400 hover:text-gray-600'
                                 }`}
@@ -599,7 +599,7 @@ export default function EmployeeForm() {
                         <button
                             type="button"
                             onClick={() => setActiveTab('contact')}
-                            className={`flex-1 pb-3 text-[11px] font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'contact'
+                            className={`flex-1 pb-3 text-sm font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'contact'
                                 ? 'border-blue-600 text-blue-600'
                                 : 'border-transparent text-gray-400 hover:text-gray-600'
                                 }`}
@@ -615,7 +615,7 @@ export default function EmployeeForm() {
                         <button
                             type="button"
                             onClick={() => setActiveTab('work')}
-                            className={`flex-1 pb-3 text-[11px] font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'work'
+                            className={`flex-1 pb-3 text-sm font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'work'
                                 ? 'border-blue-600 text-blue-600'
                                 : 'border-transparent text-gray-400 hover:text-gray-600'
                                 }`}

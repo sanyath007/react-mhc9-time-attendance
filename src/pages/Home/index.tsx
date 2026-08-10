@@ -276,7 +276,7 @@ export default function Home() {
                         </Link>
 
                         <Link
-                            to="/attendance"
+                            to="/attendance/daily"
                             className="group p-5 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/50 to-cyan-50/50 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 hover:shadow-md hover:-translate-y-1 flex items-start gap-4"
                         >
                             <div className="bg-blue-500 p-3 rounded-xl text-white group-hover:scale-110 transition-transform duration-300 shadow-sm shadow-blue-200">
@@ -310,7 +310,7 @@ export default function Home() {
                             <h2 className="text-lg font-bold text-gray-900">เข้างานล่าสุด</h2>
                             <p className="text-xs text-gray-500">5 รายการล่าสุดของวันนี้</p>
                         </div>
-                        <Link to="/attendance" className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-indigo-600 transition-colors">
+                        <Link to="/attendance/daily" className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-indigo-600 transition-colors">
                             <ChevronRight className="w-4 h-4" />
                         </Link>
                     </div>

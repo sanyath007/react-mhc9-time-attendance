@@ -99,7 +99,7 @@ const LeaveList = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 mb-6">
                 <div className="flex items-center gap-4">
-                    <Link to="/attendance" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <Link to="/attendance/daily" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                         <ArrowLeft className="w-6 h-6 text-gray-500" />
                     </Link>
                     <div className="bg-gradient-to-tr from-amber-500 to-yellow-400 p-3 rounded-xl shadow-md shadow-amber-500/20">

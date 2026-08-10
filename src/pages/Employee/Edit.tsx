@@ -170,9 +170,11 @@ export default function EmployeeEdit() {
         fetchEmployee();
     }, [id]);
 
-    const filteredDistricts = useMemo(() => districts.filter(d => d.chw_id === formData.changwat_id), [formData.changwat_id]);
-    const filteredSubdistricts = useMemo(() => subdistricts.filter(s => s.amp_id === formData.amphur_id), [formData.amphur_id]);
-    const filteredDivisions = useMemo(() => divisions.filter(div => div.department_id === formData.department_id), [formData.department_id]);
+    const filteredDistricts = useMemo(() => districts.filter(d => d.chw_id.toString() === formData.changwat_id.toString()), [formData]);
+    const filteredSubdistricts = useMemo(() => subdistricts.filter(s => s.amp_id.toString() === formData.amphur_id.toString()), [filteredDistricts, formData]);
+    const filteredDivisions = useMemo(() => divisions.filter(div => div.department_id.toString() === formData.department_id.toString()), [formData.department_id]);
+
+    console.log(formData);
 
     const handleSelectChange = (name: keyof EmployeeData, value: string) => {
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -251,11 +253,11 @@ export default function EmployeeEdit() {
         if (!formData.amphur_id) newErrors.amphur_id = 'กรุณาเลือกอำเภอ';
         if (!formData.zipcode) newErrors.zipcode = 'กรุณากรอกรหัสไปรษณีย์';
         if (!formData.position_id) newErrors.position_id = 'กรุณาเลือกตำแหน่งงาน';
-        if (!formData.level_id) newErrors.level_id = 'กรุณาเลือกระดับ';
+        // if (!formData.level_id) newErrors.level_id = 'กรุณาเลือกระดับ';
         if (!formData.started_at) newErrors.started_at = 'กรุณาเลือกวันที่เริ่มงาน';
         if (!formData.assigned_at) newErrors.assigned_at = 'กรุณาเลือกวันที่บรรจุ/มอบหมาย';
         if (!formData.department_id) newErrors.department_id = 'กรุณาเลือกฝ่าย/กลุ่มงาน';
-        if (!formData.division_id) newErrors.division_id = 'กรุณาเลือกงาน/สาขา';
+        // if (!formData.division_id) newErrors.division_id = 'กรุณาเลือกงาน/สาขา';
         if (!formData.duty_id) newErrors.duty_id = 'กรุณาเลือกบทบาทหน้าที่';
 
         setErrors(newErrors);
@@ -409,7 +411,7 @@ export default function EmployeeEdit() {
                     <button
                         type="button"
                         onClick={() => setActiveTab('general')}
-                        className={`flex-1 pb-3 text-[11px] font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'general'
+                        className={`flex-1 pb-3 text-sm font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'general'
                             ? 'border-blue-600 text-blue-600'
                             : 'border-transparent text-gray-400 hover:text-gray-600'
                             }`}
@@ -425,7 +427,7 @@ export default function EmployeeEdit() {
                     <button
                         type="button"
                         onClick={() => setActiveTab('contact')}
-                        className={`flex-1 pb-3 text-[11px] font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'contact'
+                        className={`flex-1 pb-3 text-sm font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'contact'
                             ? 'border-blue-600 text-blue-600'
                             : 'border-transparent text-gray-400 hover:text-gray-600'
                             }`}
@@ -441,7 +443,7 @@ export default function EmployeeEdit() {
                     <button
                         type="button"
                         onClick={() => setActiveTab('work')}
-                        className={`flex-1 pb-3 text-[11px] font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'work'
+                        className={`flex-1 pb-3 text-sm font-black uppercase tracking-wider border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'work'
                             ? 'border-blue-600 text-blue-600'
                             : 'border-transparent text-gray-400 hover:text-gray-600'
                             }`}
@@ -803,7 +805,7 @@ export default function EmployeeEdit() {
                                     </label>
                                     <SearchableSelect
                                         options={provinces.map(p => ({ value: p.id.toString(), label: p.name }))}
-                                        value={formData.changwat_id}
+                                        value={formData.changwat_id.toString()}
                                         onChange={(val) => {
                                             handleSelectChange('changwat_id', val);
                                         }}
@@ -823,7 +825,7 @@ export default function EmployeeEdit() {
                                     </label>
                                     <SearchableSelect
                                         options={filteredDistricts.map(d => ({ value: d.id.toString(), label: d.name }))}
-                                        value={formData.amphur_id}
+                                        value={formData.amphur_id.toString()}
                                         disabled={!formData.changwat_id}
                                         onChange={(val) => {
                                             handleSelectChange('amphur_id', val);
@@ -844,7 +846,7 @@ export default function EmployeeEdit() {
                                     </label>
                                     <SearchableSelect
                                         options={filteredSubdistricts.map(s => ({ value: s.id.toString(), label: s.name }))}
-                                        value={formData.tambon_id}
+                                        value={formData.tambon_id.toString()}
                                         disabled={!formData.amphur_id}
                                         onChange={(val) => {
                                             handleSelectChange('tambon_id', val);
