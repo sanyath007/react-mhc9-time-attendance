@@ -359,8 +359,10 @@ export default function EmployeeList() {
                                 </div>
 
                                 {/* Employee Name */}
-                                <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                    {employee.firstname} {employee.lastname}
+                                <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors cursor-pointer">
+                                    <Link to={`/employee/${employee.id}`} className="hover:underline">
+                                        {employee.firstname} {employee.lastname}
+                                    </Link>
                                 </h3>
 
                                 {/* Position Details */}
@@ -452,7 +454,9 @@ export default function EmployeeList() {
 
                                     <div className="min-w-0">
                                         <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                                            {employee.firstname} {employee.lastname}
+                                            <Link to={`/employee/${employee.id}`} className="hover:text-blue-600 hover:underline">
+                                                {employee.firstname} {employee.lastname}
+                                            </Link>
                                             <span className="text-xs font-normal text-gray-300 hidden sm:inline">|</span>
                                             <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded hidden sm:inline">
                                                 <EmployeePosition

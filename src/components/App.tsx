@@ -7,6 +7,7 @@ import Login from '../pages/Auth/Login'
 import EmployeeList from '../pages/Employee/List'
 import EmployeeForm from '../pages/Employee/Form'
 import EmployeeEdit from '../pages/Employee/Edit'
+import EmployeeDetail from '../pages/Employee/Detail'
 import AttendanceList from '../pages/Attendance/List'
 import LeaveList from '../pages/Attendance/LeaveList'
 import OfficialDutyList from '../pages/Attendance/OfficialDutyList'
@@ -31,6 +32,7 @@ function App() {
 
                     <Route path="/employee" element={<EmployeeList />} />
                     <Route path="/employee/register" element={<EmployeeForm />} />
+                    <Route path="/employee/:id" element={<EmployeeDetail />} />
                     <Route path="/employee/:id/edit" element={<EmployeeEdit />} />
                     <Route path="/employee/:id/face" element={<EmployeeFaceRegistration />} />
                     <Route path="/profile" element={<Profile />} />
