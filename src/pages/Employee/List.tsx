@@ -38,7 +38,7 @@ export default function EmployeeList() {
     });
 
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = viewMode === 'grid' ? 9 : 10;
 
     useEffect(() => {
         setCurrentPage(1);
