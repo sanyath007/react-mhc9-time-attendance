@@ -82,7 +82,7 @@ export default function Navbar() {
             icon: Home
         },
         {
-            label: 'ลงเวลาทำงาน',
+            label: 'บันทึกเวลาทำงาน',
             icon: FolderKanban,
             dropdown: [
                 { label: 'ลงเวลาทำงาน', href: '/attendance/check-in', icon: History },

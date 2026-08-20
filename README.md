@@ -74,7 +74,8 @@ export default defineConfig([
 
 ## Before build app
 1. set VITE_API_URL to production url in .env file
-2. set property "homepage": "https://app.mhc9dmh.com/check-in/" in package.json
-3. set prop basename="/check-in" to Router component
-4. set option base: '/check-in' in vite.config.ts
-5. remove email and password values of initialValues prop in Login view (optional)
+2. update VITE_ROOT_PATH=/check-in in .env file
+3. set property "homepage": "https://app.mhc9dmh.com/check-in/" in package.json
+4. set prop basename="/check-in" to Router component
+5. set option base: '/check-in' in vite.config.ts
+6. remove email and password values of initialValues prop in Login view (optional)

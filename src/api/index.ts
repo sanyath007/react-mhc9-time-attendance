@@ -1,8 +1,8 @@
 import axios from "axios";
 import { verifyToken } from "../lib/utils/token";
 
-console.log(import.meta.env.VITE_API_URL);
-
+console.log(import.meta.env.VITE_ROOT_PATH);
+const ROOT_PATH = import.meta.env.VITE_ROOT_PATH
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL
 });
@@ -27,7 +27,7 @@ api.interceptors.request.use(
                 /** TODO: should use this code line as utils function */
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('auth_user');
-                window.location.href = "/";
+                window.location.href = `${ROOT_PATH}/login`;
             }
 
             /** If access token is valid append it as Authorization Bearer */
@@ -56,7 +56,7 @@ api.interceptors.response.use(
             /** TODO: should use this code line as utils function */
             localStorage.removeItem('access_token');
             localStorage.removeItem('auth_user');
-            window.location.href = "/";
+            window.location.href = `${ROOT_PATH}/login`;
         }
 
         return Promise.reject(error);
