@@ -153,9 +153,14 @@ export default function EmployeeEdit() {
                 const response = await api.get(`/api/employees/${id}`);
                 if (response.data) {
                     const emp = response.data;
+                    const memberOf = emp.member_of.find((m: any) => m.is_primary === 1) || {};
+
                     setFormData({
                         ...initialEmployeeData,
                         ...emp,
+                        duty_id: memberOf.duty_id,
+                        department_id: memberOf.department_id,
+                        division_id: memberOf.division_id,
                         birthdate: emp.birthdate ? emp.birthdate.split('T')[0] : '',
                         started_at: emp.started_at ? emp.started_at.split('T')[0] : '',
                         assigned_at: emp.assigned_at ? emp.assigned_at.split('T')[0] : ''
@@ -173,8 +178,6 @@ export default function EmployeeEdit() {
     const filteredDistricts = useMemo(() => districts.filter(d => d.chw_id.toString() === formData.changwat_id.toString()), [formData]);
     const filteredSubdistricts = useMemo(() => subdistricts.filter(s => s.amp_id.toString() === formData.amphur_id.toString()), [filteredDistricts, formData]);
     const filteredDivisions = useMemo(() => divisions.filter(div => div.department_id.toString() === formData.department_id.toString()), [formData.department_id]);
-
-    console.log(formData);
 
     const handleSelectChange = (name: keyof EmployeeData, value: string) => {
         setFormData(prev => ({ ...prev, [name]: value }));
