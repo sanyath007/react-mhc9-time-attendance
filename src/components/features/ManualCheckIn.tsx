@@ -174,7 +174,18 @@ export default function ManualCheckIn({ location }: ManualCheckInProps) {
                                         }
                                     ]}
                                     value={checkInType}
-                                    onChange={(val) => setCheckInType(val as 'in' | 'out')}
+                                    onChange={(val) => {
+                                        const type = val as 'in' | 'out';
+                                        setCheckInType(type);
+                                        if (type === 'out') {
+                                            setCheckInTime('16:30');
+                                        } else {
+                                            const now = new Date();
+                                            const hours = String(now.getHours()).padStart(2, '0');
+                                            const minutes = String(now.getMinutes()).padStart(2, '0');
+                                            setCheckInTime(`${hours}:${minutes}`);
+                                        }
+                                    }}
                                     containerCss="rounded-lg h-[50px]"
                                     buttonCss="h-[34px] !py-2.5 !rounded-lg"
                                 />
