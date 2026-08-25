@@ -87,7 +87,7 @@ export default function ManualCheckIn({ location }: ManualCheckInProps) {
                 formData.append('longitude', location.longitude.toString());
             }
 
-            const endpoint = updateAttendanceId ? `/api/time-attendance/update/${updateAttendanceId}` : '/api/time-attendance/create';
+            const endpoint = updateAttendanceId ? `/api/attendances/${updateAttendanceId}/update` : '/api/attendances';
             const response = await api.post(endpoint, formData);
             if (response.status === 200 || response.statusText === 'OK') {
                 setStatusMessage({ type: 'success', text: 'ลงเวลาสำเร็จ! บันทึกข้อมูลเรียบร้อยแล้ว' });
@@ -122,11 +122,10 @@ export default function ManualCheckIn({ location }: ManualCheckInProps) {
 
                 {/* Status Feedback Message */}
                 {statusMessage.text && (
-                    <div className={`border rounded-xl p-4 flex items-center gap-3 animate-in fade-in duration-200 ${
-                        statusMessage.type === 'success'
-                            ? 'bg-emerald-50/80 border-emerald-200 text-emerald-700'
-                            : 'bg-rose-50/80 border-rose-200 text-rose-600'
-                    }`}>
+                    <div className={`border rounded-xl p-4 flex items-center gap-3 animate-in fade-in duration-200 ${statusMessage.type === 'success'
+                        ? 'bg-emerald-50/80 border-emerald-200 text-emerald-700'
+                        : 'bg-rose-50/80 border-rose-200 text-rose-600'
+                        }`}>
                         {statusMessage.type === 'success' ? (
                             <CheckCircle className="w-5 h-5 shrink-0 text-emerald-500" />
                         ) : (
