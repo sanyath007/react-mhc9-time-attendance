@@ -81,7 +81,7 @@ export default function EmployeeList() {
     // Calculate Summary Stats
     const stats = useMemo(() => {
         const total = activeEmployees.length;
-        const registered = activeEmployees.filter(e => !!e.face_descriptor).length;
+        const registered = activeEmployees.filter(e => !!e.isRegistered).length;
         const pending = total - registered;
         return { total, registered, pending };
     }, [activeEmployees]);
@@ -105,7 +105,7 @@ export default function EmployeeList() {
                 level.includes(search);
 
             // Status filter match
-            const hasFace = !!employee.face_descriptor;
+            const hasFace = !!employee.isRegistered;
             if (statusFilter === "registered") {
                 return matchesSearch && hasFace;
             } else if (statusFilter === "pending") {
@@ -335,7 +335,7 @@ export default function EmployeeList() {
                 /* Grid View Layout */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {paginatedEmployees.map((employee: Employee) => {
-                        const isRegistered = !!employee.face_descriptor;
+                        const isRegistered = !!employee.isRegistered;
                         return (
                             <div
                                 key={employee.id}
@@ -431,7 +431,7 @@ export default function EmployeeList() {
                 /* List View Layout */
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
                     {paginatedEmployees.map((employee: Employee) => {
-                        const isRegistered = !!employee.face_descriptor;
+                        const isRegistered = !!employee.isRegistered;
                         return (
                             <div
                                 key={employee.id}

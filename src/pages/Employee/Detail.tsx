@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import EmployeeAvatar from '../../components/features/EmployeeAvatar';
-import api from '../../api';
 import {
     User,
     Mail,
@@ -13,14 +10,18 @@ import {
     Map,
     ArrowLeft
 } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import api from '../../api';
+import EmployeeAvatar from '../../components/features/EmployeeAvatar';
+import { type Employee } from '../../lib/types';
 
 export default function EmployeeDetail() {
     const { id } = useParams<{ id: string }>();
     const { user, oauthToken } = useAuth();
-    const [employee, setEmployee] = useState<any>(null);
+    const [employee, setEmployee] = useState<Employee | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const hasFace = !!employee?.face_descriptor;
+    const hasFace = !!employee?.isRegistered;
     const isAdmin = user?.permissions?.[0]?.role_id === 1;
 
     const [locationData, setLocationData] = useState<{ tambon: any; amphur: any; changwat: any } | null>(null);
@@ -46,7 +47,7 @@ export default function EmployeeDetail() {
     // Fetch location data
     useEffect(() => {
         const fetchLocation = async () => {
-            const tambonId = employee?.tambon_id;
+            const tambonId = employee?.tambon.id;
             if (!tambonId) return;
 
             try {
@@ -171,7 +172,7 @@ export default function EmployeeDetail() {
                                 className="w-full inline-flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-indigo-500/10 hover:shadow-lg cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
                             >
                                 <ScanFace className="w-4 h-4" />
-                                <span>จัดการรูปใบหน้า</span>
+                                <span>อัปเดตใบหน้า</span>
                             </Link>
                             <Link
                                 to={`/employee/${employee.id}/edit`}

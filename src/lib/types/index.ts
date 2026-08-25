@@ -23,6 +23,7 @@ export type Employee = {
     status: number;
     position: EmployeePosition;
     level: EmployeeLevel;
+    isRegistered?: boolean;
     face_descriptor?: string;
     address_no?: string;
     tel?: string;
