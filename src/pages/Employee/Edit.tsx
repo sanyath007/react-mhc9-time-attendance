@@ -81,9 +81,10 @@ const initialEmployeeData: EmployeeData = {
 };
 
 const duties = [
+    { id: 1, name: 'ผู้อำนวยการ' },
+    { id: 2, name: 'หัวหน้ากลุ่มงาน' },
+    { id: 3, name: 'หัวหน้างาน' },
     { id: 4, name: 'ผู้ปฏิบัติงาน' },
-    { id: 1, name: 'หัวหน้างาน' },
-    { id: 2, name: 'ผู้บริหาร' }
 ];
 
 type OptionItem = { id: number | string; name: string;[key: string]: any };
@@ -283,7 +284,7 @@ export default function EmployeeEdit() {
         setRegistrationStatus('processing');
         try {
             const dataToSubmit = { ...formData };
-            const response = await api.put(`/api/employees/${id}`, dataToSubmit);
+            const response = await api.post(`/api/employees/${id}/update`, dataToSubmit);
             if (response.status === 200 || response.status === 201) {
                 setRegistrationStatus('success');
                 setTimeout(() => {
