@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, History, CalendarClock } from 'lucide-react';
+import { User, Settings, LogOut, Menu, X, ChevronDown, Home, FolderKanban, Users, Mail, History, CalendarClock, ListTodo, CircleCheckBig, ChartColumn } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import EmployeeAvatar from '../features/EmployeeAvatar';
 
@@ -26,6 +26,7 @@ export default function Navbar() {
     const { user, logout } = useAuth();
     const userMenuRef = useRef<HTMLDivElement | null>(null); // User menu
     const canAccessEmployee = user?.permissions?.[0]?.role_id === 1 || user?.permissions?.[0]?.role_id === 7;
+    const isApproverRole = user?.permissions?.[0]?.role_id === 7;
     const navMenuRef = useRef<HTMLDivElement | null>(null);
 
     // ปิด dropdown เมื่อคลิกข้างนอก
@@ -88,8 +89,14 @@ export default function Navbar() {
                 { label: 'ลงเวลาทำงาน', href: '/attendance/check-in', icon: History },
                 { divider: true },
                 { label: 'รายการลงเวลา', href: '/attendance/daily', icon: CalendarClock, highlight: false },
-                // { label: 'โปรเจกต์ที่แชร์', href: '#', icon: Users },
-                // { label: 'สร้างโปรเจกต์ใหม่', href: '#', icon: FileText, highlight: true }
+                ...(isApproverRole ? [
+                    { divider: true },
+                    { label: 'ตรวจสอบข้อมูล (HR)', href: '/attendance/hr-review', icon: ListTodo },
+                    { divider: true },
+                    { label: 'อนุมัติการลงเวลา (ผอ.)', href: '/attendance/director-approval', icon: CircleCheckBig || History },
+                    { divider: true },
+                    { label: 'รายงานสรุปยอด', href: '/attendance/summary', icon: ChartColumn || History }
+                ] : [])
             ]
         },
         ...(canAccessEmployee ? [{

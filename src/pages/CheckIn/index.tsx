@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import moment from 'moment';
 import { 
     CircleChevronLeft, Navigation, NavigationOff, User, 
     ScanFace, UserCheck 
@@ -10,6 +11,7 @@ import { useGeolocation } from '../../hooks/useLocation';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
 import { useAuth } from '../../hooks/useAuth';
 import HeaderIcon from '../../components/ui/HeaderIcon';
+import { getDailyApprovalStatus } from '../../lib/mockApproval';
 
 const OFFICE_LATITUDE = import.meta.env.VITE_OFFICE_LATITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LATITUDE) : 14.98326727612899;
 const OFFICE_LONGITUDE = import.meta.env.VITE_OFFICE_LONGITUDE ? parseFloat(import.meta.env.VITE_OFFICE_LONGITUDE) : 102.10488443930059;
@@ -26,6 +28,9 @@ export default function CheckInContainer() {
 
     /** Tab State */
     const [activeTab, setActiveTab] = useState<'face' | 'manual'>('face');
+    const [isApproved, setIsApproved] = useState(() => {
+        return getDailyApprovalStatus(moment().format('YYYY-MM-DD')) === 'DIRECTOR_APPROVED';
+    });
 
     /** Update time every second */
     useEffect(() => {
@@ -159,7 +164,17 @@ export default function CheckInContainer() {
             </div>
 
             {/* Tab Container & Content */}
-            {isAuthenticated ? (
+            {isApproved ? (
+                <div className="bg-white rounded-2xl border border-rose-100 shadow-xl p-8 text-center animate-in fade-in duration-200">
+                    <div className="mx-auto bg-rose-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                        <NavigationOff className="w-8 h-8 text-rose-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">ระบบปิดรับการลงเวลา</h3>
+                    <p className="text-sm text-gray-500">
+                        ข้อมูลการลงเวลาของวันนี้ได้รับการอนุมัติจากผู้อำนวยการเรียบร้อยแล้ว<br/>จึงไม่สามารถลงเวลาเพิ่มเติมได้
+                    </p>
+                </div>
+            ) : isAuthenticated ? (
                 <>
                     {/* Tab Container Navigation */}
                     <div className="flex bg-gray-100/80 p-1.5 rounded-2xl border border-gray-200/60 shadow-inner">

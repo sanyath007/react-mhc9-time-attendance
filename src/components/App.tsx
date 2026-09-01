@@ -17,6 +17,9 @@ import Profile from '../pages/Profile'
 import Contact from '../pages/Contact'
 import DefaultLayout from './layouts/Default'
 import Settings from '../pages/Settings'
+import HRReview from '../pages/Attendance/HRReview'
+import DirectorApproval from '../pages/Attendance/DirectorApproval'
+import SummaryReport from '../pages/Attendance/SummaryReport'
 
 function App() {
     return (
@@ -27,6 +30,9 @@ function App() {
 
                     <Route path="/attendance/daily" element={<AttendanceList />} />
                     <Route path="/attendance/check-in" element={<CheckInContainer />} />
+                    <Route path="/attendance/hr-review" element={<HRReview />} />
+                    <Route path="/attendance/director-approval" element={<DirectorApproval />} />
+                    <Route path="/attendance/summary" element={<SummaryReport />} />
                     <Route path="/leave" element={<LeaveList />} />
                     <Route path="/official-duty" element={<OfficialDutyList />} />
 
